@@ -344,54 +344,62 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // Calculate price based on selected options
     function calculatePrice() {
-        let totalPrice = 0;
-        const hubPrices = {};
+        try {
+            let totalPrice = 0;
+            const hubPrices = {};
 
-        if (state.mode === 'platform') {
-            totalPrice = calculatePlatformPrice();
-            if (totalPrice > 0) {
-                hubPrices['HubSpot Platform'] = totalPrice;
-            }
-        } else {
-            // Custom solution pricing
-            if (state.marketingTier !== 'none') {
-                const price = calculateMarketingPrice();
-                if (price > 0) {
-                    hubPrices['Marketing Hub'] = price;
-                    totalPrice += price;
+            if (state.mode === 'platform') {
+                totalPrice = calculatePlatformPrice();
+                if (totalPrice > 0) {
+                    hubPrices['HubSpot Platform'] = totalPrice;
+                }
+            } else {
+                // Custom solution pricing
+                if (state.marketingTier !== 'none') {
+                    const price = calculateMarketingPrice();
+                    if (price > 0) {
+                        hubPrices['Marketing Hub'] = price;
+                        totalPrice += price;
+                    }
+                }
+                if (state.salesTier !== 'none') {
+                    const price = calculateSalesPrice();
+                    if (price > 0) {
+                        hubPrices['Sales Hub'] = price;
+                        totalPrice += price;
+                    }
+                }
+                if (state.serviceTier !== 'none') {
+                    const price = calculateServicePrice();
+                    if (price > 0) {
+                        hubPrices['Service Hub'] = price;
+                        totalPrice += price;
+                    }
+                }
+                if (state.contentTier !== 'none') {
+                    const price = calculateContentPrice();
+                    if (price > 0) {
+                        hubPrices['Content Hub'] = price;
+                        totalPrice += price;
+                    }
+                }
+                if (state.operationsTier !== 'none') {
+                    const price = calculateOperationsPrice();
+                    if (price > 0) {
+                        hubPrices['Operations Hub'] = price;
+                        totalPrice += price;
+                    }
                 }
             }
-            if (state.salesTier !== 'none') {
-                const price = calculateSalesPrice();
-                if (price > 0) {
-                    hubPrices['Sales Hub'] = price;
-                    totalPrice += price;
-                }
-            }
-            if (state.serviceTier !== 'none') {
-                const price = calculateServicePrice();
-                if (price > 0) {
-                    hubPrices['Service Hub'] = price;
-                    totalPrice += price;
-                }
-            }
-            if (state.contentTier !== 'none') {
-                const price = calculateContentPrice();
-                if (price > 0) {
-                    hubPrices['Content Hub'] = price;
-                    totalPrice += price;
-                }
-            }
-            if (state.operationsTier !== 'none') {
-                const price = calculateOperationsPrice();
-                if (price > 0) {
-                    hubPrices['Operations Hub'] = price;
-                    totalPrice += price;
-                }
-            }
+
+            // Ensure totalPrice is a valid number
+            totalPrice = isNaN(totalPrice) ? 0 : totalPrice;
+
+            updatePriceDisplay(totalPrice, hubPrices);
+        } catch (error) {
+            console.error('Error calculating price:', error);
+            updatePriceDisplay(0, {});
         }
-
-        updatePriceDisplay(totalPrice, hubPrices);
     }
 
     function calculatePlatformPrice() {
@@ -447,18 +455,28 @@ document.addEventListener('DOMContentLoaded', function() {
         return tier ? tier.base : 0;
     }
 
+    // Update price display
     function updatePriceDisplay(totalPrice, hubPrices) {
-        if (elements.hubPricesElement && elements.totalPriceElement) {
-            // Format hub prices
-            const hubPricesHtml = Object.entries(hubPrices).map(([name, price]) => `
-                <div class="hub-price">
-                    <span class="hub-name">${escapeHtml(name)}</span>
-                    <span class="hub-price-value">${formatPrice(price)}</span>
-                </div>
-            `).join('');
+        try {
+            if (elements.hubPricesElement && elements.totalPriceElement) {
+                // Format hub prices
+                const hubPricesHtml = Object.entries(hubPrices).map(([name, price]) => `
+                    <div class="hub-price">
+                        <span class="hub-name">${escapeHtml(name)}</span>
+                        <span class="hub-price-value">${formatPrice(price)}</span>
+                    </div>
+                `).join('');
 
-            elements.hubPricesElement.innerHTML = hubPricesHtml;
-            elements.totalPriceElement.textContent = formatPrice(totalPrice);
+                // Update the display safely
+                requestAnimationFrame(() => {
+                    elements.hubPricesElement.innerHTML = hubPricesHtml;
+                    elements.totalPriceElement.textContent = formatPrice(totalPrice);
+                });
+            }
+        } catch (error) {
+            console.error('Error updating price display:', error);
+            if (elements.hubPricesElement) elements.hubPricesElement.innerHTML = '';
+            if (elements.totalPriceElement) elements.totalPriceElement.textContent = formatPrice(0);
         }
     }
 
