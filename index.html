@@ -7,6 +7,93 @@
     <base href="/HubSpot-Hinnoittelulaskuri/">
     <link rel="stylesheet" href="styles.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        .footer {
+            background-color: #f8f9fa;
+            padding: 3rem 0 1rem;
+            margin-top: 4rem;
+            border-top: 1px solid #e9ecef;
+        }
+
+        .footer-content {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 1rem;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 2rem;
+        }
+
+        .footer-section {
+            margin-bottom: 1.5rem;
+        }
+
+        .footer-section h4 {
+            color: #2c3e50;
+            margin-bottom: 1rem;
+            font-size: 1.1rem;
+        }
+
+        .footer-section p {
+            color: #6c757d;
+            margin-bottom: 0.5rem;
+            line-height: 1.5;
+        }
+
+        .footer-section ul {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+
+        .footer-section ul li {
+            margin-bottom: 0.5rem;
+        }
+
+        .footer-section ul li a {
+            color: #6c757d;
+            text-decoration: none;
+            transition: color 0.2s;
+        }
+
+        .footer-section ul li a:hover {
+            color: #0056b3;
+        }
+
+        .footer-brand {
+            color: #0056b3;
+            font-weight: 600;
+            text-decoration: none;
+            transition: color 0.2s;
+        }
+
+        .footer-brand:hover {
+            color: #003d82;
+        }
+
+        .footer-bottom {
+            text-align: center;
+            margin-top: 2rem;
+            padding-top: 1rem;
+            border-top: 1px solid #e9ecef;
+        }
+
+        .footer-bottom p {
+            color: #6c757d;
+            font-size: 0.9rem;
+        }
+
+        @media (max-width: 768px) {
+            .footer-content {
+                grid-template-columns: 1fr;
+                text-align: center;
+            }
+
+            .footer-section {
+                margin-bottom: 2rem;
+            }
+        }
+    </style>
 </head>
 <body>
     <div class="container">
@@ -202,10 +289,27 @@
 
     <footer class="footer">
         <div class="footer-content">
-            <span class="footer-text">Palvelun tuottaa:</span>
-            <a href="https://www.salescommunications.fi" target="_blank" rel="noopener noreferrer" class="footer-brand">
-                Sales Communications
-            </a>
+            <div class="footer-section">
+                <h4>HubSpot Hinnoittelulaskuri</h4>
+                <p>Käytä tätä laskuria arvioidaaksesi HubSpot-ratkaisujen kustannukset ja löytääksesi sopivan paketin yrityksellesi.</p>
+            </div>
+            <div class="footer-section">
+                <h4>Yhteystiedot</h4>
+                <p>Sales Communications Oy</p>
+                <p>Email: <a href="mailto:info@salescommunications.fi">info@salescommunications.fi</a></p>
+                <p><a href="https://www.salescommunications.fi" target="_blank" rel="noopener">www.salescommunications.fi</a></p>
+            </div>
+            <div class="footer-section">
+                <h4>Hyödyllisiä linkkejä</h4>
+                <ul>
+                    <li><a href="https://www.hubspot.com/pricing" target="_blank" rel="noopener">HubSpot Hinnoittelu</a></li>
+                    <li><a href="https://www.salescommunications.fi/hubspot-konsultointi" target="_blank" rel="noopener">HubSpot Konsultointi</a></li>
+                    <li><a href="https://www.salescommunications.fi/yhteystiedot" target="_blank" rel="noopener">Ota yhteyttä</a></li>
+                </ul>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            <p>&copy; 2024 Sales Communications Oy. Kaikki oikeudet pidätetään.</p>
         </div>
     </footer>
 
