@@ -283,18 +283,39 @@ document.addEventListener('DOMContentLoaded', function() {
         const marketingContactsGroup = document.getElementById('marketing-contacts-group');
         if (marketingContactsGroup) {
             marketingContactsGroup.style.display = state.marketingTier === 'none' ? 'none' : 'block';
+            // Reset marketing contacts when tier is 'none'
+            if (state.marketingTier === 'none') {
+                state.marketingContacts = 0;
+                if (elements.marketingContactsInput) {
+                    elements.marketingContactsInput.value = '0';
+                }
+            }
         }
 
         // Sales section
         const salesUsersGroup = document.getElementById('sales-users-group');
         if (salesUsersGroup) {
             salesUsersGroup.style.display = state.salesTier === 'none' ? 'none' : 'block';
+            // Reset sales users when tier is 'none'
+            if (state.salesTier === 'none') {
+                state.salesUsers = 0;
+                if (elements.salesUsersInput) {
+                    elements.salesUsersInput.value = '0';
+                }
+            }
         }
 
         // Service section
         const serviceUsersGroup = document.getElementById('service-users-group');
         if (serviceUsersGroup) {
             serviceUsersGroup.style.display = state.serviceTier === 'none' ? 'none' : 'block';
+            // Reset service users when tier is 'none'
+            if (state.serviceTier === 'none') {
+                state.serviceUsers = 0;
+                if (elements.serviceUsersInput) {
+                    elements.serviceUsersInput.value = '0';
+                }
+            }
         }
     }
 
