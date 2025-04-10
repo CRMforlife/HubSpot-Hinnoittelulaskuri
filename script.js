@@ -2,7 +2,7 @@
 document.addEventListener('DOMContentLoaded', function() {
     // Hinnoitteludata
     const pricing = {
-        customerPlatform: {
+        platform: {
             starter: { base: 0, extraPerUser: 15 },
             professional: { base: 1283, includedUsers: 5, extraPerUser: 45 },
             enterprise: { base: 4610, includedUsers: 7, extraPerUser: 75 }
@@ -258,7 +258,7 @@ document.addEventListener('DOMContentLoaded', function() {
         if (state.mode === 'platform') {
             totalPrice = calculatePlatformPrice();
             hubPrices.push({
-                name: 'Platform',
+                name: 'HubSpot Platform',
                 price: totalPrice
             });
         } else {
@@ -272,11 +272,11 @@ document.addEventListener('DOMContentLoaded', function() {
             totalPrice = marketingPrice + salesPrice + servicePrice + contentPrice + operationsPrice;
 
             // Add non-zero prices to the list
-            if (marketingPrice > 0) hubPrices.push({ name: 'Marketing', price: marketingPrice });
-            if (salesPrice > 0) hubPrices.push({ name: 'Sales', price: salesPrice });
-            if (servicePrice > 0) hubPrices.push({ name: 'Service', price: servicePrice });
-            if (contentPrice > 0) hubPrices.push({ name: 'Content', price: contentPrice });
-            if (operationsPrice > 0) hubPrices.push({ name: 'Operations', price: operationsPrice });
+            if (marketingPrice > 0) hubPrices.push({ name: 'Marketing Hub', price: marketingPrice });
+            if (salesPrice > 0) hubPrices.push({ name: 'Sales Hub', price: salesPrice });
+            if (servicePrice > 0) hubPrices.push({ name: 'Service Hub', price: servicePrice });
+            if (contentPrice > 0) hubPrices.push({ name: 'Content Hub', price: contentPrice });
+            if (operationsPrice > 0) hubPrices.push({ name: 'Operations Hub', price: operationsPrice });
         }
 
         // Update UI
@@ -284,14 +284,21 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     function calculatePlatformPrice() {
-        const tier = pricing.customerPlatform[state.platformTier];
+        const tier = pricing.platform[state.platformTier];
         if (!tier) return 0;
-        return tier.base + ((state.platformUsers - 1) * tier.extraPerUser);
+        
+        if (state.platformTier === 'starter') {
+            return tier.base + (state.platformUsers * tier.extraPerUser);
+        } else {
+            const extraUsers = Math.max(0, state.platformUsers - tier.includedUsers);
+            return tier.base + (extraUsers * tier.extraPerUser);
+        }
     }
 
     function calculateMarketingPrice() {
         const tier = pricing.marketing[state.marketingTier];
         if (!tier) return 0;
+        
         const extraContacts = Math.max(0, state.marketingContacts - tier.includedContacts);
         const extraBlocks = Math.ceil(extraContacts / tier.extraUnit);
         return tier.base + (extraBlocks * tier.extraCost);
