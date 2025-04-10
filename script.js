@@ -26,7 +26,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 includedUsers: 3
             },
             professional: {
-                base: 792,
+                base: 992,
                 extraPerUser: 45,
                 includedUsers: 5
             },
@@ -359,18 +359,15 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // Calculate total price
     function calculatePrice() {
-        let totalPrice = 0;
-        let hubPrices = [];
-
         try {
+            let total = 0;
+            let hubPrices = {};
+
             if (state.mode === 'platform') {
                 const platformPrice = calculatePlatformPrice();
                 if (platformPrice > 0) {
-                    hubPrices.push({
-                        name: 'HubSpot Platform',
-                        price: platformPrice
-                    });
-                    totalPrice = platformPrice;
+                    hubPrices.platform = platformPrice;
+                    total = platformPrice;
                 }
             } else {
                 // Calculate prices for each selected hub
@@ -385,23 +382,20 @@ document.addEventListener('DOMContentLoaded', function() {
                 hubCalculations.forEach(({ name, calculator }) => {
                     const price = calculator();
                     if (price > 0) {
-                        hubPrices.push({ name, price });
-                        totalPrice += price;
+                        hubPrices[name.toLowerCase().replace(' ', '-')] = price;
+                        total += price;
                     }
                 });
             }
 
-            // Update price display
-            elements.hubPricesElement.innerHTML = hubPrices
-                .map(hub => `<div class="hub-price">${escapeHtml(hub.name)}: ${formatPrice(hub.price)} €/kk</div>`)
-                .join('');
-            
-            elements.totalPriceElement.textContent = `${formatPrice(totalPrice)} €/kk`;
-
+            state.totalPrice = total;
+            state.hubPrices = hubPrices;
+            updatePriceDisplay();
         } catch (error) {
             console.error('Error calculating price:', error);
-            elements.hubPricesElement.innerHTML = '';
-            elements.totalPriceElement.textContent = '0 €/kk';
+            state.totalPrice = 0;
+            state.hubPrices = {};
+            updatePriceDisplay();
         }
     }
 
@@ -745,10 +739,57 @@ document.addEventListener('DOMContentLoaded', function() {
         console.log('\nTests completed.');
     }
 
+    // Test calculator functionality
+    function testCalculator() {
+        console.log('Aloitetaan laskurin testaus...');
+        
+        // Testi 1: Platform Professional 10 käyttäjällä
+        state.platformTier = 'professional';
+        state.platformUsers = 10;
+        state.activeTab = 'platform';
+        calculatePrice();
+        console.log('Testi 1 - Platform Professional 10 käyttäjällä:', state.totalPrice);
+        
+        // Testi 2: Marketing Professional 7 käyttäjällä
+        state.marketingTier = 'professional';
+        state.marketingUsers = 7;
+        state.activeTab = 'custom';
+        calculatePrice();
+        console.log('Testi 2 - Marketing Professional 7 käyttäjällä:', state.totalPrice);
+        
+        // Testi 3: Sales Professional 5 käyttäjällä
+        state.salesTier = 'professional';
+        state.salesUsers = 5;
+        calculatePrice();
+        console.log('Testi 3 - Sales Professional 5 käyttäjällä:', state.totalPrice);
+        
+        // Testi 4: Service Professional 3 käyttäjällä
+        state.serviceTier = 'professional';
+        state.serviceUsers = 3;
+        calculatePrice();
+        console.log('Testi 4 - Service Professional 3 käyttäjällä:', state.totalPrice);
+        
+        // Testi 5: Content Professional 6 käyttäjällä
+        state.contentTier = 'professional';
+        state.contentUsers = 6;
+        calculatePrice();
+        console.log('Testi 5 - Content Professional 6 käyttäjällä:', state.totalPrice);
+        
+        // Testi 6: Operations Professional 2 käyttäjällä
+        state.operationsTier = 'professional';
+        state.operationsUsers = 2;
+        calculatePrice();
+        console.log('Testi 6 - Operations Professional 2 käyttäjällä:', state.totalPrice);
+        
+        console.log('Laskurin testaus valmis!');
+    }
+
     // Run tests after initialization
     document.addEventListener('DOMContentLoaded', () => {
         initializeForm();
         console.log('Running price calculator tests...');
         runTests();
+        console.log('Running test calculator...');
+        testCalculator();
     });
 }); 
