@@ -26,7 +26,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 includedUsers: 3
             },
             professional: {
-                base: 992,
+                base: 792,
                 extraPerUser: 45,
                 includedUsers: 5
             },
