@@ -114,38 +114,48 @@ document.addEventListener('DOMContentLoaded', function() {
                 targetSection.classList.add('active');
             }
             
-            // Update state and reset prices
+            // Update state and reset values
             state.mode = tab;
             
-            // Reset all state values when switching tabs
             if (tab === 'platform') {
-                // Platform-tilan oletusarvot
+                // Reset platform values
                 state.platformTier = 'starter';
                 state.platformUsers = 1;
+                elements.platformTierSelect.value = 'starter';
+                elements.platformUsersInput.value = '1';
+                
+                // Reset custom values
                 state.marketingTier = 'none';
                 state.salesTier = 'none';
                 state.serviceTier = 'none';
                 state.contentTier = 'none';
                 state.operationsTier = 'none';
+                
+                elements.marketingTierSelect.value = 'none';
+                elements.salesTierSelect.value = 'none';
+                elements.serviceTierSelect.value = 'none';
+                elements.contentTierSelect.value = 'none';
+                elements.operationsTierSelect.value = 'none';
             } else {
-                // Custom-tilan oletusarvot
+                // Reset platform values
                 state.platformTier = 'none';
-                state.platformUsers = 0;
+                state.platformUsers = 1;
+                elements.platformTierSelect.value = 'none';
+                elements.platformUsersInput.value = '1';
+                
+                // Reset custom values
                 state.marketingTier = 'none';
                 state.salesTier = 'none';
                 state.serviceTier = 'none';
                 state.contentTier = 'none';
                 state.operationsTier = 'none';
+                
+                elements.marketingTierSelect.value = 'none';
+                elements.salesTierSelect.value = 'none';
+                elements.serviceTierSelect.value = 'none';
+                elements.contentTierSelect.value = 'none';
+                elements.operationsTierSelect.value = 'none';
             }
-            
-            // Reset input values
-            elements.platformTierSelect.value = state.platformTier;
-            elements.platformUsersInput.value = state.platformUsers;
-            elements.marketingTierSelect.value = 'none';
-            elements.salesTierSelect.value = 'none';
-            elements.serviceTierSelect.value = 'none';
-            elements.contentTierSelect.value = 'none';
-            elements.operationsTierSelect.value = 'none';
             
             // Update visibility and calculate price
             updateInputVisibility();
@@ -273,21 +283,30 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // Update input visibility based on tier selection
     function updateInputVisibility() {
+        // Handle platform/custom mode visibility
+        elements.platformSection.style.display = state.mode === 'platform' ? 'block' : 'none';
+        elements.customHubSection.style.display = state.mode === 'custom' ? 'block' : 'none';
+
         // Platform section
         const platformUsersGroup = document.getElementById('platform-users-group');
         if (platformUsersGroup) {
             platformUsersGroup.style.display = state.platformTier === 'none' ? 'none' : 'block';
+            if (state.platformTier === 'none') {
+                state.platformUsers = 1;
+                if (elements.platformUsersInput) {
+                    elements.platformUsersInput.value = '1';
+                }
+            }
         }
 
         // Marketing section
         const marketingContactsGroup = document.getElementById('marketing-contacts-group');
         if (marketingContactsGroup) {
             marketingContactsGroup.style.display = state.marketingTier === 'none' ? 'none' : 'block';
-            // Reset marketing contacts when tier is 'none'
             if (state.marketingTier === 'none') {
-                state.marketingContacts = 0;
+                state.marketingContacts = 1000;
                 if (elements.marketingContactsInput) {
-                    elements.marketingContactsInput.value = '0';
+                    elements.marketingContactsInput.value = '1000';
                 }
             }
         }
@@ -296,11 +315,10 @@ document.addEventListener('DOMContentLoaded', function() {
         const salesUsersGroup = document.getElementById('sales-users-group');
         if (salesUsersGroup) {
             salesUsersGroup.style.display = state.salesTier === 'none' ? 'none' : 'block';
-            // Reset sales users when tier is 'none'
             if (state.salesTier === 'none') {
-                state.salesUsers = 0;
+                state.salesUsers = 1;
                 if (elements.salesUsersInput) {
-                    elements.salesUsersInput.value = '0';
+                    elements.salesUsersInput.value = '1';
                 }
             }
         }
@@ -309,14 +327,16 @@ document.addEventListener('DOMContentLoaded', function() {
         const serviceUsersGroup = document.getElementById('service-users-group');
         if (serviceUsersGroup) {
             serviceUsersGroup.style.display = state.serviceTier === 'none' ? 'none' : 'block';
-            // Reset service users when tier is 'none'
             if (state.serviceTier === 'none') {
-                state.serviceUsers = 0;
+                state.serviceUsers = 1;
                 if (elements.serviceUsersInput) {
-                    elements.serviceUsersInput.value = '0';
+                    elements.serviceUsersInput.value = '1';
                 }
             }
         }
+
+        // Recalculate price after visibility updates
+        calculatePrice();
     }
 
     // Initialize form with event listeners
