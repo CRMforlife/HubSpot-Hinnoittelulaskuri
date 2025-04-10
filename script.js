@@ -119,50 +119,22 @@ document.addEventListener('DOMContentLoaded', function() {
             
             // Reset all state values
             if (tab === 'platform') {
-                // Set platform defaults
-                state.platformTier = 'starter';
-                state.platformUsers = 1;
-                
-                // Reset custom values
-                state.marketingTier = 'none';
-                state.marketingContacts = 1000;
-                state.salesTier = 'none';
-                state.salesUsers = 1;
-                state.serviceTier = 'none';
-                state.serviceUsers = 1;
-                state.contentTier = 'none';
-                state.operationsTier = 'none';
+                updateState('platformTier', 'starter');
+                updateState('platformUsers', 1);
+                updateState('marketingTier', 'none');
+                updateState('salesTier', 'none');
+                updateState('serviceTier', 'none');
+                updateState('contentTier', 'none');
+                updateState('operationsTier', 'none');
             } else {
-                // Reset platform values
-                state.platformTier = 'none';
-                state.platformUsers = 1;
-                
-                // Reset custom values to none
-                state.marketingTier = 'none';
-                state.marketingContacts = 1000;
-                state.salesTier = 'none';
-                state.salesUsers = 1;
-                state.serviceTier = 'none';
-                state.serviceUsers = 1;
-                state.contentTier = 'none';
-                state.operationsTier = 'none';
+                updateState('platformTier', 'none');
+                updateState('platformUsers', 1);
+                updateState('marketingTier', 'none');
+                updateState('salesTier', 'none');
+                updateState('serviceTier', 'none');
+                updateState('contentTier', 'none');
+                updateState('operationsTier', 'none');
             }
-            
-            // Reset all form elements
-            elements.platformTierSelect.value = state.platformTier;
-            elements.platformUsersInput.value = state.platformUsers;
-            elements.marketingTierSelect.value = 'none';
-            elements.marketingContactsInput.value = '1000';
-            elements.salesTierSelect.value = 'none';
-            elements.salesUsersInput.value = '1';
-            elements.serviceTierSelect.value = 'none';
-            elements.serviceUsersInput.value = '1';
-            elements.contentTierSelect.value = 'none';
-            elements.operationsTierSelect.value = 'none';
-            
-            // Update visibility and calculate price
-            updateInputVisibility();
-            calculatePrice();
         });
     });
 
@@ -315,73 +287,138 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     }
 
+    // Update state and UI
+    function updateState(key, value) {
+        // Update state
+        state[key] = value;
+
+        // Update form elements based on state changes
+        switch(key) {
+            case 'platformTier':
+                elements.platformTierSelect.value = value;
+                break;
+            case 'platformUsers':
+                elements.platformUsersInput.value = value;
+                break;
+            case 'marketingTier':
+                elements.marketingTierSelect.value = value;
+                elements.marketingContactsInput.value = state.marketingContacts;
+                break;
+            case 'marketingContacts':
+                elements.marketingContactsInput.value = value;
+                break;
+            case 'salesTier':
+                elements.salesTierSelect.value = value;
+                elements.salesUsersInput.value = state.salesUsers;
+                break;
+            case 'salesUsers':
+                elements.salesUsersInput.value = value;
+                break;
+            case 'serviceTier':
+                elements.serviceTierSelect.value = value;
+                elements.serviceUsersInput.value = state.serviceUsers;
+                break;
+            case 'serviceUsers':
+                elements.serviceUsersInput.value = value;
+                break;
+            case 'contentTier':
+                elements.contentTierSelect.value = value;
+                break;
+            case 'operationsTier':
+                elements.operationsTierSelect.value = value;
+                break;
+        }
+
+        // Update visibility and calculate price
+        updateInputVisibility();
+        calculatePrice();
+    }
+
     // Calculate price based on selected options
     function calculatePrice() {
         let totalPrice = 0;
         let hubPrices = [];
 
-        if (state.mode === 'platform') {
-            if (state.platformTier !== 'none') {
-                totalPrice = calculatePlatformPrice();
-                hubPrices.push({
-                    name: 'HubSpot Platform',
-                    price: totalPrice
-                });
-            }
-        } else {
-            // Custom mode calculations
-            if (state.marketingTier !== 'none') {
-                const marketingPrice = calculateMarketingPrice();
-                hubPrices.push({
-                    name: 'Marketing Hub',
-                    price: marketingPrice
-                });
-                totalPrice += marketingPrice;
+        try {
+            if (state.mode === 'platform') {
+                if (state.platformTier !== 'none') {
+                    totalPrice = calculatePlatformPrice();
+                    if (totalPrice > 0) {
+                        hubPrices.push({
+                            name: 'HubSpot Platform',
+                            price: totalPrice
+                        });
+                    }
+                }
+            } else {
+                // Custom mode calculations
+                if (state.marketingTier !== 'none') {
+                    const marketingPrice = calculateMarketingPrice();
+                    if (marketingPrice > 0) {
+                        hubPrices.push({
+                            name: 'Marketing Hub',
+                            price: marketingPrice
+                        });
+                        totalPrice += marketingPrice;
+                    }
+                }
+
+                if (state.salesTier !== 'none') {
+                    const salesPrice = calculateSalesPrice();
+                    if (salesPrice > 0) {
+                        hubPrices.push({
+                            name: 'Sales Hub',
+                            price: salesPrice
+                        });
+                        totalPrice += salesPrice;
+                    }
+                }
+
+                if (state.serviceTier !== 'none') {
+                    const servicePrice = calculateServicePrice();
+                    if (servicePrice > 0) {
+                        hubPrices.push({
+                            name: 'Service Hub',
+                            price: servicePrice
+                        });
+                        totalPrice += servicePrice;
+                    }
+                }
+
+                if (state.contentTier !== 'none') {
+                    const contentPrice = calculateContentPrice();
+                    if (contentPrice > 0) {
+                        hubPrices.push({
+                            name: 'Content Hub',
+                            price: contentPrice
+                        });
+                        totalPrice += contentPrice;
+                    }
+                }
+
+                if (state.operationsTier !== 'none') {
+                    const operationsPrice = calculateOperationsPrice();
+                    if (operationsPrice > 0) {
+                        hubPrices.push({
+                            name: 'Operations Hub',
+                            price: operationsPrice
+                        });
+                        totalPrice += operationsPrice;
+                    }
+                }
             }
 
-            if (state.salesTier !== 'none') {
-                const salesPrice = calculateSalesPrice();
-                hubPrices.push({
-                    name: 'Sales Hub',
-                    price: salesPrice
-                });
-                totalPrice += salesPrice;
-            }
-
-            if (state.serviceTier !== 'none') {
-                const servicePrice = calculateServicePrice();
-                hubPrices.push({
-                    name: 'Service Hub',
-                    price: servicePrice
-                });
-                totalPrice += servicePrice;
-            }
-
-            if (state.contentTier !== 'none') {
-                const contentPrice = calculateContentPrice();
-                hubPrices.push({
-                    name: 'Content Hub',
-                    price: contentPrice
-                });
-                totalPrice += contentPrice;
-            }
-
-            if (state.operationsTier !== 'none') {
-                const operationsPrice = calculateOperationsPrice();
-                hubPrices.push({
-                    name: 'Operations Hub',
-                    price: operationsPrice
-                });
-                totalPrice += operationsPrice;
-            }
+            // Update price display
+            elements.hubPricesElement.innerHTML = hubPrices
+                .map(hub => `<div class="hub-price">${escapeHtml(hub.name)}: ${formatPrice(hub.price)} €/kk</div>`)
+                .join('');
+            
+            elements.totalPriceElement.textContent = `${formatPrice(totalPrice)} €/kk`;
+        } catch (error) {
+            console.error('Error calculating price:', error);
+            elements.hubPricesElement.innerHTML = '';
+            elements.totalPriceElement.textContent = '0 €/kk';
         }
-
-        // Update price display
-        elements.hubPricesElement.innerHTML = hubPrices
-            .map(hub => `<div class="hub-price">${escapeHtml(hub.name)}: ${formatPrice(hub.price)} €/kk</div>`)
-            .join('');
-        
-        elements.totalPriceElement.textContent = `${formatPrice(totalPrice)} €/kk`;
     }
 
     function calculatePlatformPrice() {
