@@ -91,24 +91,19 @@ document.addEventListener('DOMContentLoaded', function() {
     // Tab functionality
     elements.tabButtons.forEach(button => {
         button.addEventListener('click', () => {
-            const tabId = button.dataset.tab;
+            const tab = button.dataset.tab;
             
             // Update active states
-            elements.tabButtons.forEach(btn => btn.classList.remove('active'));
+            elements.tabButtons.forEach(btn => btn.classList.toggle('active', btn === button));
             elements.tabContents.forEach(content => {
-                content.classList.remove('active');
-                content.style.display = 'none';
+                content.classList.toggle('active', content.id === `${tab}-section`);
+                content.style.display = content.id === `${tab}-section` ? 'block' : 'none';
             });
             
-            button.classList.add('active');
-            const activeContent = document.querySelector(`#${tabId}-section`);
-            if (activeContent) {
-                activeContent.classList.add('active');
-                activeContent.style.display = 'block';
-            }
-            
             // Update state
-            state.mode = tabId;
+            state.mode = tab;
+            
+            // Recalculate price
             calculatePrice();
         });
     });
@@ -201,7 +196,7 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     }
 
-    // Event Listeners
+    // Platform Hub listeners
     elements.platformTierSelect?.addEventListener('change', (e) => {
         state.platformTier = e.target.value;
         calculatePrice();
@@ -257,71 +252,46 @@ document.addEventListener('DOMContentLoaded', function() {
     });
 
     function calculatePrice() {
-        if (!elements.hubPricesElement || !elements.totalPriceElement) return;
-
-        let total = 0;
-        elements.hubPricesElement.innerHTML = '';
+        let totalPrice = 0;
+        let hubPrices = [];
 
         if (state.mode === 'platform') {
-            const platformPrice = calculatePlatformPrice();
-            addPriceElement('HubSpot Customer Platform', platformPrice);
-            total = platformPrice;
-        } else if (state.mode === 'custom') {
-            // Marketing Hub
+            totalPrice = calculatePlatformPrice();
+            hubPrices.push({
+                name: 'Platform',
+                price: totalPrice
+            });
+        } else {
+            // Calculate individual hub prices
             const marketingPrice = calculateMarketingPrice();
-            if (marketingPrice > 0) {
-                addPriceElement('Marketing Hub', marketingPrice);
-                total += marketingPrice;
-            }
-
-            // Sales Hub
             const salesPrice = calculateSalesPrice();
-            if (salesPrice > 0) {
-                addPriceElement('Sales Hub', salesPrice);
-                total += salesPrice;
-            }
-
-            // Service Hub
             const servicePrice = calculateServicePrice();
-            if (servicePrice > 0) {
-                addPriceElement('Service Hub', servicePrice);
-                total += servicePrice;
-            }
-
-            // Content Hub
             const contentPrice = calculateContentPrice();
-            if (contentPrice > 0) {
-                addPriceElement('Content Hub', contentPrice);
-                total += contentPrice;
-            }
-
-            // Operations Hub
             const operationsPrice = calculateOperationsPrice();
-            if (operationsPrice > 0) {
-                addPriceElement('Operations Hub', operationsPrice);
-                total += operationsPrice;
-            }
+
+            totalPrice = marketingPrice + salesPrice + servicePrice + contentPrice + operationsPrice;
+
+            // Add non-zero prices to the list
+            if (marketingPrice > 0) hubPrices.push({ name: 'Marketing', price: marketingPrice });
+            if (salesPrice > 0) hubPrices.push({ name: 'Sales', price: salesPrice });
+            if (servicePrice > 0) hubPrices.push({ name: 'Service', price: servicePrice });
+            if (contentPrice > 0) hubPrices.push({ name: 'Content', price: contentPrice });
+            if (operationsPrice > 0) hubPrices.push({ name: 'Operations', price: operationsPrice });
         }
 
-        elements.totalPriceElement.textContent = `${total.toLocaleString('fi-FI')} €/kk`;
+        // Update UI
+        updatePriceDisplay(totalPrice, hubPrices);
     }
 
     function calculatePlatformPrice() {
         const tier = pricing.customerPlatform[state.platformTier];
         if (!tier) return 0;
-        
-        if (state.platformTier === 'starter') {
-            return tier.base + (state.platformUsers * tier.extraPerUser);
-        } else {
-            const extraUsers = Math.max(0, state.platformUsers - tier.includedUsers);
-            return tier.base + (extraUsers * tier.extraPerUser);
-        }
+        return tier.base + ((state.platformUsers - 1) * tier.extraPerUser);
     }
 
     function calculateMarketingPrice() {
         const tier = pricing.marketing[state.marketingTier];
         if (!tier) return 0;
-        
         const extraContacts = Math.max(0, state.marketingContacts - tier.includedContacts);
         const extraBlocks = Math.ceil(extraContacts / tier.extraUnit);
         return tier.base + (extraBlocks * tier.extraCost);
@@ -330,52 +300,48 @@ document.addEventListener('DOMContentLoaded', function() {
     function calculateSalesPrice() {
         const tier = pricing.sales[state.salesTier];
         if (!tier) return 0;
-        
         return tier.base + ((state.salesUsers - 1) * tier.extraPerUser);
     }
 
     function calculateServicePrice() {
         const tier = pricing.service[state.serviceTier];
         if (!tier) return 0;
-        
-        return tier.base + ((state.service.users - 1) * tier.extraPerUser);
+        return tier.base + ((state.serviceUsers - 1) * tier.extraPerUser);
     }
 
     function calculateContentPrice() {
-        const tier = pricing.content[state.content.tier];
+        const tier = pricing.content[state.contentTier];
         return tier ? tier.base : 0;
     }
 
     function calculateOperationsPrice() {
-        const tier = pricing.operations[state.operations.tier];
+        const tier = pricing.operations[state.operationsTier];
         return tier ? tier.base : 0;
     }
 
-    function addPriceElement(label, price) {
-        if (!elements.hubPricesElement) return;
+    function updatePriceDisplay(totalPrice, hubPrices) {
+        if (elements.hubPricesElement && elements.totalPriceElement) {
+            // Format hub prices
+            const hubPricesHtml = hubPrices.map(hub => `
+                <div class="hub-price">
+                    <span class="hub-name">${hub.name}</span>
+                    <span class="hub-price-value">${formatPrice(hub.price)}</span>
+                </div>
+            `).join('');
 
-        const priceElement = document.createElement('div');
-        priceElement.className = 'hub-price';
-        priceElement.innerHTML = `
-            <span class="hub-name">${label} (${capitalizeFirstLetter(state.mode === 'platform' ? state.platformTier : getHubTier(label))})</span>
-            <span>${price.toLocaleString('fi-FI')} €/kk</span>
-        `;
-        elements.hubPricesElement.appendChild(priceElement);
-    }
-
-    function getHubTier(hubLabel) {
-        switch(hubLabel) {
-            case 'Marketing Hub': return state.marketing.tier;
-            case 'Sales Hub': return state.sales.tier;
-            case 'Service Hub': return state.service.tier;
-            case 'Content Hub': return state.content.tier;
-            case 'Operations Hub': return state.operations.tier;
-            default: return '';
+            // Update the display
+            elements.hubPricesElement.innerHTML = hubPricesHtml;
+            elements.totalPriceElement.textContent = formatPrice(totalPrice);
         }
     }
 
-    function capitalizeFirstLetter(string) {
-        return string.charAt(0).toUpperCase() + string.slice(1);
+    function formatPrice(price) {
+        return new Intl.NumberFormat('fi-FI', {
+            style: 'currency',
+            currency: 'EUR',
+            minimumFractionDigits: 0,
+            maximumFractionDigits: 0
+        }).format(price);
     }
 
     // Initialize the form

@@ -223,12 +223,12 @@ h1, h2, h3, h4, h5, h6 {
 
 /* Result Card */
 .result-card {
-    background-color: var(--primary-light);
-    padding: var(--spacing-lg);
-    border-radius: var(--border-radius-md);
-    margin-top: var(--spacing-lg);
-    margin-bottom: var(--spacing-lg);
-    border: 1px solid var(--primary-color);
+    background: var(--card-background);
+    border-radius: 1rem;
+    padding: 2rem;
+    box-shadow: var(--shadow-md);
+    margin-top: 2rem;
+    border: 1px solid var(--border-color);
 }
 
 .result-card h3 {
@@ -281,7 +281,6 @@ h1, h2, h3, h4, h5, h6 {
     appearance: textfield;
     -moz-appearance: textfield;
     padding-left: 2.5rem;
-    padding-right: 2.5rem;
 }
 
 .number-btn {
@@ -322,9 +321,10 @@ h1, h2, h3, h4, h5, h6 {
 .footer {
     margin-top: 4rem;
     padding: 3rem 0;
-    background: linear-gradient(135deg, var(--primary-color), var(--primary-dark));
+    background-color: var(--primary-color);
     position: relative;
     overflow: hidden;
+    border-radius: 0;
 }
 
 .footer::before {
