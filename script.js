@@ -65,14 +65,14 @@ document.addEventListener('DOMContentLoaded', function() {
         mode: 'platform',
         platformTier: 'starter',
         platformUsers: 1,
-        marketingTier: 'starter',
+        marketingTier: 'none',
         marketingContacts: 1000,
-        salesTier: 'starter',
+        salesTier: 'none',
         salesUsers: 1,
-        serviceTier: 'starter',
+        serviceTier: 'none',
         serviceUsers: 1,
-        contentTier: 'starter',
-        operationsTier: 'starter'
+        contentTier: 'none',
+        operationsTier: 'none'
     };
 
     // Input validation with better error handling
@@ -119,6 +119,7 @@ document.addEventListener('DOMContentLoaded', function() {
             
             // Reset all state values when switching tabs
             if (tab === 'platform') {
+                // Platform-tilan oletusarvot
                 state.platformTier = 'starter';
                 state.platformUsers = 1;
                 state.marketingTier = 'none';
@@ -127,18 +128,24 @@ document.addEventListener('DOMContentLoaded', function() {
                 state.contentTier = 'none';
                 state.operationsTier = 'none';
             } else {
+                // Custom-tilan oletusarvot
                 state.platformTier = 'none';
                 state.platformUsers = 0;
+                state.marketingTier = 'none';
+                state.salesTier = 'none';
+                state.serviceTier = 'none';
+                state.contentTier = 'none';
+                state.operationsTier = 'none';
             }
             
             // Reset input values
             elements.platformTierSelect.value = state.platformTier;
             elements.platformUsersInput.value = state.platformUsers;
-            elements.marketingTierSelect.value = state.marketingTier;
-            elements.salesTierSelect.value = state.salesTier;
-            elements.serviceTierSelect.value = state.serviceTier;
-            elements.contentTierSelect.value = state.contentTier;
-            elements.operationsTierSelect.value = state.operationsTier;
+            elements.marketingTierSelect.value = 'none';
+            elements.salesTierSelect.value = 'none';
+            elements.serviceTierSelect.value = 'none';
+            elements.contentTierSelect.value = 'none';
+            elements.operationsTierSelect.value = 'none';
             
             // Update visibility and calculate price
             updateInputVisibility();
@@ -266,8 +273,14 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // Update input visibility based on tier selection
     function updateInputVisibility() {
+        // Platform section
+        const platformUsersGroup = document.getElementById('platform-users-group');
+        if (platformUsersGroup) {
+            platformUsersGroup.style.display = state.platformTier === 'none' ? 'none' : 'block';
+        }
+
         // Marketing section
-        const marketingContactsGroup = document.getElementById('marketing-users-group');
+        const marketingContactsGroup = document.getElementById('marketing-contacts-group');
         if (marketingContactsGroup) {
             marketingContactsGroup.style.display = state.marketingTier === 'none' ? 'none' : 'block';
         }
