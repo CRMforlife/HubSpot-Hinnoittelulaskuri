@@ -144,7 +144,11 @@ document.addEventListener('DOMContentLoaded', function() {
         serviceTier: 'none',
         serviceUsers: 1,
         contentTier: 'none',
-        operationsTier: 'none'
+        contentUsers: 1,
+        operationsTier: 'none',
+        operationsUsers: 1,
+        totalPrice: 0,
+        hubPrices: {}
     };
 
     // Input validation with better error handling
@@ -364,38 +368,134 @@ document.addEventListener('DOMContentLoaded', function() {
             let hubPrices = {};
 
             if (state.mode === 'platform') {
-                const platformPrice = calculatePlatformPrice();
-                if (platformPrice > 0) {
-                    hubPrices.platform = platformPrice;
-                    total = platformPrice;
+                if (state.platformTier === 'none') {
+                    state.totalPrice = 0;
+                    state.hubPrices = {};
+                    updatePriceDisplay();
+                    return;
                 }
-            } else {
-                // Calculate prices for each selected hub
-                const hubCalculations = [
-                    { name: 'Marketing Hub', calculator: calculateMarketingPrice },
-                    { name: 'Sales Hub', calculator: calculateSalesPrice },
-                    { name: 'Service Hub', calculator: calculateServicePrice },
-                    { name: 'Content Hub', calculator: calculateContentPrice },
-                    { name: 'Operations Hub', calculator: calculateOperationsPrice }
-                ];
 
-                hubCalculations.forEach(({ name, calculator }) => {
-                    const price = calculator();
-                    if (price > 0) {
-                        hubPrices[name.toLowerCase().replace(' ', '-')] = price;
-                        total += price;
+                const tier = pricing.platform[state.platformTier];
+                if (!tier) {
+                    console.error('Virheellinen platform tier:', state.platformTier);
+                    return;
+                }
+
+                // Laske perushinta
+                total = tier.base;
+
+                // Lisää käyttäjähinnat jos käyttäjiä on enemmän kuin sisältyy
+                if (state.platformUsers > tier.includedUsers) {
+                    const extraUsers = state.platformUsers - tier.includedUsers;
+                    total += extraUsers * tier.extraPerUser;
+                }
+
+                hubPrices.platform = total;
+            } else {
+                // Marketing Hub
+                if (state.marketingTier !== 'none') {
+                    const tier = pricing.marketing[state.marketingTier];
+                    if (tier) {
+                        let hubTotal = tier.base;
+                        if (state.marketingUsers > tier.includedUsers) {
+                            const extraUsers = state.marketingUsers - tier.includedUsers;
+                            hubTotal += extraUsers * tier.extraPerUser;
+                        }
+                        total += hubTotal;
+                        hubPrices.marketing = hubTotal;
                     }
-                });
+                }
+
+                // Sales Hub
+                if (state.salesTier !== 'none') {
+                    const tier = pricing.sales[state.salesTier];
+                    if (tier) {
+                        let hubTotal = tier.base;
+                        if (state.salesUsers > tier.includedUsers) {
+                            const extraUsers = state.salesUsers - tier.includedUsers;
+                            hubTotal += extraUsers * tier.extraPerUser;
+                        }
+                        total += hubTotal;
+                        hubPrices.sales = hubTotal;
+                    }
+                }
+
+                // Service Hub
+                if (state.serviceTier !== 'none') {
+                    const tier = pricing.service[state.serviceTier];
+                    if (tier) {
+                        let hubTotal = tier.base;
+                        if (state.serviceUsers > tier.includedUsers) {
+                            const extraUsers = state.serviceUsers - tier.includedUsers;
+                            hubTotal += extraUsers * tier.extraPerUser;
+                        }
+                        total += hubTotal;
+                        hubPrices.service = hubTotal;
+                    }
+                }
+
+                // Content Hub
+                if (state.contentTier !== 'none') {
+                    const tier = pricing.content[state.contentTier];
+                    if (tier) {
+                        let hubTotal = tier.base;
+                        if (state.contentUsers > tier.includedUsers) {
+                            const extraUsers = state.contentUsers - tier.includedUsers;
+                            hubTotal += extraUsers * tier.extraPerUser;
+                        }
+                        total += hubTotal;
+                        hubPrices.content = hubTotal;
+                    }
+                }
+
+                // Operations Hub
+                if (state.operationsTier !== 'none') {
+                    const tier = pricing.operations[state.operationsTier];
+                    if (tier) {
+                        let hubTotal = tier.base;
+                        if (state.operationsUsers > tier.includedUsers) {
+                            const extraUsers = state.operationsUsers - tier.includedUsers;
+                            hubTotal += extraUsers * tier.extraPerUser;
+                        }
+                        total += hubTotal;
+                        hubPrices.operations = hubTotal;
+                    }
+                }
             }
 
             state.totalPrice = total;
             state.hubPrices = hubPrices;
             updatePriceDisplay();
         } catch (error) {
-            console.error('Error calculating price:', error);
+            console.error('Virhe hinnan laskennassa:', error);
             state.totalPrice = 0;
             state.hubPrices = {};
             updatePriceDisplay();
+        }
+    }
+
+    // Update price display
+    function updatePriceDisplay() {
+        try {
+            // Päivitä hub-hinnat
+            elements.hubPricesElement.innerHTML = '';
+            for (const [hub, price] of Object.entries(state.hubPrices)) {
+                if (price > 0) {
+                    const hubName = hub.charAt(0).toUpperCase() + hub.slice(1);
+                    elements.hubPricesElement.innerHTML += `
+                        <div class="hub-price">
+                            ${hubName}: ${formatPrice(price)} €/kk
+                        </div>
+                    `;
+                }
+            }
+
+            // Päivitä kokonaishinta
+            elements.totalPriceElement.textContent = `${formatPrice(state.totalPrice)} €/kk`;
+        } catch (error) {
+            console.error('Virhe hinnan näyttämisessä:', error);
+            elements.hubPricesElement.innerHTML = '';
+            elements.totalPriceElement.textContent = '0 €/kk';
         }
     }
 
@@ -544,9 +644,17 @@ document.addEventListener('DOMContentLoaded', function() {
             updateState('contentTier', e.target.value);
         });
 
+        elements.contentUsersInput.addEventListener('input', (e) => {
+            updateState('contentUsers', validateNumberInput(e.target, 1));
+        });
+
         // Operations section
         elements.operationsTierSelect.addEventListener('change', (e) => {
             updateState('operationsTier', e.target.value);
+        });
+
+        elements.operationsUsersInput.addEventListener('input', (e) => {
+            updateState('operationsUsers', validateNumberInput(e.target, 1));
         });
 
         // Initialize tooltips
@@ -556,9 +664,6 @@ document.addEventListener('DOMContentLoaded', function() {
         updateUIFromState();
         updateInputVisibility();
         calculatePrice();
-
-        // Log initial state
-        console.log('Initial state:', state);
     }
 
     // Test calculator functionality
