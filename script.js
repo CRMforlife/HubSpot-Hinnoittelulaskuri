@@ -78,22 +78,13 @@ document.addEventListener('DOMContentLoaded', function() {
     // Input validation with better error handling
     function validateNumberInput(input, min = 0, max = Infinity) {
         try {
-            let value = parseInt(input.value.replace(/\D/g, ''));
-            
-            if (isNaN(value) || value < min) {
-                value = min;
-            }
-            
-            if (value > max) {
-                value = max;
-            }
-            
-            // Update input value to show the validated number
+            let value = parseInt(input.value.replace(/\D/g, '')) || min;
+            value = Math.max(min, Math.min(value, max));
             input.value = value;
-            
             return value;
         } catch (error) {
             console.error('Error validating input:', error);
+            input.value = min;
             return min;
         }
     }
@@ -114,26 +105,247 @@ document.addEventListener('DOMContentLoaded', function() {
                 targetSection.classList.add('active');
             }
             
-            // Update state mode
-            state.mode = tab;
-            
-            // Reset all state values
-            if (tab === 'platform') {
-                updateState('platformTier', 'starter');
-                updateState('platformUsers', 1);
-            } else {
-                updateState('platformTier', 'none');
-                updateState('platformUsers', 1);
-            }
-            
-            // Reset all custom hub values
-            updateState('marketingTier', 'none');
-            updateState('salesTier', 'none');
-            updateState('serviceTier', 'none');
-            updateState('contentTier', 'none');
-            updateState('operationsTier', 'none');
+            // Reset state based on selected tab
+            resetState(tab);
         });
     });
+
+    // Reset state based on mode
+    function resetState(mode) {
+        state.mode = mode;
+
+        if (mode === 'platform') {
+            // Set platform defaults
+            state.platformTier = 'starter';
+            state.platformUsers = 1;
+            
+            // Reset custom hubs
+            state.marketingTier = 'none';
+            state.salesTier = 'none';
+            state.serviceTier = 'none';
+            state.contentTier = 'none';
+            state.operationsTier = 'none';
+        } else {
+            // Reset platform
+            state.platformTier = 'none';
+            state.platformUsers = 1;
+            
+            // Reset custom hubs to none
+            state.marketingTier = 'none';
+            state.salesTier = 'none';
+            state.serviceTier = 'none';
+            state.contentTier = 'none';
+            state.operationsTier = 'none';
+            
+            // Reset counts
+            state.marketingContacts = 1000;
+            state.salesUsers = 1;
+            state.serviceUsers = 1;
+        }
+
+        // Update UI to match new state
+        updateUIFromState();
+        updateInputVisibility();
+        calculatePrice();
+    }
+
+    // Update UI elements to match state
+    function updateUIFromState() {
+        // Update all form elements to match state
+        elements.platformTierSelect.value = state.platformTier;
+        elements.platformUsersInput.value = state.platformUsers;
+        elements.marketingTierSelect.value = state.marketingTier;
+        elements.marketingContactsInput.value = state.marketingContacts;
+        elements.salesTierSelect.value = state.salesTier;
+        elements.salesUsersInput.value = state.salesUsers;
+        elements.serviceTierSelect.value = state.serviceTier;
+        elements.serviceUsersInput.value = state.serviceUsers;
+        elements.contentTierSelect.value = state.contentTier;
+        elements.operationsTierSelect.value = state.operationsTier;
+    }
+
+    // Update state and UI
+    function updateState(key, value) {
+        // Log state change
+        console.log('State update:', { key, value, oldValue: state[key] });
+
+        // Validate numeric inputs
+        if (key.includes('Users') || key.includes('Contacts')) {
+            if (key === 'marketingContacts') {
+                value = Math.max(1000, parseInt(value) || 1000);
+            } else {
+                value = Math.max(1, parseInt(value) || 1);
+            }
+        }
+
+        // Update state
+        state[key] = value;
+
+        // Reset related values when tier changes to none
+        if (key.endsWith('Tier') && value === 'none') {
+            switch(key) {
+                case 'marketingTier':
+                    state.marketingContacts = 1000;
+                    elements.marketingContactsInput.value = '1000';
+                    break;
+                case 'salesTier':
+                    state.salesUsers = 1;
+                    elements.salesUsersInput.value = '1';
+                    break;
+                case 'serviceTier':
+                    state.serviceUsers = 1;
+                    elements.serviceUsersInput.value = '1';
+                    break;
+                case 'platformTier':
+                    state.platformUsers = 1;
+                    elements.platformUsersInput.value = '1';
+                    break;
+            }
+        }
+
+        // Ensure UI updates
+        requestAnimationFrame(() => {
+            updateInputVisibility();
+            calculatePrice();
+        });
+    }
+
+    // Calculate prices for each hub
+    function calculatePlatformPrice() {
+        const tier = state.platformTier;
+        if (tier === 'none') return 0;
+
+        const users = Math.max(1, state.platformUsers);
+        const tierData = pricing.platform[tier];
+        if (!tierData) return 0;
+
+        if (tier === 'starter') {
+            return tierData.base + (users * tierData.extraPerUser);
+        } else {
+            const includedUsers = tierData.includedUsers || 0;
+            const extraUsers = Math.max(0, users - includedUsers);
+            return tierData.base + (extraUsers * tierData.extraPerUser);
+        }
+    }
+
+    function calculateMarketingPrice() {
+        const tier = state.marketingTier;
+        if (tier === 'none') return 0;
+
+        const contacts = Math.max(1000, state.marketingContacts);
+        const tierData = pricing.marketing[tier];
+        if (!tierData) return 0;
+
+        const includedContacts = tierData.includedContacts || 0;
+        const extraContacts = Math.max(0, contacts - includedContacts);
+        const extraUnits = Math.ceil(extraContacts / tierData.extraUnit);
+        return tierData.base + (extraUnits * tierData.extraCost);
+    }
+
+    function calculateSalesPrice() {
+        const tier = state.salesTier;
+        if (tier === 'none') return 0;
+
+        const users = Math.max(1, state.salesUsers);
+        const tierData = pricing.sales[tier];
+        if (!tierData) return 0;
+
+        return tierData.base + ((users - 1) * tierData.extraPerUser);
+    }
+
+    function calculateServicePrice() {
+        const tier = state.serviceTier;
+        if (tier === 'none') return 0;
+
+        const users = Math.max(1, state.serviceUsers);
+        const tierData = pricing.service[tier];
+        if (!tierData) return 0;
+
+        return tierData.base + ((users - 1) * tierData.extraPerUser);
+    }
+
+    function calculateContentPrice() {
+        const tier = state.contentTier;
+        if (tier === 'none') return 0;
+
+        const tierData = pricing.content[tier];
+        return tierData ? tierData.base : 0;
+    }
+
+    function calculateOperationsPrice() {
+        const tier = state.operationsTier;
+        if (tier === 'none') return 0;
+
+        const tierData = pricing.operations[tier];
+        return tierData ? tierData.base : 0;
+    }
+
+    // Calculate total price
+    function calculatePrice() {
+        let totalPrice = 0;
+        let hubPrices = [];
+
+        try {
+            if (state.mode === 'platform') {
+                const platformPrice = calculatePlatformPrice();
+                if (platformPrice > 0) {
+                    hubPrices.push({
+                        name: 'HubSpot Platform',
+                        price: platformPrice
+                    });
+                    totalPrice = platformPrice;
+                }
+            } else {
+                // Calculate prices for each selected hub
+                const hubCalculations = [
+                    { name: 'Marketing Hub', calculator: calculateMarketingPrice },
+                    { name: 'Sales Hub', calculator: calculateSalesPrice },
+                    { name: 'Service Hub', calculator: calculateServicePrice },
+                    { name: 'Content Hub', calculator: calculateContentPrice },
+                    { name: 'Operations Hub', calculator: calculateOperationsPrice }
+                ];
+
+                hubCalculations.forEach(({ name, calculator }) => {
+                    const price = calculator();
+                    if (price > 0) {
+                        hubPrices.push({ name, price });
+                        totalPrice += price;
+                    }
+                });
+            }
+
+            // Force price display update
+            const priceDisplay = hubPrices
+                .map(hub => `<div class="hub-price">${escapeHtml(hub.name)}: ${formatPrice(hub.price)} €/kk</div>`)
+                .join('');
+            
+            // Update DOM directly
+            if (elements.hubPricesElement) {
+                elements.hubPricesElement.innerHTML = priceDisplay;
+            }
+            
+            if (elements.totalPriceElement) {
+                elements.totalPriceElement.textContent = `${formatPrice(totalPrice)} €/kk`;
+            }
+
+            // Log for debugging
+            console.log('Price calculation:', {
+                mode: state.mode,
+                hubPrices,
+                totalPrice,
+                displayPrice: formatPrice(totalPrice)
+            });
+
+        } catch (error) {
+            console.error('Error calculating price:', error);
+            if (elements.hubPricesElement) {
+                elements.hubPricesElement.innerHTML = '';
+            }
+            if (elements.totalPriceElement) {
+                elements.totalPriceElement.textContent = '0 €/kk';
+            }
+        }
+    }
 
     // Initialize tooltips
     function initializeTooltips() {
@@ -190,69 +402,6 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
 
-    // Enhanced form interactions
-    const formInputs = document.querySelectorAll('input[type="number"]');
-    formInputs.forEach(input => {
-        const wrapper = document.createElement('div');
-        wrapper.className = 'number-input-wrapper';
-        
-        // Only wrap if not already wrapped
-        if (!input.parentNode.classList.contains('number-input-wrapper')) {
-            input.parentNode.insertBefore(wrapper, input);
-            wrapper.appendChild(input);
-
-            const decrementBtn = document.createElement('button');
-            decrementBtn.className = 'number-btn decrement';
-            decrementBtn.textContent = '-';
-            decrementBtn.type = 'button';
-            decrementBtn.setAttribute('aria-label', 'Vähennä määrää');
-            
-            const incrementBtn = document.createElement('button');
-            incrementBtn.className = 'number-btn increment';
-            incrementBtn.textContent = '+';
-            incrementBtn.type = 'button';
-            incrementBtn.setAttribute('aria-label', 'Lisää määrää');
-
-            wrapper.insertBefore(decrementBtn, input);
-            wrapper.appendChild(incrementBtn);
-
-            // Handle button clicks with debounce
-            let timeout;
-            const handleChange = (newValue) => {
-                clearTimeout(timeout);
-                timeout = setTimeout(() => {
-                    input.value = newValue;
-                    input.dispatchEvent(new Event('input'));
-                }, 100);
-            };
-
-            decrementBtn.addEventListener('click', () => {
-                const min = parseInt(input.min) || 0;
-                const step = parseInt(input.step) || 1;
-                const newValue = Math.max(min, parseInt(input.value) - step);
-                handleChange(newValue);
-            });
-
-            incrementBtn.addEventListener('click', () => {
-                const step = parseInt(input.step) || 1;
-                const max = parseInt(input.max) || Infinity;
-                const newValue = Math.min(max, parseInt(input.value) + step);
-                handleChange(newValue);
-            });
-        }
-
-        // Handle direct input with debounce
-        let inputTimeout;
-        input.addEventListener('input', () => {
-            clearTimeout(inputTimeout);
-            inputTimeout = setTimeout(() => {
-                const min = parseInt(input.min) || 0;
-                const max = parseInt(input.max) || Infinity;
-                validateNumberInput(input, min, max);
-            }, 300);
-        });
-    });
-
     // Update input visibility based on tier selection
     function updateInputVisibility() {
         // Handle platform/custom mode visibility
@@ -284,219 +433,11 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     }
 
-    // Update state and UI
-    function updateState(key, value) {
-        // Update state
-        state[key] = value;
-
-        // Reset related values when tier is set to 'none'
-        if (key.endsWith('Tier') && value === 'none') {
-            switch(key) {
-                case 'marketingTier':
-                    state.marketingContacts = 1000;
-                    elements.marketingContactsInput.value = '1000';
-                    break;
-                case 'salesTier':
-                    state.salesUsers = 1;
-                    elements.salesUsersInput.value = '1';
-                    break;
-                case 'serviceTier':
-                    state.serviceUsers = 1;
-                    elements.serviceUsersInput.value = '1';
-                    break;
-            }
-        }
-
-        // Update form elements
-        switch(key) {
-            case 'platformTier':
-                elements.platformTierSelect.value = value;
-                if (value === 'none') {
-                    state.platformUsers = 1;
-                    elements.platformUsersInput.value = '1';
-                }
-                break;
-            case 'platformUsers':
-                elements.platformUsersInput.value = value;
-                break;
-            case 'marketingTier':
-                elements.marketingTierSelect.value = value;
-                break;
-            case 'marketingContacts':
-                elements.marketingContactsInput.value = value;
-                break;
-            case 'salesTier':
-                elements.salesTierSelect.value = value;
-                break;
-            case 'salesUsers':
-                elements.salesUsersInput.value = value;
-                break;
-            case 'serviceTier':
-                elements.serviceTierSelect.value = value;
-                break;
-            case 'serviceUsers':
-                elements.serviceUsersInput.value = value;
-                break;
-            case 'contentTier':
-                elements.contentTierSelect.value = value;
-                break;
-            case 'operationsTier':
-                elements.operationsTierSelect.value = value;
-                break;
-        }
-
-        // Update visibility and calculate price
-        updateInputVisibility();
-        calculatePrice();
-    }
-
-    // Calculate price based on selected options
-    function calculatePrice() {
-        let totalPrice = 0;
-        let hubPrices = [];
-
-        try {
-            if (state.mode === 'platform') {
-                if (state.platformTier !== 'none') {
-                    const platformPrice = calculatePlatformPrice();
-                    if (platformPrice > 0) {
-                        hubPrices.push({
-                            name: 'HubSpot Platform',
-                            price: platformPrice
-                        });
-                        totalPrice = platformPrice;
-                    }
-                }
-            } else {
-                // Custom mode calculations
-                if (state.marketingTier !== 'none') {
-                    const marketingPrice = calculateMarketingPrice();
-                    hubPrices.push({
-                        name: 'Marketing Hub',
-                        price: marketingPrice
-                    });
-                    totalPrice += marketingPrice;
-                }
-
-                if (state.salesTier !== 'none') {
-                    const salesPrice = calculateSalesPrice();
-                    hubPrices.push({
-                        name: 'Sales Hub',
-                        price: salesPrice
-                    });
-                    totalPrice += salesPrice;
-                }
-
-                if (state.serviceTier !== 'none') {
-                    const servicePrice = calculateServicePrice();
-                    hubPrices.push({
-                        name: 'Service Hub',
-                        price: servicePrice
-                    });
-                    totalPrice += servicePrice;
-                }
-
-                if (state.contentTier !== 'none') {
-                    const contentPrice = calculateContentPrice();
-                    hubPrices.push({
-                        name: 'Content Hub',
-                        price: contentPrice
-                    });
-                    totalPrice += contentPrice;
-                }
-
-                if (state.operationsTier !== 'none') {
-                    const operationsPrice = calculateOperationsPrice();
-                    hubPrices.push({
-                        name: 'Operations Hub',
-                        price: operationsPrice
-                    });
-                    totalPrice += operationsPrice;
-                }
-            }
-
-            // Update price display
-            if (hubPrices.length > 0) {
-                elements.hubPricesElement.innerHTML = hubPrices
-                    .map(hub => `<div class="hub-price">${escapeHtml(hub.name)}: ${formatPrice(hub.price)} €/kk</div>`)
-                    .join('');
-            } else {
-                elements.hubPricesElement.innerHTML = '';
-            }
-            
-            elements.totalPriceElement.textContent = `${formatPrice(totalPrice)} €/kk`;
-        } catch (error) {
-            console.error('Error calculating price:', error);
-            elements.hubPricesElement.innerHTML = '';
-            elements.totalPriceElement.textContent = '0 €/kk';
-        }
-    }
-
-    function calculatePlatformPrice() {
-        const tier = state.platformTier;
-        const users = state.platformUsers;
-        const tierData = pricing.platform[tier];
-
-        if (tier === 'starter') {
-            return tierData.base + (users * tierData.extraPerUser);
-        } else {
-            const extraUsers = Math.max(0, users - tierData.includedUsers);
-            return tierData.base + (extraUsers * tierData.extraPerUser);
-        }
-    }
-
-    function calculateMarketingPrice() {
-        const tier = state.marketingTier;
-        if (tier === 'none') return 0;
-        
-        const contacts = state.marketingContacts;
-        const tierData = pricing.marketing[tier];
-
-        if (!tierData) return 0;
-
-        const extraContacts = Math.max(0, contacts - tierData.includedContacts);
-        const extraUnits = Math.ceil(extraContacts / tierData.extraUnit);
-        return tierData.base + (extraUnits * tierData.extraCost);
-    }
-
-    function calculateSalesPrice() {
-        const tier = state.salesTier;
-        if (tier === 'none') return 0;
-
-        const users = state.salesUsers;
-        const tierData = pricing.sales[tier];
-
-        if (!tierData) return 0;
-
-        return tierData.base + (users * tierData.extraPerUser);
-    }
-
-    function calculateServicePrice() {
-        const tier = state.serviceTier;
-        if (tier === 'none') return 0;
-
-        const users = state.serviceUsers;
-        const tierData = pricing.service[tier];
-
-        if (!tierData) return 0;
-
-        return tierData.base + (users * tierData.extraPerUser);
-    }
-
-    function calculateContentPrice() {
-        const tier = state.contentTier;
-        if (tier === 'none') return 0;
-
-        const tierData = pricing.content[tier];
-        return tierData ? tierData.base : 0;
-    }
-
-    function calculateOperationsPrice() {
-        const tier = state.operationsTier;
-        if (tier === 'none') return 0;
-
-        const tierData = pricing.operations[tier];
-        return tierData ? tierData.base : 0;
+    // Helper function to escape HTML
+    function escapeHtml(str) {
+        const div = document.createElement('div');
+        div.textContent = str;
+        return div.innerHTML;
     }
 
     function formatPrice(price) {
@@ -506,13 +447,6 @@ document.addEventListener('DOMContentLoaded', function() {
             minimumFractionDigits: 0,
             maximumFractionDigits: 0
         }).format(price);
-    }
-
-    // Helper function to escape HTML
-    function escapeHtml(str) {
-        const div = document.createElement('div');
-        div.textContent = str;
-        return div.innerHTML;
     }
 
     // Initialize form with event listeners
@@ -566,9 +500,13 @@ document.addEventListener('DOMContentLoaded', function() {
         // Initialize tooltips
         initializeTooltips();
 
-        // Initial visibility update and price calculation
+        // Force initial price calculation
+        updateUIFromState();
         updateInputVisibility();
         calculatePrice();
+
+        // Log initial state
+        console.log('Initial state:', state);
     }
 
     // Initialize the form
