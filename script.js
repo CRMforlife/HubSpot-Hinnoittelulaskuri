@@ -34,15 +34,17 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     };
 
-    // DOM elementit
+    // DOM Elements
     const elements = {
+        platformSection: document.getElementById('platform-section'),
+        customHubSection: document.getElementById('custom-hub-section'),
+        tabButtons: document.querySelectorAll('.tab-button'),
+        tabContents: document.querySelectorAll('.tab-content'),
+        hubPricesElement: document.getElementById('hub-prices'),
+        totalPriceElement: document.getElementById('total-price'),
         modeSelect: document.getElementById('mode'),
         platformTierSelect: document.getElementById('platform-tier'),
         platformUsersInput: document.getElementById('platform-users'),
-        customHubSection: document.getElementById('custom-hub-section'),
-        platformSection: document.getElementById('platform-section'),
-        hubPricesElement: document.getElementById('hub-prices'),
-        totalPriceElement: document.getElementById('total-price'),
         marketingTierSelect: document.getElementById('marketing-tier'),
         marketingContactsInput: document.getElementById('marketing-contacts'),
         salesTierSelect: document.getElementById('sales-tier'),
@@ -50,34 +52,22 @@ document.addEventListener('DOMContentLoaded', function() {
         serviceTierSelect: document.getElementById('service-tier'),
         serviceUsersInput: document.getElementById('service-users'),
         contentTierSelect: document.getElementById('content-tier'),
-        operationsTierSelect: document.getElementById('operations-tier'),
-        tabButtons: document.querySelectorAll('.tab-button'),
-        tabContents: document.querySelectorAll('.tab-content')
+        operationsTierSelect: document.getElementById('operations-tier')
     };
 
     // State management
-    let state = {
+    const state = {
         mode: 'platform',
         platformTier: 'starter',
         platformUsers: 1,
-        marketing: {
-            tier: 'starter',
-            contacts: 1000
-        },
-        sales: {
-            tier: 'starter',
-            users: 1
-        },
-        service: {
-            tier: 'starter',
-            users: 1
-        },
-        content: {
-            tier: 'starter'
-        },
-        operations: {
-            tier: 'starter'
-        }
+        marketingTier: 'starter',
+        marketingContacts: 1000,
+        salesTier: 'starter',
+        salesUsers: 1,
+        serviceTier: 'starter',
+        serviceUsers: 1,
+        contentTier: 'starter',
+        operationsTier: 'starter'
     };
 
     // Input validation
@@ -190,10 +180,23 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // Initialize form
     function initializeForm() {
+        // Set initial display states
         if (elements.customHubSection && elements.platformSection) {
             elements.customHubSection.style.display = 'none';
             elements.platformSection.style.display = 'block';
-            elements.platformSection.classList.add('active');
+            
+            // Set initial active states
+            elements.tabButtons.forEach(btn => {
+                btn.classList.toggle('active', btn.dataset.tab === 'platform');
+            });
+            elements.tabContents.forEach(content => {
+                content.classList.toggle('active', content.id === 'platform-section');
+            });
+            
+            // Set initial state
+            state.mode = 'platform';
+            
+            // Calculate initial price
             calculatePrice();
         }
     }
@@ -211,45 +214,45 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // Marketing Hub listeners
     elements.marketingTierSelect?.addEventListener('change', (e) => {
-        state.marketing.tier = e.target.value;
+        state.marketingTier = e.target.value;
         calculatePrice();
     });
 
     elements.marketingContactsInput?.addEventListener('input', (e) => {
-        state.marketing.contacts = validateNumberInput(e.target, 1000);
+        state.marketingContacts = validateNumberInput(e.target, 1000);
         calculatePrice();
     });
 
     // Sales Hub listeners
     elements.salesTierSelect?.addEventListener('change', (e) => {
-        state.sales.tier = e.target.value;
+        state.salesTier = e.target.value;
         calculatePrice();
     });
 
     elements.salesUsersInput?.addEventListener('input', (e) => {
-        state.sales.users = validateNumberInput(e.target, 1);
+        state.salesUsers = validateNumberInput(e.target, 1);
         calculatePrice();
     });
 
     // Service Hub listeners
     elements.serviceTierSelect?.addEventListener('change', (e) => {
-        state.service.tier = e.target.value;
+        state.serviceTier = e.target.value;
         calculatePrice();
     });
 
     elements.serviceUsersInput?.addEventListener('input', (e) => {
-        state.service.users = validateNumberInput(e.target, 1);
+        state.serviceUsers = validateNumberInput(e.target, 1);
         calculatePrice();
     });
 
     // Content & Operations Hub listeners
     elements.contentTierSelect?.addEventListener('change', (e) => {
-        state.content.tier = e.target.value;
+        state.contentTier = e.target.value;
         calculatePrice();
     });
 
     elements.operationsTierSelect?.addEventListener('change', (e) => {
-        state.operations.tier = e.target.value;
+        state.operationsTier = e.target.value;
         calculatePrice();
     });
 
@@ -263,7 +266,7 @@ document.addEventListener('DOMContentLoaded', function() {
             const platformPrice = calculatePlatformPrice();
             addPriceElement('HubSpot Customer Platform', platformPrice);
             total = platformPrice;
-        } else {
+        } else if (state.mode === 'custom') {
             // Marketing Hub
             const marketingPrice = calculateMarketingPrice();
             if (marketingPrice > 0) {
@@ -316,23 +319,23 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     function calculateMarketingPrice() {
-        const tier = pricing.marketing[state.marketing.tier];
+        const tier = pricing.marketing[state.marketingTier];
         if (!tier) return 0;
         
-        const extraContacts = Math.max(0, state.marketing.contacts - tier.includedContacts);
+        const extraContacts = Math.max(0, state.marketingContacts - tier.includedContacts);
         const extraBlocks = Math.ceil(extraContacts / tier.extraUnit);
         return tier.base + (extraBlocks * tier.extraCost);
     }
 
     function calculateSalesPrice() {
-        const tier = pricing.sales[state.sales.tier];
+        const tier = pricing.sales[state.salesTier];
         if (!tier) return 0;
         
-        return tier.base + ((state.sales.users - 1) * tier.extraPerUser);
+        return tier.base + ((state.salesUsers - 1) * tier.extraPerUser);
     }
 
     function calculateServicePrice() {
-        const tier = pricing.service[state.service.tier];
+        const tier = pricing.service[state.serviceTier];
         if (!tier) return 0;
         
         return tier.base + ((state.service.users - 1) * tier.extraPerUser);
