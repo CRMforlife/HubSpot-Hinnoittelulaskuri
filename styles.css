@@ -33,7 +33,7 @@
 }
 
 body {
-    font-family: 'SF Pro Text', Arial, sans-serif;
+    font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Text', Arial, sans-serif;
     background-color: var(--background-color);
     color: var(--text-color);
     line-height: 1.6;
@@ -42,7 +42,7 @@ body {
 }
 
 h1, h2, h3, h4, h5, h6 {
-    font-family: 'SF Pro Display', Helvetica, sans-serif;
+    font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', Helvetica, sans-serif;
     font-weight: 600;
     line-height: 1.3;
 }
@@ -51,13 +51,13 @@ h1, h2, h3, h4, h5, h6 {
 .container {
     max-width: 1400px;
     margin: 0 auto;
-    padding: 2rem;
+    padding: var(--spacing-lg);
 }
 
 .content-wrapper {
     display: flex;
-    gap: 2rem;
-    margin-top: 2rem;
+    gap: var(--spacing-lg);
+    margin-top: var(--spacing-lg);
     max-width: 1400px;
     margin-left: auto;
     margin-right: auto;
@@ -66,8 +66,8 @@ h1, h2, h3, h4, h5, h6 {
 /* Hero Section */
 .hero {
     text-align: center;
-    margin-bottom: 3rem;
-    padding: 3rem 2rem;
+    margin-bottom: var(--spacing-xl);
+    padding: var(--spacing-xl) var(--spacing-lg);
     background: linear-gradient(135deg, var(--primary-color), var(--primary-dark));
     color: white;
     border-radius: var(--border-radius-lg);
@@ -88,22 +88,22 @@ h1, h2, h3, h4, h5, h6 {
 }
 
 .hero h1 {
-    font-size: 2.5rem;
-    margin-bottom: 1rem;
+    font-size: clamp(1.8rem, 4vw, 2.5rem);
+    margin-bottom: var(--spacing-sm);
     color: #FFFFFF;
+    position: relative;
 }
 
 .hero .subtitle {
-    font-size: 1.2rem;
+    font-size: clamp(1rem, 2vw, 1.2rem);
     color: #FFFFFF;
     opacity: 0.9;
+    position: relative;
 }
 
 /* Instructions Section */
 .instructions {
     flex: 4;
-    padding-right: 2rem;
-    max-width: calc((100% * 4) / 7);
     background-color: white;
     border-radius: var(--border-radius-md);
     padding: var(--spacing-lg);
@@ -162,27 +162,27 @@ h1, h2, h3, h4, h5, h6 {
 .calculator-form {
     flex: 3;
     position: sticky;
-    top: 2rem;
+    top: var(--spacing-lg);
     align-self: flex-start;
     background: #fff;
-    padding: 2rem;
-    border-radius: 8px;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-    max-width: calc((100% * 3) / 7);
+    padding: var(--spacing-lg);
+    border-radius: var(--border-radius-md);
+    box-shadow: var(--shadow-sm);
+    border: 1px solid var(--border-color);
 }
 
 .form-group {
-    margin-bottom: 1.5rem;
+    margin-bottom: var(--spacing-md);
     position: relative;
 }
 
 .form-group label {
     display: inline-flex;
     align-items: center;
-    margin-bottom: 0.5rem;
+    margin-bottom: var(--spacing-xs);
     font-weight: 500;
     color: var(--text-color);
-    gap: 0.5rem;
+    gap: var(--spacing-xs);
 }
 
 .form-group select,
@@ -190,11 +190,11 @@ h1, h2, h3, h4, h5, h6 {
     width: 100%;
     padding: 0.75rem;
     border: 1px solid var(--border-color);
-    border-radius: 0.5rem;
-    background-color: var(--input-bg);
+    border-radius: var(--border-radius-sm);
+    background-color: var(--background-color);
     color: var(--text-color);
     font-size: 1rem;
-    transition: border-color 0.2s ease;
+    transition: all 0.2s ease;
 }
 
 .form-group select:hover,
@@ -226,6 +226,7 @@ h1, h2, h3, h4, h5, h6 {
     position: relative;
     margin-left: 0.5rem;
     border: none;
+    z-index: 2;
 }
 
 .tooltip-trigger:hover,
@@ -241,16 +242,17 @@ h1, h2, h3, h4, h5, h6 {
     position: absolute;
     background-color: var(--primary-color);
     color: white;
-    padding: 1rem;
-    border-radius: 8px;
+    padding: var(--spacing-sm);
+    border-radius: var(--border-radius-sm);
     font-size: 0.9375rem;
     line-height: 1.5;
     white-space: normal;
     z-index: 1000;
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    box-shadow: var(--shadow-md);
     opacity: 0;
     visibility: hidden;
     transition: all 0.2s ease;
+    pointer-events: none;
 }
 
 /* Desktop styles */
@@ -270,11 +272,6 @@ h1, h2, h3, h4, h5, h6 {
         visibility: visible;
         transform: translateX(-50%) translateY(0);
     }
-
-    /* Ensure tooltip stays within viewport */
-    .tooltip-trigger[data-tooltip] {
-        position: relative;
-    }
 }
 
 /* Mobile styles */
@@ -286,18 +283,19 @@ h1, h2, h3, h4, h5, h6 {
 
     .tooltip-trigger[data-tooltip]::after {
         position: fixed;
-        left: 1rem;
-        right: 1rem;
-        bottom: 1rem;
+        left: var(--spacing-sm);
+        right: var(--spacing-sm);
+        bottom: var(--spacing-sm);
         width: auto;
         max-height: 50vh;
         overflow-y: auto;
         margin: 0;
-        padding: 1rem;
+        padding: var(--spacing-sm);
         transform: translateY(100%);
         background-color: var(--primary-color);
         border-radius: var(--border-radius-md);
         font-size: 1rem;
+        z-index: 1001;
     }
 
     .tooltip-trigger[data-tooltip].active::after {
@@ -306,7 +304,6 @@ h1, h2, h3, h4, h5, h6 {
         transform: translateY(0);
     }
 
-    /* Add backdrop when tooltip is active on mobile */
     .tooltip-trigger[data-tooltip].active::before {
         content: '';
         position: fixed;
@@ -315,32 +312,8 @@ h1, h2, h3, h4, h5, h6 {
         right: 0;
         bottom: 0;
         background-color: rgba(0, 0, 0, 0.5);
-        z-index: 999;
+        z-index: 1000;
     }
-
-    /* Ensure form elements stay above backdrop */
-    .form-group {
-        position: relative;
-        z-index: 1001;
-    }
-}
-
-/* Ensure tooltips don't get cut off at screen edges */
-.tooltip-trigger[data-tooltip]:has(+ .tooltip-trigger) {
-    margin-right: 1rem;
-}
-
-/* Prevent tooltip from being cut off at the left edge */
-.tooltip-trigger[data-tooltip]:first-child::after {
-    left: 0;
-    transform: translateY(5px);
-}
-
-/* Prevent tooltip from being cut off at the right edge */
-.tooltip-trigger[data-tooltip]:last-child::after {
-    right: 0;
-    left: auto;
-    transform: translateY(5px);
 }
 
 /* Number input styling */
@@ -352,10 +325,17 @@ h1, h2, h3, h4, h5, h6 {
 
 .number-input-wrapper input[type="number"] {
     text-align: center;
-    appearance: textfield;
+    -webkit-appearance: textfield;
     -moz-appearance: textfield;
+    appearance: textfield;
     padding-left: 2.5rem;
     padding-right: 2.5rem;
+}
+
+.number-input-wrapper input[type="number"]::-webkit-outer-spin-button,
+.number-input-wrapper input[type="number"]::-webkit-inner-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
 }
 
 .number-btn {
@@ -371,9 +351,15 @@ h1, h2, h3, h4, h5, h6 {
     font-size: 1.25rem;
     cursor: pointer;
     transition: all 0.2s ease;
+    padding: 0;
 }
 
 .number-btn:hover {
+    color: var(--primary-dark);
+}
+
+.number-btn:focus {
+    outline: none;
     color: var(--primary-dark);
 }
 
@@ -385,28 +371,13 @@ h1, h2, h3, h4, h5, h6 {
     right: 0;
 }
 
-/* Hub Selection */
-.hub-selection {
-    margin-bottom: 2rem;
-    padding: 1.5rem;
-    background-color: #f8f9fa;
-    border-radius: 8px;
-}
-
-.hub-selection h3 {
-    margin-top: 0;
-    margin-bottom: 1rem;
-    color: var(--text-color);
-    font-size: 1.2rem;
-}
-
 /* Result Card */
 .result-card {
     background: var(--card-background);
-    border-radius: 1rem;
-    padding: 2rem;
+    border-radius: var(--border-radius-md);
+    padding: var(--spacing-lg);
     box-shadow: var(--shadow-md);
-    margin-top: 2rem;
+    margin-top: var(--spacing-lg);
     border: 1px solid var(--border-color);
 }
 
@@ -422,6 +393,7 @@ h1, h2, h3, h4, h5, h6 {
 .hub-price {
     display: flex;
     justify-content: space-between;
+    align-items: center;
     padding: var(--spacing-xs) 0;
     border-bottom: 1px solid rgba(0, 163, 84, 0.2);
     font-size: 0.95rem;
@@ -439,6 +411,7 @@ h1, h2, h3, h4, h5, h6 {
 .total-price {
     display: flex;
     justify-content: space-between;
+    align-items: center;
     font-size: 1.3rem;
     font-weight: 600;
     margin-top: var(--spacing-md);
@@ -447,71 +420,19 @@ h1, h2, h3, h4, h5, h6 {
     color: var(--secondary-color);
 }
 
-/* Footer */
-.footer {
-    margin-top: 4rem;
-    padding: 3rem 0;
-    background-color: var(--primary-color);
-    position: relative;
-    overflow: hidden;
-    border-radius: 0;
-}
-
-.footer::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background: linear-gradient(135deg, rgba(255,255,255,0.1) 0%, rgba(255,255,255,0) 100%);
-    pointer-events: none;
-}
-
-.footer-content {
-    max-width: 1400px;
-    margin: 0 auto;
-    padding: 0 2rem;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 1.5rem;
-    position: relative;
-    z-index: 1;
-}
-
-.footer-text {
-    color: #FFFFFF;
-    font-size: 1.1rem;
-    font-weight: 500;
-    letter-spacing: 0.02em;
-}
-
-.footer-logo {
-    height: 35px;
-    width: auto;
-    display: block;
-    object-fit: contain;
-    transition: opacity 0.2s ease;
-}
-
-.footer-logo:hover {
-    opacity: 0.8;
-}
-
 /* Tab Buttons */
 .tab-buttons {
     display: flex;
-    gap: 1rem;
-    margin-bottom: 2rem;
-    padding: 0.5rem;
+    gap: var(--spacing-sm);
+    margin-bottom: var(--spacing-lg);
+    padding: var(--spacing-xs);
     background-color: var(--card-background);
     border-radius: var(--border-radius-md);
 }
 
 .tab-button {
     flex: 1;
-    padding: 1rem 1.5rem;
+    padding: var(--spacing-sm) var(--spacing-md);
     border: none;
     background: none;
     color: var(--text-light);
@@ -523,11 +444,7 @@ h1, h2, h3, h4, h5, h6 {
     display: flex;
     align-items: center;
     justify-content: center;
-    gap: 0.5rem;
-}
-
-.tab-button i {
-    font-size: 1.1rem;
+    gap: var(--spacing-xs);
 }
 
 .tab-button:hover {
@@ -576,10 +493,6 @@ h1, h2, h3, h4, h5, h6 {
     .calculator-form {
         position: static;
     }
-    
-    .instructions {
-        padding-right: 0;
-    }
 }
 
 @media (max-width: 767px) {
@@ -589,62 +502,21 @@ h1, h2, h3, h4, h5, h6 {
     
     .hero {
         padding: var(--spacing-lg);
-        border-radius: var(--border-radius-md);
+        margin-bottom: var(--spacing-lg);
     }
     
-    .hero h1 {
-        font-size: 2rem;
-    }
-    
-    .hero .subtitle {
-        font-size: 1rem;
-    }
-    
-    .instructions {
+    .instructions,
+    .calculator-form,
+    .result-card {
         padding: var(--spacing-md);
-        border-radius: var(--border-radius-md);
-    }
-    
-    .instructions h2 {
-        font-size: 1.5rem;
     }
     
     .instruction-section h3 {
         font-size: 1.2rem;
     }
     
-    .calculator-form {
-        padding: var(--spacing-md);
-        border-radius: var(--border-radius-md);
-    }
-    
-    .result-card {
-        padding: var(--spacing-md);
-        border-radius: var(--border-radius-md);
-    }
-    
-    .result-card h3 {
-        font-size: 1.2rem;
-    }
-    
     .total-price {
         font-size: 1.2rem;
-    }
-    
-    .footer {
-        margin-top: 3rem;
-        padding: 1.5rem 0;
-    }
-    
-    .footer-content {
-        padding: 0 1rem;
-        flex-direction: column;
-        text-align: center;
-    }
-    
-    .footer-logo {
-        height: 30px;
-        margin: 0 auto;
     }
 }
 
@@ -657,16 +529,9 @@ h1, h2, h3, h4, h5, h6 {
         padding: var(--spacing-md);
     }
     
-    .hero h1 {
-        font-size: 1.8rem;
-    }
-    
-    .cta-button {
-        padding: 0.7rem 1.5rem;
-        font-size: 1rem;
-    }
-    
-    .instructions, .calculator-form {
+    .instructions,
+    .calculator-form,
+    .result-card {
         padding: var(--spacing-sm);
     }
     
@@ -675,29 +540,13 @@ h1, h2, h3, h4, h5, h6 {
         padding: 0.7rem;
     }
     
-    .hub-selection {
-        padding: var(--spacing-sm);
-    }
-    
-    .hub-selection h3 {
-        font-size: 1.1rem;
-    }
-    
-    .result-card {
-        padding: var(--spacing-sm);
-    }
-    
-    .total-price {
-        font-size: 1.1rem;
-    }
-    
     .tab-buttons {
         flex-direction: column;
-        gap: 0.5rem;
+        gap: var(--spacing-xs);
     }
 
     .tab-button {
         width: 100%;
-        padding: 0.75rem 1rem;
+        padding: 0.75rem var(--spacing-sm);
     }
 } 
