@@ -40,4 +40,4 @@ git clone https://github.com/CRMforlife/HubSpot-Hinnoittelulaskuri.git
 
 ## Ylläpito
 
-Kehitetty ja ylläpidetty [CRMforlife](https://github.com/CRMforlife) toimesta. 
+Kehitetty ja ylläpidetty [CRMforlife](https://github.com/CRMforlife) toimesta.
