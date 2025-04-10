@@ -249,208 +249,149 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // Update input visibility based on tier selection
     function updateInputVisibility() {
-        const marketingTier = document.getElementById('marketing-tier').value;
-        const salesTier = document.getElementById('sales-tier').value;
-        const serviceTier = document.getElementById('service-tier').value;
-
-        // Marketing Hub contacts
-        const marketingUsersGroup = document.getElementById('marketing-users-group');
-        if (marketingUsersGroup) {
-            marketingUsersGroup.style.display = marketingTier === 'none' ? 'none' : 'block';
+        // Platform section
+        const platformUsersWrapper = elements.platformUsersInput.closest('.input-group');
+        if (platformUsersWrapper) {
+            platformUsersWrapper.style.display = state.platformTier === 'none' ? 'none' : 'block';
         }
 
-        // Sales Hub users
-        const salesUsersGroup = document.getElementById('sales-users-group');
-        if (salesUsersGroup) {
-            salesUsersGroup.style.display = salesTier === 'none' ? 'none' : 'block';
+        // Marketing section
+        const marketingContactsWrapper = elements.marketingContactsInput.closest('.input-group');
+        if (marketingContactsWrapper) {
+            marketingContactsWrapper.style.display = state.marketingTier === 'none' ? 'none' : 'block';
         }
 
-        // Service Hub users
-        const serviceUsersGroup = document.getElementById('service-users-group');
-        if (serviceUsersGroup) {
-            serviceUsersGroup.style.display = serviceTier === 'none' ? 'none' : 'block';
+        // Sales section
+        const salesUsersWrapper = elements.salesUsersInput.closest('.input-group');
+        if (salesUsersWrapper) {
+            salesUsersWrapper.style.display = state.salesTier === 'none' ? 'none' : 'block';
         }
+
+        // Service section
+        const serviceUsersWrapper = elements.serviceUsersInput.closest('.input-group');
+        if (serviceUsersWrapper) {
+            serviceUsersWrapper.style.display = state.serviceTier === 'none' ? 'none' : 'block';
+        }
+
+        // Recalculate price when visibility changes
+        calculatePrice();
     }
 
-    // Initialize form
+    // Initialize form with event listeners
     function initializeForm() {
-        // Set initial state
-        state.mode = 'platform';
-        
-        // Set initial visibility
-        elements.platformSection.style.display = 'block';
-        elements.customHubSection.style.display = 'none';
-        
-        // Add event listeners to all number inputs
-        document.querySelectorAll('input[type="number"]').forEach(input => {
-            input.addEventListener('input', () => {
-                const id = input.id;
-                const value = validateNumberInput(input, parseInt(input.min) || 0);
-                
-                // Update state based on input id
-                switch(id) {
-                    case 'platform-users':
-                        state.platformUsers = value;
-                        break;
-                    case 'marketing-contacts':
-                        state.marketingContacts = value;
-                        break;
-                    case 'sales-users':
-                        state.salesUsers = value;
-                        break;
-                    case 'service-users':
-                        state.serviceUsers = value;
-                        break;
-                }
-                
-                calculatePrice();
-            });
+        // Platform section
+        elements.platformTierSelect.addEventListener('change', (e) => {
+            state.platformTier = e.target.value;
+            updateInputVisibility();
         });
 
-        // Add event listeners to all tier selects
-        document.querySelectorAll('select').forEach(select => {
-            select.addEventListener('change', () => {
-                const id = select.id;
-                const value = select.value;
-                
-                // Update state based on select id
-                switch(id) {
-                    case 'platform-tier':
-                        state.platformTier = value;
-                        break;
-                    case 'marketing-tier':
-                        state.marketingTier = value;
-                        break;
-                    case 'sales-tier':
-                        state.salesTier = value;
-                        break;
-                    case 'service-tier':
-                        state.serviceTier = value;
-                        break;
-                    case 'content-tier':
-                        state.contentTier = value;
-                        break;
-                    case 'operations-tier':
-                        state.operationsTier = value;
-                        break;
-                }
-                
-                // Update input visibility
-                updateInputVisibility();
-                calculatePrice();
-            });
+        elements.platformUsersInput.addEventListener('input', (e) => {
+            state.platformUsers = validateNumberInput(e.target, 1);
+            calculatePrice();
+        });
+
+        // Marketing section
+        elements.marketingTierSelect.addEventListener('change', (e) => {
+            state.marketingTier = e.target.value;
+            updateInputVisibility();
+        });
+
+        elements.marketingContactsInput.addEventListener('input', (e) => {
+            state.marketingContacts = validateNumberInput(e.target, 1000);
+            calculatePrice();
+        });
+
+        // Sales section
+        elements.salesTierSelect.addEventListener('change', (e) => {
+            state.salesTier = e.target.value;
+            updateInputVisibility();
+        });
+
+        elements.salesUsersInput.addEventListener('input', (e) => {
+            state.salesUsers = validateNumberInput(e.target, 1);
+            calculatePrice();
+        });
+
+        // Service section
+        elements.serviceTierSelect.addEventListener('change', (e) => {
+            state.serviceTier = e.target.value;
+            updateInputVisibility();
+        });
+
+        elements.serviceUsersInput.addEventListener('input', (e) => {
+            state.serviceUsers = validateNumberInput(e.target, 1);
+            calculatePrice();
+        });
+
+        // Content section
+        elements.contentTierSelect.addEventListener('change', (e) => {
+            state.contentTier = e.target.value;
+            calculatePrice();
+        });
+
+        // Operations section
+        elements.operationsTierSelect.addEventListener('change', (e) => {
+            state.operationsTier = e.target.value;
+            calculatePrice();
         });
 
         // Initialize tooltips
         initializeTooltips();
-        
+
         // Initial visibility update
         updateInputVisibility();
     }
 
-    // Platform Hub listeners
-    elements.platformTierSelect?.addEventListener('change', (e) => {
-        state.platformTier = e.target.value;
-        calculatePrice();
-    });
-
-    elements.platformUsersInput?.addEventListener('input', (e) => {
-        state.platformUsers = validateNumberInput(e.target, 1);
-        calculatePrice();
-    });
-
-    // Marketing Hub listeners
-    elements.marketingTierSelect?.addEventListener('change', (e) => {
-        state.marketingTier = e.target.value;
-        calculatePrice();
-    });
-
-    elements.marketingContactsInput?.addEventListener('input', (e) => {
-        state.marketingContacts = validateNumberInput(e.target, 1000);
-        calculatePrice();
-    });
-
-    // Sales Hub listeners
-    elements.salesTierSelect?.addEventListener('change', (e) => {
-        state.salesTier = e.target.value;
-        calculatePrice();
-    });
-
-    elements.salesUsersInput?.addEventListener('input', (e) => {
-        state.salesUsers = validateNumberInput(e.target, 1);
-        calculatePrice();
-    });
-
-    // Service Hub listeners
-    elements.serviceTierSelect?.addEventListener('change', (e) => {
-        state.serviceTier = e.target.value;
-        calculatePrice();
-    });
-
-    elements.serviceUsersInput?.addEventListener('input', (e) => {
-        state.serviceUsers = validateNumberInput(e.target, 1);
-        calculatePrice();
-    });
-
-    // Content & Operations Hub listeners
-    elements.contentTierSelect?.addEventListener('change', (e) => {
-        state.contentTier = e.target.value;
-        calculatePrice();
-    });
-
-    elements.operationsTierSelect?.addEventListener('change', (e) => {
-        state.operationsTier = e.target.value;
-        calculatePrice();
-    });
-
+    // Calculate price based on selected options
     function calculatePrice() {
-        try {
-            let totalPrice = 0;
-            let hubPrices = [];
+        let totalPrice = 0;
+        const hubPrices = {};
 
-            if (state.mode === 'platform') {
-                totalPrice = calculatePlatformPrice();
-                if (totalPrice > 0) {
-                    hubPrices.push({
-                        name: 'HubSpot Platform',
-                        price: totalPrice
-                    });
-                }
-                hubPrices.push({
-                    name: 'HubSpot Platform',
-                    price: totalPrice
-                });
-            } else {
-                // Calculate individual hub prices
-                const marketingPrice = calculateMarketingPrice();
-                const salesPrice = calculateSalesPrice();
-                const servicePrice = calculateServicePrice();
-                const contentPrice = calculateContentPrice();
-                const operationsPrice = calculateOperationsPrice();
-
-                // Add non-zero prices to the list
-                if (marketingPrice > 0) hubPrices.push({ name: 'Marketing Hub', price: marketingPrice });
-                if (salesPrice > 0) hubPrices.push({ name: 'Sales Hub', price: salesPrice });
-                if (servicePrice > 0) hubPrices.push({ name: 'Service Hub', price: servicePrice });
-                if (contentPrice > 0) hubPrices.push({ name: 'Content Hub', price: contentPrice });
-                if (operationsPrice > 0) hubPrices.push({ name: 'Operations Hub', price: operationsPrice });
-
-                totalPrice = marketingPrice + salesPrice + servicePrice + contentPrice + operationsPrice;
+        if (state.mode === 'platform') {
+            totalPrice = calculatePlatformPrice();
+            if (totalPrice > 0) {
+                hubPrices['HubSpot Platform'] = totalPrice;
             }
-
-            // Ensure prices are valid numbers
-            totalPrice = isNaN(totalPrice) ? 0 : totalPrice;
-            hubPrices = hubPrices.map(hub => ({
-                ...hub,
-                price: isNaN(hub.price) ? 0 : hub.price
-            }));
-
-            // Update UI
-            updatePriceDisplay(totalPrice, hubPrices);
-        } catch (error) {
-            console.error('Error calculating price:', error);
-            updatePriceDisplay(0, []);
+        } else {
+            // Custom solution pricing
+            if (state.marketingTier !== 'none') {
+                const price = calculateMarketingPrice();
+                if (price > 0) {
+                    hubPrices['Marketing Hub'] = price;
+                    totalPrice += price;
+                }
+            }
+            if (state.salesTier !== 'none') {
+                const price = calculateSalesPrice();
+                if (price > 0) {
+                    hubPrices['Sales Hub'] = price;
+                    totalPrice += price;
+                }
+            }
+            if (state.serviceTier !== 'none') {
+                const price = calculateServicePrice();
+                if (price > 0) {
+                    hubPrices['Service Hub'] = price;
+                    totalPrice += price;
+                }
+            }
+            if (state.contentTier !== 'none') {
+                const price = calculateContentPrice();
+                if (price > 0) {
+                    hubPrices['Content Hub'] = price;
+                    totalPrice += price;
+                }
+            }
+            if (state.operationsTier !== 'none') {
+                const price = calculateOperationsPrice();
+                if (price > 0) {
+                    hubPrices['Operations Hub'] = price;
+                    totalPrice += price;
+                }
+            }
         }
+
+        updatePriceDisplay(totalPrice, hubPrices);
     }
 
     function calculatePlatformPrice() {
@@ -507,24 +448,17 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     function updatePriceDisplay(totalPrice, hubPrices) {
-        try {
-            if (elements.hubPricesElement && elements.totalPriceElement) {
-                // Format hub prices
-                const hubPricesHtml = hubPrices.map(hub => `
-                    <div class="hub-price">
-                        <span class="hub-name">${escapeHtml(hub.name)}</span>
-                        <span class="hub-price-value">${formatPrice(hub.price)}</span>
-                    </div>
-                `).join('');
+        if (elements.hubPricesElement && elements.totalPriceElement) {
+            // Format hub prices
+            const hubPricesHtml = Object.entries(hubPrices).map(([name, price]) => `
+                <div class="hub-price">
+                    <span class="hub-name">${escapeHtml(name)}</span>
+                    <span class="hub-price-value">${formatPrice(price)}</span>
+                </div>
+            `).join('');
 
-                // Update the display safely
-                requestAnimationFrame(() => {
-                    elements.hubPricesElement.innerHTML = hubPricesHtml;
-                    elements.totalPriceElement.textContent = formatPrice(totalPrice);
-                });
-            }
-        } catch (error) {
-            console.error('Error updating price display:', error);
+            elements.hubPricesElement.innerHTML = hubPricesHtml;
+            elements.totalPriceElement.textContent = formatPrice(totalPrice);
         }
     }
 
