@@ -63,17 +63,23 @@
             </div>
 
             <div class="calculator-form">
-                <div class="form-section">
-                    <label for="mode">Valitse hinnoittelutapa:</label>
-                    <select id="mode" name="mode">
-                        <option value="platform">HubSpot Customer Platform</option>
-                        <option value="custom">Rakenna oma ratkaisu</option>
-                    </select>
+                <div class="navigation-tabs">
+                    <button class="tab-button active" data-tab="platform">
+                        <span class="tab-icon">🏢</span>
+                        Customer Platform
+                    </button>
+                    <button class="tab-button" data-tab="custom">
+                        <span class="tab-icon">🛠️</span>
+                        Räätälöity ratkaisu
+                    </button>
                 </div>
 
-                <div id="platform-section">
+                <div id="platform-section" class="tab-content active">
                     <div class="form-section">
-                        <label for="platform-tier">Valitse paketti:</label>
+                        <label for="platform-tier">
+                            Valitse paketti:
+                            <span class="tooltip-trigger" data-tooltip="Starter sopii aloittelijoille, Professional keskisuurille yrityksille ja Enterprise isoille organisaatioille">?</span>
+                        </label>
                         <select id="platform-tier" name="platform-tier">
                             <option value="starter">Starter</option>
                             <option value="professional">Professional</option>
@@ -82,50 +88,77 @@
                     </div>
 
                     <div class="form-section">
-                        <label for="platform-users">Käyttäjien määrä:</label>
+                        <label for="platform-users">
+                            Käyttäjien määrä:
+                            <span class="tooltip-trigger" data-tooltip="Jokainen HubSpot-järjestelmää käyttävä henkilö lasketaan käyttäjäksi">?</span>
+                        </label>
                         <input type="number" id="platform-users" name="platform-users" min="1" value="1">
                     </div>
                 </div>
 
-                <div id="custom-hub-section" style="display: none;">
+                <div id="custom-hub-section" class="tab-content">
                     <div class="hub-selection">
-                        <h3>Marketing Hub</h3>
-                        <label for="marketing-tier">Paketti:</label>
+                        <h3>
+                            Marketing Hub
+                            <span class="tooltip-trigger" data-tooltip="Marketing Hub sisältää työkalut markkinoinnin automatisointiin ja liidien generointiin">?</span>
+                        </h3>
+                        <label for="marketing-tier">
+                            Paketti:
+                            <span class="tooltip-trigger" data-tooltip="Valitse yrityksesi tarpeisiin sopiva paketti">?</span>
+                        </label>
                         <select id="marketing-tier" name="marketing-tier">
                             <option value="starter">Starter</option>
                             <option value="professional">Professional</option>
                             <option value="enterprise">Enterprise</option>
                         </select>
-                        <label for="marketing-contacts">Kontaktien määrä:</label>
+                        <label for="marketing-contacts">
+                            Kontaktien määrä:
+                            <span class="tooltip-trigger" data-tooltip="Kontaktien määrä vaikuttaa suoraan Marketing Hubin kuukausihintaan">?</span>
+                        </label>
                         <input type="number" id="marketing-contacts" name="marketing-contacts" min="1000" step="1000" value="1000">
                     </div>
 
                     <div class="hub-selection">
-                        <h3>Sales Hub</h3>
+                        <h3>
+                            Sales Hub
+                            <span class="tooltip-trigger" data-tooltip="Sales Hub tarjoaa työkalut myyntiprosessin tehostamiseen">?</span>
+                        </h3>
                         <label for="sales-tier">Paketti:</label>
                         <select id="sales-tier" name="sales-tier">
                             <option value="starter">Starter</option>
                             <option value="professional">Professional</option>
                             <option value="enterprise">Enterprise</option>
                         </select>
-                        <label for="sales-users">Käyttäjien määrä:</label>
+                        <label for="sales-users">
+                            Käyttäjien määrä:
+                            <span class="tooltip-trigger" data-tooltip="Syötä myyntitiimisi koko">?</span>
+                        </label>
                         <input type="number" id="sales-users" name="sales-users" min="1" value="1">
                     </div>
 
                     <div class="hub-selection">
-                        <h3>Service Hub</h3>
+                        <h3>
+                            Service Hub
+                            <span class="tooltip-trigger" data-tooltip="Service Hub sisältää työkalut asiakaspalvelun tehostamiseen">?</span>
+                        </h3>
                         <label for="service-tier">Paketti:</label>
                         <select id="service-tier" name="service-tier">
                             <option value="starter">Starter</option>
                             <option value="professional">Professional</option>
                             <option value="enterprise">Enterprise</option>
                         </select>
-                        <label for="service-users">Käyttäjien määrä:</label>
+                        <label for="service-users">
+                            Käyttäjien määrä:
+                            <span class="tooltip-trigger" data-tooltip="Syötä asiakaspalvelutiimisi koko">?</span>
+                        </label>
                         <input type="number" id="service-users" name="service-users" min="1" value="1">
                     </div>
 
                     <div class="hub-selection">
-                        <h3>Content Hub</h3>
+                        <h3>
+                            Content Hub
+                            <span class="tooltip-trigger" data-tooltip="Content Hub auttaa sisällöntuotannon hallinnassa">?</span>
+                        </h3>
                         <label for="content-tier">Paketti:</label>
                         <select id="content-tier" name="content-tier">
                             <option value="starter">Starter</option>
@@ -135,7 +168,10 @@
                     </div>
 
                     <div class="hub-selection">
-                        <h3>Operations Hub</h3>
+                        <h3>
+                            Operations Hub
+                            <span class="tooltip-trigger" data-tooltip="Operations Hub yhdistää ja synkronoi dataa eri järjestelmien välillä">?</span>
+                        </h3>
                         <label for="operations-tier">Paketti:</label>
                         <select id="operations-tier" name="operations-tier">
                             <option value="starter">Starter</option>

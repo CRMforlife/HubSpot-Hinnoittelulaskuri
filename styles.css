@@ -358,6 +358,204 @@ h1, h2, h3, h4, h5, h6 {
     display: block;
 }
 
+/* Navigation Tabs */
+.navigation-tabs {
+    display: flex;
+    gap: 1rem;
+    margin-bottom: 2rem;
+    border-bottom: 2px solid var(--border-color);
+    padding-bottom: 0.5rem;
+}
+
+.tab-button {
+    padding: 1rem 2rem;
+    border: none;
+    background: none;
+    font-size: 1.1rem;
+    color: var(--text-color);
+    cursor: pointer;
+    position: relative;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    transition: all 0.3s ease;
+}
+
+.tab-button.active {
+    color: var(--primary-color);
+    font-weight: 600;
+}
+
+.tab-button.active::after {
+    content: '';
+    position: absolute;
+    bottom: -0.5rem;
+    left: 0;
+    right: 0;
+    height: 2px;
+    background: var(--primary-color);
+}
+
+.tab-icon {
+    font-size: 1.2rem;
+}
+
+/* Tab Content */
+.tab-content {
+    display: none;
+    opacity: 0;
+    transform: translateY(10px);
+    transition: all 0.3s ease;
+}
+
+.tab-content.active {
+    display: block;
+    opacity: 1;
+    transform: translateY(0);
+}
+
+/* Tooltips */
+.tooltip-trigger {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    background: var(--primary-color);
+    color: white;
+    font-size: 0.8rem;
+    margin-left: 0.5rem;
+    cursor: help;
+    position: relative;
+}
+
+.tooltip-trigger::before {
+    content: attr(data-tooltip);
+    position: absolute;
+    bottom: 100%;
+    left: 50%;
+    transform: translateX(-50%);
+    padding: 0.5rem 1rem;
+    background: var(--secondary-color);
+    color: white;
+    font-size: 0.9rem;
+    border-radius: var(--border-radius-sm);
+    white-space: nowrap;
+    opacity: 0;
+    visibility: hidden;
+    transition: all 0.3s ease;
+    z-index: 10;
+    width: max-content;
+    max-width: 250px;
+    box-shadow: var(--shadow-md);
+}
+
+.tooltip-trigger:hover::before {
+    opacity: 1;
+    visibility: visible;
+    bottom: 130%;
+}
+
+/* Enhanced Form Styles */
+.form-section {
+    margin-bottom: 1.5rem;
+    position: relative;
+}
+
+.form-section label {
+    display: flex;
+    align-items: center;
+    margin-bottom: 0.5rem;
+    font-weight: 500;
+}
+
+.form-section select,
+.form-section input {
+    width: 100%;
+    padding: 0.8rem;
+    border: 1px solid var(--border-color);
+    border-radius: var(--border-radius-sm);
+    font-size: 1rem;
+    transition: all 0.3s ease;
+}
+
+.form-section select:hover,
+.form-section input:hover {
+    border-color: var(--primary-color);
+}
+
+.form-section select:focus,
+.form-section input:focus {
+    outline: none;
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 2px var(--primary-light);
+}
+
+/* Hub Selection Styles */
+.hub-selection {
+    background: var(--card-background);
+    padding: 1.5rem;
+    border-radius: var(--border-radius-md);
+    margin-bottom: 1.5rem;
+}
+
+.hub-selection h3 {
+    display: flex;
+    align-items: center;
+    margin-bottom: 1rem;
+    color: var(--primary-color);
+}
+
+/* Number Input Styles */
+.number-input-wrapper {
+    position: relative;
+    display: flex;
+    align-items: center;
+}
+
+.number-input-wrapper input[type="number"] {
+    padding-right: 2.5rem;
+    padding-left: 2.5rem;
+    text-align: center;
+}
+
+.number-input-wrapper input[type="number"]::-webkit-inner-spin-button,
+.number-input-wrapper input[type="number"]::-webkit-outer-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+}
+
+.number-btn {
+    position: absolute;
+    width: 2rem;
+    height: 100%;
+    border: none;
+    background: var(--primary-light);
+    color: var(--primary-color);
+    font-size: 1.2rem;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s ease;
+}
+
+.number-btn:hover {
+    background: var(--primary-color);
+    color: white;
+}
+
+.number-btn.decrement {
+    left: 0;
+    border-radius: var(--border-radius-sm) 0 0 var(--border-radius-sm);
+}
+
+.number-btn.increment {
+    right: 0;
+    border-radius: 0 var(--border-radius-sm) var(--border-radius-sm) 0;
+}
+
 /* Responsive Design */
 @media (min-width: 768px) {
     .container {
@@ -547,6 +745,39 @@ h1, h2, h3, h4, h5, h6 {
     
     .meetings-iframe-container iframe {
         height: 500px;
+    }
+}
+
+@media (max-width: 768px) {
+    .navigation-tabs {
+        flex-direction: column;
+        gap: 0.5rem;
+    }
+    
+    .tab-button {
+        width: 100%;
+        justify-content: center;
+        padding: 0.8rem;
+    }
+    
+    .tooltip-trigger::before {
+        width: 200px;
+        white-space: normal;
+        text-align: center;
+        transform: translateX(-50%) translateY(-10px);
+    }
+    
+    .hub-selection {
+        padding: 1rem;
+    }
+    
+    .number-btn {
+        width: 1.8rem;
+    }
+    
+    .number-input-wrapper input[type="number"] {
+        padding-right: 2rem;
+        padding-left: 2rem;
     }
 }
 

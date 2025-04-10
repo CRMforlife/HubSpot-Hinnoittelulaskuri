@@ -84,10 +84,90 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     };
 
+    // Tab functionality
+    const tabButtons = document.querySelectorAll('.tab-button');
+    const tabContents = document.querySelectorAll('.tab-content');
+
+    tabButtons.forEach(button => {
+        button.addEventListener('click', () => {
+            const tabId = button.dataset.tab;
+            
+            // Update active states
+            tabButtons.forEach(btn => btn.classList.remove('active'));
+            tabContents.forEach(content => content.classList.remove('active'));
+            
+            button.classList.add('active');
+            document.querySelector(`#${tabId}-section`).classList.add('active');
+            
+            // Update state
+            state.mode = tabId;
+            calculatePrice();
+        });
+    });
+
+    // Initialize tooltips for better accessibility
+    const tooltips = document.querySelectorAll('.tooltip-trigger');
+    tooltips.forEach(tooltip => {
+        tooltip.setAttribute('role', 'tooltip');
+        tooltip.setAttribute('tabindex', '0');
+        
+        // Handle keyboard interaction
+        tooltip.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter' || e.key === ' ') {
+                e.preventDefault();
+                tooltip.classList.add('tooltip-visible');
+            }
+        });
+        
+        tooltip.addEventListener('blur', () => {
+            tooltip.classList.remove('tooltip-visible');
+        });
+    });
+
+    // Enhance form interactions
+    const formInputs = document.querySelectorAll('input[type="number"]');
+    formInputs.forEach(input => {
+        // Add increment/decrement buttons
+        const wrapper = document.createElement('div');
+        wrapper.className = 'number-input-wrapper';
+        input.parentNode.insertBefore(wrapper, input);
+        wrapper.appendChild(input);
+
+        const decrementBtn = document.createElement('button');
+        decrementBtn.className = 'number-btn decrement';
+        decrementBtn.textContent = '-';
+        decrementBtn.type = 'button';
+        
+        const incrementBtn = document.createElement('button');
+        incrementBtn.className = 'number-btn increment';
+        incrementBtn.textContent = '+';
+        incrementBtn.type = 'button';
+
+        wrapper.insertBefore(decrementBtn, input);
+        wrapper.appendChild(incrementBtn);
+
+        // Handle button clicks
+        decrementBtn.addEventListener('click', () => {
+            const min = parseInt(input.min) || 0;
+            const step = parseInt(input.step) || 1;
+            const newValue = Math.max(min, parseInt(input.value) - step);
+            input.value = newValue;
+            input.dispatchEvent(new Event('input'));
+        });
+
+        incrementBtn.addEventListener('click', () => {
+            const step = parseInt(input.step) || 1;
+            const newValue = parseInt(input.value) + step;
+            input.value = newValue;
+            input.dispatchEvent(new Event('input'));
+        });
+    });
+
     // Initialize form
     function initializeForm() {
+        // Show platform section by default
         customHubSection.style.display = 'none';
-        platformSection.style.display = 'block';
+        platformSection.classList.add('active');
         calculatePrice();
     }
 
