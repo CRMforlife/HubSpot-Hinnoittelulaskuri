@@ -553,4 +553,52 @@ h1, h2, h3, h4, h5, h6 {
     .meetings-iframe-container iframe {
         height: 500px;
     }
+}
+
+.footer {
+    margin-top: 4rem;
+    padding: 2rem 0;
+    border-top: 1px solid var(--border-color);
+}
+
+.footer-content {
+    max-width: 1400px;
+    margin: 0 auto;
+    padding: 0 2rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 1rem;
+}
+
+.footer-text {
+    color: var(--text-color);
+    font-size: 1rem;
+}
+
+.footer-logo {
+    height: 30px;
+    width: auto;
+    transition: opacity 0.2s ease;
+}
+
+.footer-logo:hover {
+    opacity: 0.8;
+}
+
+@media (max-width: 767px) {
+    .footer {
+        margin-top: 3rem;
+        padding: 1.5rem 0;
+    }
+
+    .footer-content {
+        padding: 0 1rem;
+        flex-direction: column;
+        text-align: center;
+    }
+
+    .footer-logo {
+        height: 25px;
+    }
 } 
