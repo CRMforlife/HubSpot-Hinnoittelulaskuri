@@ -558,10 +558,81 @@ document.addEventListener('DOMContentLoaded', function() {
         console.log('Initial state:', state);
     }
 
-    // Initialize the form
-    try {
-        initializeForm();
-    } catch (error) {
-        console.error('Error initializing form:', error);
+    // Test calculator functionality
+    function runTests() {
+        console.log('Starting calculator tests...');
+
+        // Test Platform pricing
+        function testPlatformPricing() {
+            console.log('\nTesting Platform pricing:');
+            
+            // Test Starter
+            state.mode = 'platform';
+            state.platformTier = 'starter';
+            state.platformUsers = 3;
+            calculatePrice();
+            console.log('Platform Starter (3 users):', 
+                `Expected: ${formatPrice(45)} €/kk (0€ + 3 × 15€)`, 
+                `Actual: ${elements.totalPriceElement.textContent}`);
+
+            // Test Professional
+            state.platformTier = 'professional';
+            state.platformUsers = 7;
+            calculatePrice();
+            console.log('Platform Professional (7 users):', 
+                `Expected: ${formatPrice(1373)} €/kk (1283€ + 2 × 45€)`, 
+                `Actual: ${elements.totalPriceElement.textContent}`);
+
+            // Test Enterprise
+            state.platformTier = 'enterprise';
+            state.platformUsers = 10;
+            calculatePrice();
+            console.log('Platform Enterprise (10 users):', 
+                `Expected: ${formatPrice(4835)} €/kk (4610€ + 3 × 75€)`, 
+                `Actual: ${elements.totalPriceElement.textContent}`);
+        }
+
+        // Test Custom Hub pricing
+        function testCustomPricing() {
+            console.log('\nTesting Custom Hub pricing:');
+            
+            // Reset state
+            state.mode = 'custom';
+            state.marketingTier = 'professional';
+            state.marketingContacts = 5000;
+            state.salesTier = 'professional';
+            state.salesUsers = 8;
+            state.serviceTier = 'starter';
+            state.serviceUsers = 2;
+            state.contentTier = 'professional';
+            state.operationsTier = 'professional';
+            
+            calculatePrice();
+            
+            // Expected calculations:
+            // Marketing Pro: 890€ + (3000/1000 × 45€) = 1025€
+            // Sales Pro: 450€ + (3 × 90€) = 720€
+            // Service Starter: 50€ + (1 × 25€) = 75€
+            // Content Pro: 360€
+            // Operations Pro: 800€
+            // Total: 2980€
+            
+            console.log('Custom Solution Test:', 
+                `Expected total: ${formatPrice(2980)} €/kk`,
+                `Actual: ${elements.totalPriceElement.textContent}`);
+        }
+
+        // Run all tests
+        testPlatformPricing();
+        testCustomPricing();
+
+        console.log('\nTests completed.');
     }
+
+    // Run tests after initialization
+    document.addEventListener('DOMContentLoaded', () => {
+        initializeForm();
+        // Uncomment to run tests
+        // runTests();
+    });
 }); 
