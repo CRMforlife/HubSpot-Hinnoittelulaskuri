@@ -171,39 +171,132 @@ h1, h2, h3, h4, h5, h6 {
     max-width: calc((100% * 3) / 7);
 }
 
-.form-section {
+.form-group {
     margin-bottom: 1.5rem;
+    position: relative;
 }
 
-.form-section label,
-.hub-selection label {
+.form-group label {
     display: block;
     margin-bottom: 0.5rem;
     font-weight: 500;
     color: var(--text-color);
 }
 
-.form-section select,
-.form-section input,
-.hub-selection select,
-.hub-selection input {
+.form-group select,
+.form-group input[type="number"] {
     width: 100%;
     padding: 0.75rem;
     border: 1px solid var(--border-color);
-    border-radius: 8px;
-    font-size: 1rem;
-    background-color: white;
+    border-radius: 0.5rem;
+    background-color: var(--input-bg);
     color: var(--text-color);
+    font-size: 1rem;
+    transition: border-color 0.2s ease;
+}
+
+.form-group select:hover,
+.form-group input[type="number"]:hover {
+    border-color: var(--primary-color);
+}
+
+.form-group select:focus,
+.form-group input[type="number"]:focus {
+    outline: none;
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 2px var(--primary-light);
+}
+
+.tooltip-trigger {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 20px;
+    height: 20px;
+    margin-left: 0.5rem;
+    border-radius: 50%;
+    background-color: var(--primary-light);
+    color: var(--primary-color);
+    font-size: 0.875rem;
+    cursor: help;
+    vertical-align: middle;
     transition: all 0.2s ease;
 }
 
-.form-section select:focus,
-.form-section input:focus,
-.hub-selection select:focus,
-.hub-selection input:focus {
-    outline: none;
-    border-color: var(--primary-color);
-    box-shadow: 0 0 0 2px rgba(0, 163, 84, 0.1);
+.tooltip-trigger:hover {
+    background-color: var(--primary-color);
+    color: white;
+}
+
+.tooltip-trigger[data-tooltip] {
+    position: relative;
+}
+
+.tooltip-trigger[data-tooltip]::after {
+    content: attr(data-tooltip);
+    position: absolute;
+    bottom: 100%;
+    left: 50%;
+    transform: translateX(-50%) translateY(-8px);
+    padding: 0.5rem 1rem;
+    background-color: var(--tooltip-bg, rgba(0, 0, 0, 0.8));
+    color: white;
+    font-size: 0.875rem;
+    white-space: nowrap;
+    border-radius: 0.25rem;
+    opacity: 0;
+    visibility: hidden;
+    transition: all 0.2s ease;
+    pointer-events: none;
+    z-index: 10;
+}
+
+.tooltip-trigger[data-tooltip]:hover::after {
+    opacity: 1;
+    visibility: visible;
+    transform: translateX(-50%) translateY(-4px);
+}
+
+/* Number input styling */
+.number-input-wrapper {
+    position: relative;
+    display: flex;
+    align-items: center;
+}
+
+.number-input-wrapper input[type="number"] {
+    text-align: center;
+    appearance: textfield;
+    -moz-appearance: textfield;
+    padding-left: 2.5rem;
+    padding-right: 2.5rem;
+}
+
+.number-btn {
+    position: absolute;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 2rem;
+    height: 100%;
+    background: none;
+    border: none;
+    color: var(--primary-color);
+    font-size: 1.25rem;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.number-btn:hover {
+    color: var(--primary-dark);
+}
+
+.number-btn.decrement {
+    left: 0;
+}
+
+.number-btn.increment {
+    right: 0;
 }
 
 /* Hub Selection */
@@ -266,55 +359,6 @@ h1, h2, h3, h4, h5, h6 {
     padding-top: var(--spacing-md);
     border-top: 2px solid var(--primary-color);
     color: var(--secondary-color);
-}
-
-/* Number Input Wrapper */
-.number-input-wrapper {
-    position: relative;
-    display: flex;
-    align-items: stretch;
-    width: 100%;
-}
-
-.number-input-wrapper input[type="number"] {
-    text-align: center;
-    appearance: textfield;
-    -moz-appearance: textfield;
-    padding-left: 2.5rem;
-}
-
-.number-btn {
-    position: absolute;
-    top: 0;
-    bottom: 0;
-    width: 2.5rem;
-    border: none;
-    background: var(--primary-light);
-    color: var(--primary-color);
-    font-size: 1.2rem;
-    cursor: pointer;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    transition: all 0.2s ease;
-    z-index: 1;
-}
-
-.number-btn:hover {
-    background: var(--primary-color);
-    color: white;
-}
-
-.number-btn.decrement {
-    left: 0;
-    border-top-left-radius: var(--border-radius-sm);
-    border-bottom-left-radius: var(--border-radius-sm);
-}
-
-.number-btn.increment {
-    right: 0;
-    border-top-right-radius: var(--border-radius-sm);
-    border-bottom-right-radius: var(--border-radius-sm);
 }
 
 /* Footer */
@@ -479,8 +523,8 @@ h1, h2, h3, h4, h5, h6 {
         padding: var(--spacing-sm);
     }
     
-    .form-section select,
-    .form-section input {
+    .form-group select,
+    .form-group input[type="number"] {
         padding: 0.7rem;
     }
     
