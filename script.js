@@ -91,11 +91,6 @@ document.addEventListener('DOMContentLoaded', function() {
             // Update input value to show the validated number
             input.value = value;
             
-            // Trigger change event for select elements
-            if (input.tagName.toLowerCase() === 'select') {
-                input.dispatchEvent(new Event('change'));
-            }
-            
             return value;
         } catch (error) {
             console.error('Error validating input:', error);
@@ -277,6 +272,72 @@ document.addEventListener('DOMContentLoaded', function() {
         calculatePrice();
     }
 
+    // Initialize form with event listeners
+    function initializeForm() {
+        // Platform section
+        elements.platformTierSelect.addEventListener('change', (e) => {
+            state.platformTier = e.target.value;
+            updateInputVisibility();
+        });
+
+        elements.platformUsersInput.addEventListener('input', (e) => {
+            state.platformUsers = validateNumberInput(e.target, 1);
+            calculatePrice();
+        });
+
+        // Marketing section
+        elements.marketingTierSelect.addEventListener('change', (e) => {
+            state.marketingTier = e.target.value;
+            updateInputVisibility();
+        });
+
+        elements.marketingContactsInput.addEventListener('input', (e) => {
+            state.marketingContacts = validateNumberInput(e.target, 1000);
+            calculatePrice();
+        });
+
+        // Sales section
+        elements.salesTierSelect.addEventListener('change', (e) => {
+            state.salesTier = e.target.value;
+            updateInputVisibility();
+        });
+
+        elements.salesUsersInput.addEventListener('input', (e) => {
+            state.salesUsers = validateNumberInput(e.target, 1);
+            calculatePrice();
+        });
+
+        // Service section
+        elements.serviceTierSelect.addEventListener('change', (e) => {
+            state.serviceTier = e.target.value;
+            updateInputVisibility();
+        });
+
+        elements.serviceUsersInput.addEventListener('input', (e) => {
+            state.serviceUsers = validateNumberInput(e.target, 1);
+            calculatePrice();
+        });
+
+        // Content section
+        elements.contentTierSelect.addEventListener('change', (e) => {
+            state.contentTier = e.target.value;
+            calculatePrice();
+        });
+
+        // Operations section
+        elements.operationsTierSelect.addEventListener('change', (e) => {
+            state.operationsTier = e.target.value;
+            calculatePrice();
+        });
+
+        // Initialize tooltips
+        initializeTooltips();
+
+        // Initial visibility update and price calculation
+        updateInputVisibility();
+        calculatePrice();
+    }
+
     // Calculate price based on selected options
     function calculatePrice() {
         try {
@@ -413,31 +474,6 @@ document.addEventListener('DOMContentLoaded', function() {
         
         const tier = pricing.operations[state.operationsTier];
         return tier ? tier.base : 0;
-    }
-
-    // Update price display
-    function updatePriceDisplay(totalPrice, hubPrices) {
-        try {
-            if (elements.hubPricesElement && elements.totalPriceElement) {
-                // Format hub prices
-                const hubPricesHtml = Object.entries(hubPrices).map(([name, price]) => `
-                    <div class="hub-price">
-                        <span class="hub-name">${escapeHtml(name)}</span>
-                        <span class="hub-price-value">${formatPrice(price)}</span>
-                    </div>
-                `).join('');
-
-                // Update the display safely
-                requestAnimationFrame(() => {
-                    elements.hubPricesElement.innerHTML = hubPricesHtml;
-                    elements.totalPriceElement.textContent = formatPrice(totalPrice);
-                });
-            }
-        } catch (error) {
-            console.error('Error updating price display:', error);
-            if (elements.hubPricesElement) elements.hubPricesElement.innerHTML = '';
-            if (elements.totalPriceElement) elements.totalPriceElement.textContent = formatPrice(0);
-        }
     }
 
     function formatPrice(price) {
