@@ -3,34 +3,97 @@ document.addEventListener('DOMContentLoaded', function() {
     // Hinnoitteludata
     const pricing = {
         platform: {
-            starter: { base: 0, extraPerUser: 15 },
-            professional: { base: 1283, includedUsers: 5, extraPerUser: 45 },
-            enterprise: { base: 4610, includedUsers: 7, extraPerUser: 75 }
+            starter: {
+                base: 0,
+                extraPerUser: 15,
+                includedUsers: 1
+            },
+            professional: {
+                base: 1283,
+                extraPerUser: 45,
+                includedUsers: 5
+            },
+            enterprise: {
+                base: 4610,
+                extraPerUser: 75,
+                includedUsers: 7
+            }
         },
         marketing: {
-            starter: { base: 50, includedContacts: 1000, extraUnit: 1000, extraCost: 46 },
-            professional: { base: 890, includedContacts: 5000, extraUnit: 5000, extraCost: 250 },
-            enterprise: { base: 3200, includedContacts: 10000, extraUnit: 10000, extraCost: 92 }
+            starter: {
+                base: 50,
+                includedContacts: 1000,
+                extraUnit: 1000,
+                extraCost: 25
+            },
+            professional: {
+                base: 890,
+                includedContacts: 2000,
+                extraUnit: 1000,
+                extraCost: 45
+            },
+            enterprise: {
+                base: 3600,
+                includedContacts: 10000,
+                extraUnit: 1000,
+                extraCost: 35
+            }
         },
         sales: {
-            starter: { base: 50, extraPerUser: 15 },
-            professional: { base: 450, extraPerUser: 80 },
-            enterprise: { base: 1200, extraPerUser: 120 }
+            starter: {
+                base: 50,
+                extraPerUser: 25,
+                includedUsers: 1
+            },
+            professional: {
+                base: 450,
+                extraPerUser: 90,
+                includedUsers: 5
+            },
+            enterprise: {
+                base: 1200,
+                extraPerUser: 120,
+                includedUsers: 10
+            }
         },
         service: {
-            starter: { base: 50, extraPerUser: 15 },
-            professional: { base: 450, extraPerUser: 80 },
-            enterprise: { base: 1200, extraPerUser: 120 }
+            starter: {
+                base: 50,
+                extraPerUser: 25,
+                includedUsers: 1
+            },
+            professional: {
+                base: 450,
+                extraPerUser: 90,
+                includedUsers: 5
+            },
+            enterprise: {
+                base: 1200,
+                extraPerUser: 120,
+                includedUsers: 10
+            }
         },
         content: {
-            starter: { base: 50 },
-            professional: { base: 450 },
-            enterprise: { base: 1200 }
+            starter: {
+                base: 0
+            },
+            professional: {
+                base: 360
+            },
+            enterprise: {
+                base: 1200
+            }
         },
         operations: {
-            starter: { base: 50 },
-            professional: { base: 800 },
-            enterprise: { base: 2000 }
+            starter: {
+                base: 0
+            },
+            professional: {
+                base: 800
+            },
+            enterprise: {
+                base: 2000
+            }
         }
     };
 
@@ -220,10 +283,11 @@ document.addEventListener('DOMContentLoaded', function() {
         if (!tierData) return 0;
 
         if (tier === 'starter') {
+            // Starter: Base + (users * per user fee)
             return tierData.base + (users * tierData.extraPerUser);
         } else {
-            const includedUsers = tierData.includedUsers || 0;
-            const extraUsers = Math.max(0, users - includedUsers);
+            // Professional/Enterprise: Base + (extra users * per user fee)
+            const extraUsers = Math.max(0, users - tierData.includedUsers);
             return tierData.base + (extraUsers * tierData.extraPerUser);
         }
     }
@@ -236,8 +300,8 @@ document.addEventListener('DOMContentLoaded', function() {
         const tierData = pricing.marketing[tier];
         if (!tierData) return 0;
 
-        const includedContacts = tierData.includedContacts || 0;
-        const extraContacts = Math.max(0, contacts - includedContacts);
+        // Calculate extra contacts cost
+        const extraContacts = Math.max(0, contacts - tierData.includedContacts);
         const extraUnits = Math.ceil(extraContacts / tierData.extraUnit);
         return tierData.base + (extraUnits * tierData.extraCost);
     }
@@ -250,7 +314,9 @@ document.addEventListener('DOMContentLoaded', function() {
         const tierData = pricing.sales[tier];
         if (!tierData) return 0;
 
-        return tierData.base + ((users - 1) * tierData.extraPerUser);
+        // Calculate extra users cost
+        const extraUsers = Math.max(0, users - tierData.includedUsers);
+        return tierData.base + (extraUsers * tierData.extraPerUser);
     }
 
     function calculateServicePrice() {
@@ -261,7 +327,9 @@ document.addEventListener('DOMContentLoaded', function() {
         const tierData = pricing.service[tier];
         if (!tierData) return 0;
 
-        return tierData.base + ((users - 1) * tierData.extraPerUser);
+        // Calculate extra users cost
+        const extraUsers = Math.max(0, users - tierData.includedUsers);
+        return tierData.base + (extraUsers * tierData.extraPerUser);
     }
 
     function calculateContentPrice() {
@@ -314,36 +382,17 @@ document.addEventListener('DOMContentLoaded', function() {
                 });
             }
 
-            // Force price display update
-            const priceDisplay = hubPrices
+            // Update price display
+            elements.hubPricesElement.innerHTML = hubPrices
                 .map(hub => `<div class="hub-price">${escapeHtml(hub.name)}: ${formatPrice(hub.price)} €/kk</div>`)
                 .join('');
             
-            // Update DOM directly
-            if (elements.hubPricesElement) {
-                elements.hubPricesElement.innerHTML = priceDisplay;
-            }
-            
-            if (elements.totalPriceElement) {
-                elements.totalPriceElement.textContent = `${formatPrice(totalPrice)} €/kk`;
-            }
-
-            // Log for debugging
-            console.log('Price calculation:', {
-                mode: state.mode,
-                hubPrices,
-                totalPrice,
-                displayPrice: formatPrice(totalPrice)
-            });
+            elements.totalPriceElement.textContent = `${formatPrice(totalPrice)} €/kk`;
 
         } catch (error) {
             console.error('Error calculating price:', error);
-            if (elements.hubPricesElement) {
-                elements.hubPricesElement.innerHTML = '';
-            }
-            if (elements.totalPriceElement) {
-                elements.totalPriceElement.textContent = '0 €/kk';
-            }
+            elements.hubPricesElement.innerHTML = '';
+            elements.totalPriceElement.textContent = '0 €/kk';
         }
     }
 
