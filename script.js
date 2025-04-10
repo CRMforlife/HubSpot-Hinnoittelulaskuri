@@ -114,48 +114,51 @@ document.addEventListener('DOMContentLoaded', function() {
                 targetSection.classList.add('active');
             }
             
-            // Update state and reset values
+            // Update state mode
             state.mode = tab;
             
+            // Reset all state values
             if (tab === 'platform') {
-                // Reset platform values
+                // Set platform defaults
                 state.platformTier = 'starter';
                 state.platformUsers = 1;
-                elements.platformTierSelect.value = 'starter';
-                elements.platformUsersInput.value = '1';
                 
                 // Reset custom values
                 state.marketingTier = 'none';
+                state.marketingContacts = 1000;
                 state.salesTier = 'none';
+                state.salesUsers = 1;
                 state.serviceTier = 'none';
+                state.serviceUsers = 1;
                 state.contentTier = 'none';
                 state.operationsTier = 'none';
-                
-                elements.marketingTierSelect.value = 'none';
-                elements.salesTierSelect.value = 'none';
-                elements.serviceTierSelect.value = 'none';
-                elements.contentTierSelect.value = 'none';
-                elements.operationsTierSelect.value = 'none';
             } else {
                 // Reset platform values
                 state.platformTier = 'none';
                 state.platformUsers = 1;
-                elements.platformTierSelect.value = 'none';
-                elements.platformUsersInput.value = '1';
                 
-                // Reset custom values
+                // Reset custom values to none
                 state.marketingTier = 'none';
+                state.marketingContacts = 1000;
                 state.salesTier = 'none';
+                state.salesUsers = 1;
                 state.serviceTier = 'none';
+                state.serviceUsers = 1;
                 state.contentTier = 'none';
                 state.operationsTier = 'none';
-                
-                elements.marketingTierSelect.value = 'none';
-                elements.salesTierSelect.value = 'none';
-                elements.serviceTierSelect.value = 'none';
-                elements.contentTierSelect.value = 'none';
-                elements.operationsTierSelect.value = 'none';
             }
+            
+            // Reset all form elements
+            elements.platformTierSelect.value = state.platformTier;
+            elements.platformUsersInput.value = state.platformUsers;
+            elements.marketingTierSelect.value = 'none';
+            elements.marketingContactsInput.value = '1000';
+            elements.salesTierSelect.value = 'none';
+            elements.salesUsersInput.value = '1';
+            elements.serviceTierSelect.value = 'none';
+            elements.serviceUsersInput.value = '1';
+            elements.contentTierSelect.value = 'none';
+            elements.operationsTierSelect.value = 'none';
             
             // Update visibility and calculate price
             updateInputVisibility();
@@ -291,52 +294,25 @@ document.addEventListener('DOMContentLoaded', function() {
         const platformUsersGroup = document.getElementById('platform-users-group');
         if (platformUsersGroup) {
             platformUsersGroup.style.display = state.platformTier === 'none' ? 'none' : 'block';
-            if (state.platformTier === 'none') {
-                state.platformUsers = 1;
-                if (elements.platformUsersInput) {
-                    elements.platformUsersInput.value = '1';
-                }
-            }
         }
 
         // Marketing section
         const marketingContactsGroup = document.getElementById('marketing-contacts-group');
         if (marketingContactsGroup) {
             marketingContactsGroup.style.display = state.marketingTier === 'none' ? 'none' : 'block';
-            if (state.marketingTier === 'none') {
-                state.marketingContacts = 1000;
-                if (elements.marketingContactsInput) {
-                    elements.marketingContactsInput.value = '1000';
-                }
-            }
         }
 
         // Sales section
         const salesUsersGroup = document.getElementById('sales-users-group');
         if (salesUsersGroup) {
             salesUsersGroup.style.display = state.salesTier === 'none' ? 'none' : 'block';
-            if (state.salesTier === 'none') {
-                state.salesUsers = 1;
-                if (elements.salesUsersInput) {
-                    elements.salesUsersInput.value = '1';
-                }
-            }
         }
 
         // Service section
         const serviceUsersGroup = document.getElementById('service-users-group');
         if (serviceUsersGroup) {
             serviceUsersGroup.style.display = state.serviceTier === 'none' ? 'none' : 'block';
-            if (state.serviceTier === 'none') {
-                state.serviceUsers = 1;
-                if (elements.serviceUsersInput) {
-                    elements.serviceUsersInput.value = '1';
-                }
-            }
         }
-
-        // Recalculate price after visibility updates
-        calculatePrice();
     }
 
     // Calculate price based on selected options
@@ -345,66 +321,58 @@ document.addEventListener('DOMContentLoaded', function() {
         let hubPrices = [];
 
         if (state.mode === 'platform') {
-            totalPrice = calculatePlatformPrice();
-            hubPrices.push({
-                name: 'HubSpot Platform',
-                price: totalPrice
-            });
+            if (state.platformTier !== 'none') {
+                totalPrice = calculatePlatformPrice();
+                hubPrices.push({
+                    name: 'HubSpot Platform',
+                    price: totalPrice
+                });
+            }
         } else {
             // Custom mode calculations
             if (state.marketingTier !== 'none') {
                 const marketingPrice = calculateMarketingPrice();
-                if (marketingPrice > 0) {
-                    hubPrices.push({
-                        name: 'Marketing Hub',
-                        price: marketingPrice
-                    });
-                    totalPrice += marketingPrice;
-                }
+                hubPrices.push({
+                    name: 'Marketing Hub',
+                    price: marketingPrice
+                });
+                totalPrice += marketingPrice;
             }
 
             if (state.salesTier !== 'none') {
                 const salesPrice = calculateSalesPrice();
-                if (salesPrice > 0) {
-                    hubPrices.push({
-                        name: 'Sales Hub',
-                        price: salesPrice
-                    });
-                    totalPrice += salesPrice;
-                }
+                hubPrices.push({
+                    name: 'Sales Hub',
+                    price: salesPrice
+                });
+                totalPrice += salesPrice;
             }
 
             if (state.serviceTier !== 'none') {
                 const servicePrice = calculateServicePrice();
-                if (servicePrice > 0) {
-                    hubPrices.push({
-                        name: 'Service Hub',
-                        price: servicePrice
-                    });
-                    totalPrice += servicePrice;
-                }
+                hubPrices.push({
+                    name: 'Service Hub',
+                    price: servicePrice
+                });
+                totalPrice += servicePrice;
             }
 
             if (state.contentTier !== 'none') {
                 const contentPrice = calculateContentPrice();
-                if (contentPrice > 0) {
-                    hubPrices.push({
-                        name: 'Content Hub',
-                        price: contentPrice
-                    });
-                    totalPrice += contentPrice;
-                }
+                hubPrices.push({
+                    name: 'Content Hub',
+                    price: contentPrice
+                });
+                totalPrice += contentPrice;
             }
 
             if (state.operationsTier !== 'none') {
                 const operationsPrice = calculateOperationsPrice();
-                if (operationsPrice > 0) {
-                    hubPrices.push({
-                        name: 'Operations Hub',
-                        price: operationsPrice
-                    });
-                    totalPrice += operationsPrice;
-                }
+                hubPrices.push({
+                    name: 'Operations Hub',
+                    price: operationsPrice
+                });
+                totalPrice += operationsPrice;
             }
         }
 
@@ -497,13 +465,6 @@ document.addEventListener('DOMContentLoaded', function() {
         const div = document.createElement('div');
         div.textContent = str;
         return div.innerHTML;
-    }
-
-    // Update state and UI
-    function updateState(key, value) {
-        state[key] = value;
-        updateInputVisibility();
-        calculatePrice();
     }
 
     // Initialize form with event listeners
