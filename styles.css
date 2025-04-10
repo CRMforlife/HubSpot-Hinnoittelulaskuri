@@ -214,17 +214,18 @@ h1, h2, h3, h4, h5, h6 {
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    width: 20px;
-    height: 20px;
+    width: 24px;
+    height: 24px;
     border-radius: 50%;
     background-color: var(--primary-light);
     color: var(--primary-color);
-    font-size: 0.875rem;
+    font-size: 1rem;
     cursor: pointer;
     transition: all 0.2s ease;
     -webkit-tap-highlight-color: transparent;
     position: relative;
-    margin-left: 0.25rem;
+    margin-left: 0.5rem;
+    border: none;
 }
 
 .tooltip-trigger:hover,
@@ -238,83 +239,74 @@ h1, h2, h3, h4, h5, h6 {
 .tooltip-trigger[data-tooltip]::after {
     content: attr(data-tooltip);
     position: absolute;
-    z-index: 10;
-    width: max-content;
-    max-width: 250px;
-    padding: 0.75rem 1rem;
-    background-color: var(--tooltip-bg, rgba(0, 0, 0, 0.9));
+    background-color: var(--primary-color);
     color: white;
-    font-size: 0.875rem;
-    line-height: 1.4;
-    border-radius: 0.5rem;
-    box-shadow: var(--shadow-md);
+    padding: 1rem;
+    border-radius: 8px;
+    font-size: 0.9375rem;
+    line-height: 1.5;
+    white-space: normal;
+    z-index: 1000;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
     opacity: 0;
     visibility: hidden;
     transition: all 0.2s ease;
-    pointer-events: none;
 }
 
+/* Desktop styles */
 @media (min-width: 768px) {
     .tooltip-trigger[data-tooltip]::after {
-        bottom: 100%;
+        width: max-content;
+        max-width: 300px;
+        bottom: calc(100% + 12px);
         left: 50%;
-        transform: translateX(-50%) translateY(-8px);
-        white-space: nowrap;
+        transform: translateX(-50%) translateY(5px);
     }
 
     .tooltip-trigger[data-tooltip]:hover::after,
     .tooltip-trigger[data-tooltip]:focus::after,
     .tooltip-trigger[data-tooltip].active::after {
-        transform: translateX(-50%) translateY(-4px);
         opacity: 1;
         visibility: visible;
+        transform: translateX(-50%) translateY(0);
+    }
+
+    /* Ensure tooltip stays within viewport */
+    .tooltip-trigger[data-tooltip] {
+        position: relative;
     }
 }
 
+/* Mobile styles */
 @media (max-width: 767px) {
     .tooltip-trigger {
-        width: 28px; /* Larger touch target */
+        width: 28px;
         height: 28px;
-        font-size: 1.1rem;
-    }
-
-    .tooltip-trigger::before {
-        content: '';
-        position: absolute;
-        top: -8px;
-        right: -8px;
-        bottom: -8px;
-        left: -8px;
     }
 
     .tooltip-trigger[data-tooltip]::after {
         position: fixed;
-        top: auto;
-        bottom: 1rem;
         left: 1rem;
         right: 1rem;
+        bottom: 1rem;
         width: auto;
-        max-width: none;
-        transform: none;
+        max-height: 50vh;
+        overflow-y: auto;
         margin: 0;
         padding: 1rem;
-        font-size: 1rem;
-        line-height: 1.5;
+        transform: translateY(100%);
         background-color: var(--primary-color);
         border-radius: var(--border-radius-md);
-        box-shadow: var(--shadow-lg);
-        z-index: 1000;
-        white-space: normal;
-        text-align: left;
+        font-size: 1rem;
     }
 
     .tooltip-trigger[data-tooltip].active::after {
         opacity: 1;
         visibility: visible;
-        transform: none;
+        transform: translateY(0);
     }
 
-    /* Add backdrop when tooltip is active */
+    /* Add backdrop when tooltip is active on mobile */
     .tooltip-trigger[data-tooltip].active::before {
         content: '';
         position: fixed;
@@ -322,15 +314,33 @@ h1, h2, h3, h4, h5, h6 {
         left: 0;
         right: 0;
         bottom: 0;
-        background-color: rgba(0, 0, 0, 0.4);
+        background-color: rgba(0, 0, 0, 0.5);
         z-index: 999;
     }
 
-    /* Ensure form inputs remain above the backdrop */
+    /* Ensure form elements stay above backdrop */
     .form-group {
         position: relative;
         z-index: 1001;
     }
+}
+
+/* Ensure tooltips don't get cut off at screen edges */
+.tooltip-trigger[data-tooltip]:has(+ .tooltip-trigger) {
+    margin-right: 1rem;
+}
+
+/* Prevent tooltip from being cut off at the left edge */
+.tooltip-trigger[data-tooltip]:first-child::after {
+    left: 0;
+    transform: translateY(5px);
+}
+
+/* Prevent tooltip from being cut off at the right edge */
+.tooltip-trigger[data-tooltip]:last-child::after {
+    right: 0;
+    left: auto;
+    transform: translateY(5px);
 }
 
 /* Number input styling */
