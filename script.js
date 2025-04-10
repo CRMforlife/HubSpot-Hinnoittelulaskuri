@@ -114,8 +114,34 @@ document.addEventListener('DOMContentLoaded', function() {
                 targetSection.classList.add('active');
             }
             
-            // Update state and recalculate
+            // Update state and reset prices
             state.mode = tab;
+            
+            // Reset all state values when switching tabs
+            if (tab === 'platform') {
+                state.platformTier = 'starter';
+                state.platformUsers = 1;
+                state.marketingTier = 'none';
+                state.salesTier = 'none';
+                state.serviceTier = 'none';
+                state.contentTier = 'none';
+                state.operationsTier = 'none';
+            } else {
+                state.platformTier = 'none';
+                state.platformUsers = 0;
+            }
+            
+            // Reset input values
+            elements.platformTierSelect.value = state.platformTier;
+            elements.platformUsersInput.value = state.platformUsers;
+            elements.marketingTierSelect.value = state.marketingTier;
+            elements.salesTierSelect.value = state.salesTier;
+            elements.serviceTierSelect.value = state.serviceTier;
+            elements.contentTierSelect.value = state.contentTier;
+            elements.operationsTierSelect.value = state.operationsTier;
+            
+            // Update visibility and calculate price
+            updateInputVisibility();
             calculatePrice();
         });
     });
@@ -333,6 +359,24 @@ document.addEventListener('DOMContentLoaded', function() {
         try {
             let totalPrice = 0;
             const hubPrices = {};
+
+            // Reset prices when switching tabs
+            if (state.mode === 'platform' && state.platformTier === 'none') {
+                elements.totalPriceElement.textContent = formatPrice(0);
+                elements.hubPricesElement.innerHTML = '';
+                return;
+            }
+
+            if (state.mode === 'custom' && 
+                state.marketingTier === 'none' && 
+                state.salesTier === 'none' && 
+                state.serviceTier === 'none' && 
+                state.contentTier === 'none' && 
+                state.operationsTier === 'none') {
+                elements.totalPriceElement.textContent = formatPrice(0);
+                elements.hubPricesElement.innerHTML = '';
+                return;
+            }
 
             if (state.mode === 'platform') {
                 const platformPrice = calculatePlatformPrice();
