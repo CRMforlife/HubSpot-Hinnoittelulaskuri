@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="fi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HubSpot Hinnoittelulaskuri</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="container">
+        <div class="hero">
+            <h1>HubSpot Hinnoittelulaskuri</h1>
+            <p class="subtitle">Laske HubSpotin hinta juuri sinun yrityksellesi</p>
+        </div>
+
+        <div class="instructions">
+            <h2>🔧 Miten käytän laskuria?</h2>
+            
+            <div class="instruction-section">
+                <h3>1. Valitse HubSpot Customer Platform -paketti</h3>
+                <p>Aloita valitsemalla HubSpot Customer Platform -paketti, joka sopii yrityksellesi. Voit valita Starter, Professional tai Enterprise -paketin.</p>
+                <ul>
+                    <li>Valitse paketti pudotusvalikosta</li>
+                    <li>Syötä käyttäjien määrä</li>
+                    <li>Laskuri näyttää automaattisesti paketin hinnan</li>
+                </ul>
+            </div>
+            
+            <div class="instruction-section">
+                <h3>2. Rakenna oma ratkaisu</h3>
+                <p>Jos haluat rakentaa oman ratkaisun, valitse "Rakenna oma ratkaisu" -vaihtoehto ja valitse jokaiselle HubSpotin osa-alueelle sopiva paketti.</p>
+                <ul>
+                    <li>Valitse jokaiselle Hubille sopiva paketti</li>
+                    <li>Syötä käyttäjien määrä Sales ja Service Hubeille</li>
+                    <li>Syötä Marketing Hubin kontaktien määrä</li>
+                </ul>
+            </div>
+            
+            <div class="instruction-section">
+                <h3>3. Marketing Hub -kontaktien hinnoittelu</h3>
+                <p>Marketing Hubin hinta perustuu valittuun pakettiin ja kontaktien määrään. Jokainen paketti sisältää tietyn määrän kontakteja, ja ylimääräiset kontaktit laskutetaan erikseen.</p>
+                <ul>
+                    <li>Starter: 1,000 kontaktia (lisäkontaktit 46€/kk per 1,000 kontaktia)</li>
+                    <li>Professional: 5,000 kontaktia (lisäkontaktit 250€/kk per 5,000 kontaktia)</li>
+                    <li>Enterprise: 10,000 kontaktia (lisäkontaktit 92€/kk per 10,000 kontaktia)</li>
+                </ul>
+            </div>
+            
+            <div class="instruction-section">
+                <h3>4. Tarkista kokonaishinta</h3>
+                <p>Laskuri näyttää automaattisesti arvioidun kuukausihinnan valitsemiesi pakettien ja käyttäjien määrän perusteella. Tämä auttaa sinua budjetoimaan ja tekemään tietoisia päätöksiä. Saamasi hinta on suuntaa antava arvio joka tarkentuu vielä keskustelujemme perusteella. Lopuksi voit varata ajan asiantuntijalta tarkemman hinnan saamiseksi. Hinnassa ei ole mukana kehitykseen, tukeen ja käyttöönottoon liittyviä investointeja.</p>
+            </div>
+        </div>
+
+        <div class="calculator-form">
+            <div class="form-section">
+                <label for="mode">Valitse hinnoittelutapa:</label>
+                <select id="mode" name="mode">
+                    <option value="platform">HubSpot Customer Platform</option>
+                    <option value="custom">Rakenna oma ratkaisu</option>
+                </select>
+            </div>
+
+            <div id="platform-section">
+                <div class="form-section">
+                    <label for="platform-tier">Valitse paketti:</label>
+                    <select id="platform-tier" name="platform-tier">
+                        <option value="starter">Starter</option>
+                        <option value="professional">Professional</option>
+                        <option value="enterprise">Enterprise</option>
+                    </select>
+                </div>
+
+                <div class="form-section">
+                    <label for="platform-users">Käyttäjien määrä:</label>
+                    <input type="number" id="platform-users" name="platform-users" min="1" value="1">
+                </div>
+            </div>
+
+            <div id="custom-hub-section" style="display: none;">
+                <div class="hub-selection">
+                    <h3>Marketing Hub</h3>
+                    <label for="marketing-tier">Paketti:</label>
+                    <select id="marketing-tier" name="marketing-tier">
+                        <option value="starter">Starter</option>
+                        <option value="professional">Professional</option>
+                        <option value="enterprise">Enterprise</option>
+                    </select>
+                    <label for="marketing-contacts">Kontaktien määrä:</label>
+                    <input type="number" id="marketing-contacts" name="marketing-contacts" min="1000" step="1000" value="1000">
+                </div>
+
+                <div class="hub-selection">
+                    <h3>Sales Hub</h3>
+                    <label for="sales-tier">Paketti:</label>
+                    <select id="sales-tier" name="sales-tier">
+                        <option value="starter">Starter</option>
+                        <option value="professional">Professional</option>
+                        <option value="enterprise">Enterprise</option>
+                    </select>
+                    <label for="sales-users">Käyttäjien määrä:</label>
+                    <input type="number" id="sales-users" name="sales-users" min="1" value="1">
+                </div>
+
+                <div class="hub-selection">
+                    <h3>Service Hub</h3>
+                    <label for="service-tier">Paketti:</label>
+                    <select id="service-tier" name="service-tier">
+                        <option value="starter">Starter</option>
+                        <option value="professional">Professional</option>
+                        <option value="enterprise">Enterprise</option>
+                    </select>
+                    <label for="service-users">Käyttäjien määrä:</label>
+                    <input type="number" id="service-users" name="service-users" min="1" value="1">
+                </div>
+
+                <div class="hub-selection">
+                    <h3>Content Hub</h3>
+                    <label for="content-tier">Paketti:</label>
+                    <select id="content-tier" name="content-tier">
+                        <option value="starter">Starter</option>
+                        <option value="professional">Professional</option>
+                        <option value="enterprise">Enterprise</option>
+                    </select>
+                </div>
+
+                <div class="hub-selection">
+                    <h3>Operations Hub</h3>
+                    <label for="operations-tier">Paketti:</label>
+                    <select id="operations-tier" name="operations-tier">
+                        <option value="starter">Starter</option>
+                        <option value="professional">Professional</option>
+                        <option value="enterprise">Enterprise</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="result-card">
+                <h3>Arvioitu kuukausihinta</h3>
+                <div id="hub-prices"></div>
+                <div class="total-price">
+                    <span>Yhteensä:</span>
+                    <span id="total-price">0 €/kk</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Start of Meetings Embed Script -->
+        <div class="meetings-iframe-container" data-src="https://meetings.hubspot.com/heidi-sundstrom/yleinen-kalenterilinkki-suomenkielinen-15-min?embed=true"></div>
+        <script type="text/javascript" src="https://static.hsappstatic.net/MeetingsEmbed/ex/MeetingsEmbedCode.js"></script>
+        <!-- End of Meetings Embed Script -->
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html> 
