@@ -52,38 +52,50 @@ document.addEventListener('DOMContentLoaded', function() {
         serviceTierSelect: document.getElementById('service-tier'),
         serviceUsersInput: document.getElementById('service-users'),
         contentTierSelect: document.getElementById('content-tier'),
-        operationsTierSelect: document.getElementById('operations-tier')
+        operationsTierSelect: document.getElementById('operations-tier'),
+        marketingPackageSelect: document.getElementById('marketing-package'),
+        salesPackageSelect: document.getElementById('sales-package'),
+        servicePackageSelect: document.getElementById('service-package'),
+        contentPackageSelect: document.getElementById('content-package'),
+        operationsPackageSelect: document.getElementById('operations-package')
     };
 
     // State management
     const state = {
         mode: 'platform',
-        platformTier: 'starter',
-        platformUsers: 1,
-        marketingTier: 'starter',
-        marketingContacts: 1000,
-        salesTier: 'starter',
-        salesUsers: 1,
-        serviceTier: 'starter',
-        serviceUsers: 1,
-        contentTier: 'starter',
-        operationsTier: 'starter'
+        platformUsers: 0,
+        marketingUsers: 0,
+        salesUsers: 0,
+        serviceUsers: 0,
+        contentUsers: 0,
+        operationsUsers: 0,
+        marketingPackage: 'starter',
+        salesPackage: 'starter',
+        servicePackage: 'starter',
+        contentPackage: 'starter',
+        operationsPackage: 'starter'
     };
 
-    // Input validation
-    function validateNumberInput(input, min, max) {
-        let value = parseInt(input.value.replace(/\D/g, ''));
-        if (isNaN(value) || value === 0) {
-            value = min;
+    // Input validation with better error handling
+    function validateNumberInput(input, min = 0, max = Infinity) {
+        try {
+            let value = parseInt(input.value.replace(/\D/g, ''));
+            
+            if (isNaN(value) || value < min) {
+                value = min;
+            }
+            
+            if (value > max) {
+                value = max;
+            }
+            
+            // Update input value to show the validated number
+            input.value = value;
+            return value;
+        } catch (error) {
+            console.error('Error validating input:', error);
+            return min;
         }
-        if (value < min) {
-            value = min;
-        }
-        if (max && value > max) {
-            value = max;
-        }
-        input.value = value;
-        return value;
     }
 
     // Tab functionality
@@ -109,71 +121,60 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     });
 
-    // Enhanced tooltip functionality
-    const tooltipTriggers = document.querySelectorAll('.tooltip-trigger');
-    let activeTooltip = null;
+    // Initialize tooltips
+    function initializeTooltips() {
+        const tooltipTriggers = document.querySelectorAll('.tooltip-trigger');
+        let activeTooltip = null;
 
-    // Close tooltip when clicking outside
-    document.addEventListener('click', (e) => {
-        if (activeTooltip && !activeTooltip.contains(e.target)) {
-            activeTooltip.classList.remove('active');
-            activeTooltip = null;
-        }
-    });
-
-    tooltipTriggers.forEach(trigger => {
-        // Add ARIA attributes and role
-        trigger.setAttribute('role', 'button');
-        trigger.setAttribute('tabindex', '0');
-        trigger.setAttribute('aria-label', 'Lisätietoja');
-
-        // Handle click/touch events
-        trigger.addEventListener('click', (e) => {
-            e.stopPropagation();
-            
-            // Close previously active tooltip
-            if (activeTooltip && activeTooltip !== trigger) {
+        // Close tooltip when clicking outside
+        document.addEventListener('click', (e) => {
+            if (activeTooltip && !activeTooltip.contains(e.target)) {
                 activeTooltip.classList.remove('active');
-            }
-
-            // Toggle current tooltip
-            trigger.classList.toggle('active');
-            activeTooltip = trigger.classList.contains('active') ? trigger : null;
-
-            // Prevent scrolling when tooltip is open on mobile
-            if (window.innerWidth <= 767) {
-                document.body.style.overflow = activeTooltip ? 'hidden' : '';
+                activeTooltip = null;
+                if (window.innerWidth <= 767) {
+                    document.body.style.overflow = '';
+                }
             }
         });
 
-        // Handle keyboard events
-        trigger.addEventListener('keydown', (e) => {
-            if (e.key === 'Enter' || e.key === ' ') {
-                e.preventDefault();
-                trigger.click();
-            } else if (e.key === 'Escape' && activeTooltip) {
-                activeTooltip.classList.remove('active');
-                activeTooltip = null;
-                document.body.style.overflow = '';
-            }
+        tooltipTriggers.forEach(trigger => {
+            // Add ARIA attributes
+            trigger.setAttribute('role', 'button');
+            trigger.setAttribute('tabindex', '0');
+            trigger.setAttribute('aria-label', 'Lisätietoja');
+
+            // Handle click/touch events
+            trigger.addEventListener('click', (e) => {
+                e.stopPropagation();
+                
+                // Close previously active tooltip
+                if (activeTooltip && activeTooltip !== trigger) {
+                    activeTooltip.classList.remove('active');
+                }
+
+                // Toggle current tooltip
+                trigger.classList.toggle('active');
+                activeTooltip = trigger.classList.contains('active') ? trigger : null;
+
+                // Prevent scrolling when tooltip is open on mobile
+                if (window.innerWidth <= 767) {
+                    document.body.style.overflow = activeTooltip ? 'hidden' : '';
+                }
+            });
+
+            // Handle keyboard events
+            trigger.addEventListener('keydown', (e) => {
+                if (e.key === 'Enter' || e.key === ' ') {
+                    e.preventDefault();
+                    trigger.click();
+                } else if (e.key === 'Escape' && activeTooltip) {
+                    activeTooltip.classList.remove('active');
+                    activeTooltip = null;
+                    document.body.style.overflow = '';
+                }
+            });
         });
-
-        // Handle touch events specifically
-        let touchStartY = 0;
-        trigger.addEventListener('touchstart', (e) => {
-            touchStartY = e.touches[0].clientY;
-        }, { passive: true });
-
-        trigger.addEventListener('touchmove', (e) => {
-            const touchDiff = Math.abs(e.touches[0].clientY - touchStartY);
-            // If user is scrolling (more than 10px movement), close the tooltip
-            if (touchDiff > 10 && activeTooltip) {
-                activeTooltip.classList.remove('active');
-                activeTooltip = null;
-                document.body.style.overflow = '';
-            }
-        }, { passive: true });
-    });
+    }
 
     // Enhanced form interactions
     const formInputs = document.querySelectorAll('input[type="number"]');
@@ -240,25 +241,76 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // Initialize form
     function initializeForm() {
-        // Set initial display states
-        if (elements.customHubSection && elements.platformSection) {
-            elements.customHubSection.style.display = 'none';
-            elements.platformSection.style.display = 'block';
-            
-            // Set initial active states
-            elements.tabButtons.forEach(btn => {
-                btn.classList.toggle('active', btn.dataset.tab === 'platform');
+        // Set initial state
+        state.mode = 'platform';
+        
+        // Set initial visibility
+        elements.platformSection.style.display = 'block';
+        elements.customHubSection.style.display = 'none';
+        
+        // Add event listeners to all number inputs
+        document.querySelectorAll('input[type="number"]').forEach(input => {
+            input.addEventListener('input', () => {
+                const id = input.id;
+                const value = validateNumberInput(input, parseInt(input.min) || 0);
+                
+                // Update state based on input id
+                switch(id) {
+                    case 'platform-users':
+                        state.platformUsers = value;
+                        break;
+                    case 'marketing-users':
+                        state.marketingUsers = value;
+                        break;
+                    case 'sales-users':
+                        state.salesUsers = value;
+                        break;
+                    case 'service-users':
+                        state.serviceUsers = value;
+                        break;
+                    case 'content-users':
+                        state.contentUsers = value;
+                        break;
+                    case 'operations-users':
+                        state.operationsUsers = value;
+                        break;
+                }
+                
+                calculatePrice();
             });
-            elements.tabContents.forEach(content => {
-                content.classList.toggle('active', content.id === 'platform-section');
+        });
+
+        // Add event listeners to all package selects
+        document.querySelectorAll('select').forEach(select => {
+            select.addEventListener('change', () => {
+                const id = select.id;
+                const value = select.value;
+                
+                // Update state based on select id
+                switch(id) {
+                    case 'marketing-package':
+                        state.marketingPackage = value;
+                        break;
+                    case 'sales-package':
+                        state.salesPackage = value;
+                        break;
+                    case 'service-package':
+                        state.servicePackage = value;
+                        break;
+                    case 'content-package':
+                        state.contentPackage = value;
+                        break;
+                    case 'operations-package':
+                        state.operationsPackage = value;
+                        break;
+                }
+                
+                calculatePrice();
             });
-            
-            // Set initial state
-            state.mode = 'platform';
-            
-            // Calculate initial price
-            calculatePrice();
-        }
+        });
+
+        // Initialize tooltips
+        initializeTooltips();
     }
 
     // Platform Hub listeners
