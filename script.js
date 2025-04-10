@@ -356,6 +356,7 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     }
 
+    // Calculate platform price
     function calculatePlatformPrice() {
         const tier = pricing.platform[state.platformTier];
         if (!tier) return 0;
@@ -368,6 +369,7 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     }
 
+    // Calculate marketing price
     function calculateMarketingPrice() {
         if (state.marketingTier === 'none') return 0;
         
@@ -379,6 +381,7 @@ document.addEventListener('DOMContentLoaded', function() {
         return tier.base + (extraBlocks * tier.extraCost);
     }
 
+    // Calculate sales price
     function calculateSalesPrice() {
         if (state.salesTier === 'none') return 0;
         
@@ -387,6 +390,7 @@ document.addEventListener('DOMContentLoaded', function() {
         return tier.base + ((state.salesUsers - 1) * tier.extraPerUser);
     }
 
+    // Calculate service price
     function calculateServicePrice() {
         if (state.serviceTier === 'none') return 0;
         
@@ -395,6 +399,7 @@ document.addEventListener('DOMContentLoaded', function() {
         return tier.base + ((state.serviceUsers - 1) * tier.extraPerUser);
     }
 
+    // Calculate content price
     function calculateContentPrice() {
         if (state.contentTier === 'none') return 0;
         
@@ -402,6 +407,7 @@ document.addEventListener('DOMContentLoaded', function() {
         return tier ? tier.base : 0;
     }
 
+    // Calculate operations price
     function calculateOperationsPrice() {
         if (state.operationsTier === 'none') return 0;
         
