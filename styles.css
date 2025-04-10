@@ -213,19 +213,23 @@ h1, h2, h3, h4, h5, h6 {
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    width: 18px;
-    height: 18px;
+    width: 20px;
+    height: 20px;
     border-radius: 50%;
     background-color: var(--primary-light);
     color: var(--primary-color);
-    font-size: 0.75rem;
-    cursor: help;
+    font-size: 0.875rem;
+    cursor: pointer;
     transition: all 0.2s ease;
+    -webkit-tap-highlight-color: transparent;
 }
 
-.tooltip-trigger:hover {
+.tooltip-trigger:hover,
+.tooltip-trigger:focus,
+.tooltip-trigger.active {
     background-color: var(--primary-color);
     color: white;
+    outline: none;
 }
 
 .tooltip-trigger[data-tooltip] {
@@ -235,28 +239,70 @@ h1, h2, h3, h4, h5, h6 {
 .tooltip-trigger[data-tooltip]::after {
     content: attr(data-tooltip);
     position: absolute;
-    bottom: 100%;
-    left: 50%;
-    transform: translateX(-50%) translateY(-8px);
-    padding: 0.5rem 1rem;
-    background-color: var(--tooltip-bg, rgba(0, 0, 0, 0.8));
+    z-index: 10;
+    width: max-content;
+    max-width: 250px;
+    padding: 0.75rem 1rem;
+    background-color: var(--tooltip-bg, rgba(0, 0, 0, 0.9));
     color: white;
     font-size: 0.875rem;
-    white-space: nowrap;
-    border-radius: 0.25rem;
+    line-height: 1.4;
+    border-radius: 0.5rem;
+    box-shadow: var(--shadow-md);
     opacity: 0;
     visibility: hidden;
     transition: all 0.2s ease;
     pointer-events: none;
-    z-index: 10;
-    width: max-content;
-    max-width: 300px;
 }
 
-.tooltip-trigger[data-tooltip]:hover::after {
+.tooltip-trigger[data-tooltip]:hover::after,
+.tooltip-trigger[data-tooltip]:focus::after,
+.tooltip-trigger[data-tooltip].active::after {
     opacity: 1;
     visibility: visible;
-    transform: translateX(-50%) translateY(-4px);
+}
+
+@media (min-width: 768px) {
+    .tooltip-trigger[data-tooltip]::after {
+        bottom: 100%;
+        left: 50%;
+        transform: translateX(-50%) translateY(-8px);
+    }
+
+    .tooltip-trigger[data-tooltip]:hover::after,
+    .tooltip-trigger[data-tooltip]:focus::after,
+    .tooltip-trigger[data-tooltip].active::after {
+        transform: translateX(-50%) translateY(-4px);
+    }
+}
+
+@media (max-width: 767px) {
+    .tooltip-trigger {
+        width: 24px;
+        height: 24px;
+        font-size: 1rem;
+    }
+
+    .tooltip-trigger[data-tooltip]::after {
+        bottom: auto;
+        top: 100%;
+        left: 0;
+        margin-top: 8px;
+        width: calc(100vw - 3rem);
+        max-width: 100%;
+        font-size: 0.9rem;
+        padding: 1rem;
+        transform: none;
+        background-color: var(--primary-color);
+        white-space: normal;
+        text-align: left;
+    }
+
+    .tooltip-trigger[data-tooltip]:hover::after,
+    .tooltip-trigger[data-tooltip]:focus::after,
+    .tooltip-trigger[data-tooltip].active::after {
+        transform: none;
+    }
 }
 
 /* Number input styling */

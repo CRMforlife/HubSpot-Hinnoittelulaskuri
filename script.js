@@ -117,22 +117,47 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     });
 
-    // Initialize tooltips for better accessibility
+    // Enhanced tooltip functionality
     const tooltips = document.querySelectorAll('.tooltip-trigger');
+    let activeTooltip = null;
+
+    // Close active tooltip when clicking outside
+    document.addEventListener('click', function(e) {
+        if (activeTooltip && !activeTooltip.contains(e.target)) {
+            activeTooltip.classList.remove('active');
+            activeTooltip = null;
+        }
+    });
+
     tooltips.forEach(tooltip => {
-        tooltip.setAttribute('role', 'tooltip');
+        // Handle keyboard interaction
+        tooltip.setAttribute('role', 'button');
         tooltip.setAttribute('tabindex', '0');
         
-        // Handle keyboard interaction
-        tooltip.addEventListener('keypress', (e) => {
-            if (e.key === 'Enter' || e.key === ' ') {
-                e.preventDefault();
-                tooltip.classList.add('tooltip-visible');
+        // Handle click/tap events
+        tooltip.addEventListener('click', function(e) {
+            e.preventDefault();
+            e.stopPropagation();
+            
+            // Close other tooltips
+            if (activeTooltip && activeTooltip !== tooltip) {
+                activeTooltip.classList.remove('active');
             }
+            
+            // Toggle current tooltip
+            tooltip.classList.toggle('active');
+            activeTooltip = tooltip.classList.contains('active') ? tooltip : null;
         });
         
-        tooltip.addEventListener('blur', () => {
-            tooltip.classList.remove('tooltip-visible');
+        // Handle keyboard events
+        tooltip.addEventListener('keydown', function(e) {
+            if (e.key === 'Enter' || e.key === ' ') {
+                e.preventDefault();
+                tooltip.click();
+            } else if (e.key === 'Escape' && activeTooltip) {
+                activeTooltip.classList.remove('active');
+                activeTooltip = null;
+            }
         });
     });
 
