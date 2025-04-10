@@ -247,6 +247,31 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     });
 
+    // Update input visibility based on tier selection
+    function updateInputVisibility() {
+        const marketingTier = document.getElementById('marketing-tier').value;
+        const salesTier = document.getElementById('sales-tier').value;
+        const serviceTier = document.getElementById('service-tier').value;
+
+        // Marketing Hub contacts
+        const marketingUsersGroup = document.getElementById('marketing-users-group');
+        if (marketingUsersGroup) {
+            marketingUsersGroup.style.display = marketingTier === 'none' ? 'none' : 'block';
+        }
+
+        // Sales Hub users
+        const salesUsersGroup = document.getElementById('sales-users-group');
+        if (salesUsersGroup) {
+            salesUsersGroup.style.display = salesTier === 'none' ? 'none' : 'block';
+        }
+
+        // Service Hub users
+        const serviceUsersGroup = document.getElementById('service-users-group');
+        if (serviceUsersGroup) {
+            serviceUsersGroup.style.display = serviceTier === 'none' ? 'none' : 'block';
+        }
+    }
+
     // Initialize form
     function initializeForm() {
         // Set initial state
@@ -310,12 +335,17 @@ document.addEventListener('DOMContentLoaded', function() {
                         break;
                 }
                 
+                // Update input visibility
+                updateInputVisibility();
                 calculatePrice();
             });
         });
 
         // Initialize tooltips
         initializeTooltips();
+        
+        // Initial visibility update
+        updateInputVisibility();
     }
 
     // Platform Hub listeners
@@ -436,6 +466,8 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     function calculateMarketingPrice() {
+        if (state.marketingTier === 'none') return 0;
+        
         const tier = pricing.marketing[state.marketingTier];
         if (!tier) return 0;
         
@@ -445,23 +477,31 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     function calculateSalesPrice() {
+        if (state.salesTier === 'none') return 0;
+        
         const tier = pricing.sales[state.salesTier];
-        if (!tier) return 0;
+        if (!tier || state.salesUsers === 0) return 0;
         return tier.base + ((state.salesUsers - 1) * tier.extraPerUser);
     }
 
     function calculateServicePrice() {
+        if (state.serviceTier === 'none') return 0;
+        
         const tier = pricing.service[state.serviceTier];
-        if (!tier) return 0;
+        if (!tier || state.serviceUsers === 0) return 0;
         return tier.base + ((state.serviceUsers - 1) * tier.extraPerUser);
     }
 
     function calculateContentPrice() {
+        if (state.contentTier === 'none') return 0;
+        
         const tier = pricing.content[state.contentTier];
         return tier ? tier.base : 0;
     }
 
     function calculateOperationsPrice() {
+        if (state.operationsTier === 'none') return 0;
+        
         const tier = pricing.operations[state.operationsTier];
         return tier ? tier.base : 0;
     }

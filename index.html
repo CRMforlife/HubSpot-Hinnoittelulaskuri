@@ -98,88 +98,75 @@
                     </div>
                 </div>
 
-                <div id="custom-hub-section" class="tab-content">
+                <div id="custom-section" class="tab-content">
                     <!-- Marketing Hub -->
                     <div class="form-group">
                         <label for="marketing-tier">
                             Marketing Hub
-                            <span class="tooltip-trigger" data-tooltip="Marketing Hub sisältää työkalut markkinoinnin automatisointiin ja liidien generointiin">
-                                <i class="fas fa-info-circle"></i>
-                            </span>
+                            <span class="tooltip-trigger" data-tooltip="Marketing Hub sisältää työkalut markkinoinnin automatisointiin, sisällöntuotantoon ja liidien generointiin.">i</span>
                         </label>
-                        <select id="marketing-tier" name="marketing-tier">
+                        <select id="marketing-tier" class="form-control">
+                            <option value="none">Ei mukana</option>
                             <option value="starter">Starter</option>
                             <option value="professional">Professional</option>
                             <option value="enterprise">Enterprise</option>
                         </select>
-                    </div>
-                    <div class="form-group">
-                        <label for="marketing-contacts">
-                            Kontaktien määrä
-                            <span class="tooltip-trigger" data-tooltip="Starter: 1,000 kontaktia (46€/1k), Professional: 5,000 kontaktia (250€/5k), Enterprise: 10,000 kontaktia (92€/10k)">
-                                <i class="fas fa-info-circle"></i>
-                            </span>
-                        </label>
-                        <input type="number" id="marketing-contacts" name="marketing-contacts" min="1000" step="1000" value="1000">
+                        <div id="marketing-users-group" class="form-group" style="margin-top: 1rem;">
+                            <label for="marketing-contacts">Kontaktien määrä</label>
+                            <div class="number-input-wrapper">
+                                <input type="number" id="marketing-contacts" min="1000" step="1000" value="1000">
+                            </div>
+                        </div>
                     </div>
 
                     <!-- Sales Hub -->
                     <div class="form-group">
                         <label for="sales-tier">
                             Sales Hub
-                            <span class="tooltip-trigger" data-tooltip="Sales Hub tarjoaa työkalut myyntiprosessin tehostamiseen">
-                                <i class="fas fa-info-circle"></i>
-                            </span>
+                            <span class="tooltip-trigger" data-tooltip="Sales Hub tarjoaa työkalut myyntiprosessin tehostamiseen ja asiakassuhteiden hallintaan.">i</span>
                         </label>
-                        <select id="sales-tier" name="sales-tier">
+                        <select id="sales-tier" class="form-control">
+                            <option value="none">Ei mukana</option>
                             <option value="starter">Starter</option>
                             <option value="professional">Professional</option>
                             <option value="enterprise">Enterprise</option>
                         </select>
-                    </div>
-                    <div class="form-group">
-                        <label for="sales-users">
-                            Käyttäjien määrä
-                            <span class="tooltip-trigger" data-tooltip="Starter: 15€/käyttäjä, Professional: 80€/käyttäjä, Enterprise: 120€/käyttäjä">
-                                <i class="fas fa-info-circle"></i>
-                            </span>
-                        </label>
-                        <input type="number" id="sales-users" name="sales-users" min="1" value="1">
+                        <div id="sales-users-group" class="form-group" style="margin-top: 1rem;">
+                            <label for="sales-users">Käyttäjien määrä</label>
+                            <div class="number-input-wrapper">
+                                <input type="number" id="sales-users" min="1" value="1">
+                            </div>
+                        </div>
                     </div>
 
                     <!-- Service Hub -->
                     <div class="form-group">
                         <label for="service-tier">
                             Service Hub
-                            <span class="tooltip-trigger" data-tooltip="Service Hub sisältää työkalut asiakaspalvelun tehostamiseen">
-                                <i class="fas fa-info-circle"></i>
-                            </span>
+                            <span class="tooltip-trigger" data-tooltip="Service Hub sisältää työkalut asiakaspalvelun ja -tuen hallintaan.">i</span>
                         </label>
-                        <select id="service-tier" name="service-tier">
+                        <select id="service-tier" class="form-control">
+                            <option value="none">Ei mukana</option>
                             <option value="starter">Starter</option>
                             <option value="professional">Professional</option>
                             <option value="enterprise">Enterprise</option>
                         </select>
-                    </div>
-                    <div class="form-group">
-                        <label for="service-users">
-                            Käyttäjien määrä
-                            <span class="tooltip-trigger" data-tooltip="Starter: 15€/käyttäjä, Professional: 80€/käyttäjä, Enterprise: 120€/käyttäjä">
-                                <i class="fas fa-info-circle"></i>
-                            </span>
-                        </label>
-                        <input type="number" id="service-users" name="service-users" min="1" value="1">
+                        <div id="service-users-group" class="form-group" style="margin-top: 1rem;">
+                            <label for="service-users">Käyttäjien määrä</label>
+                            <div class="number-input-wrapper">
+                                <input type="number" id="service-users" min="1" value="1">
+                            </div>
+                        </div>
                     </div>
 
                     <!-- Content Hub -->
                     <div class="form-group">
                         <label for="content-tier">
                             Content Hub
-                            <span class="tooltip-trigger" data-tooltip="Content Hub auttaa sisällöntuotannon hallinnassa">
-                                <i class="fas fa-info-circle"></i>
-                            </span>
+                            <span class="tooltip-trigger" data-tooltip="Content Hub tarjoaa työkalut sisällönhallintaan ja verkkosivujen ylläpitoon.">i</span>
                         </label>
-                        <select id="content-tier" name="content-tier">
+                        <select id="content-tier" class="form-control">
+                            <option value="none">Ei mukana</option>
                             <option value="starter">Starter</option>
                             <option value="professional">Professional</option>
                             <option value="enterprise">Enterprise</option>
@@ -190,11 +177,10 @@
                     <div class="form-group">
                         <label for="operations-tier">
                             Operations Hub
-                            <span class="tooltip-trigger" data-tooltip="Operations Hub yhdistää ja synkronoi dataa eri järjestelmien välillä">
-                                <i class="fas fa-info-circle"></i>
-                            </span>
+                            <span class="tooltip-trigger" data-tooltip="Operations Hub sisältää työkalut tiedon synkronointiin, datan hallintaan ja automaatioon.">i</span>
                         </label>
-                        <select id="operations-tier" name="operations-tier">
+                        <select id="operations-tier" class="form-control">
+                            <option value="none">Ei mukana</option>
                             <option value="starter">Starter</option>
                             <option value="professional">Professional</option>
                             <option value="enterprise">Enterprise</option>
