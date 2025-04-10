@@ -277,71 +277,6 @@ document.addEventListener('DOMContentLoaded', function() {
         calculatePrice();
     }
 
-    // Initialize form with event listeners
-    function initializeForm() {
-        // Platform section
-        elements.platformTierSelect.addEventListener('change', (e) => {
-            state.platformTier = e.target.value;
-            updateInputVisibility();
-        });
-
-        elements.platformUsersInput.addEventListener('input', (e) => {
-            state.platformUsers = validateNumberInput(e.target, 1);
-            calculatePrice();
-        });
-
-        // Marketing section
-        elements.marketingTierSelect.addEventListener('change', (e) => {
-            state.marketingTier = e.target.value;
-            updateInputVisibility();
-        });
-
-        elements.marketingContactsInput.addEventListener('input', (e) => {
-            state.marketingContacts = validateNumberInput(e.target, 1000);
-            calculatePrice();
-        });
-
-        // Sales section
-        elements.salesTierSelect.addEventListener('change', (e) => {
-            state.salesTier = e.target.value;
-            updateInputVisibility();
-        });
-
-        elements.salesUsersInput.addEventListener('input', (e) => {
-            state.salesUsers = validateNumberInput(e.target, 1);
-            calculatePrice();
-        });
-
-        // Service section
-        elements.serviceTierSelect.addEventListener('change', (e) => {
-            state.serviceTier = e.target.value;
-            updateInputVisibility();
-        });
-
-        elements.serviceUsersInput.addEventListener('input', (e) => {
-            state.serviceUsers = validateNumberInput(e.target, 1);
-            calculatePrice();
-        });
-
-        // Content section
-        elements.contentTierSelect.addEventListener('change', (e) => {
-            state.contentTier = e.target.value;
-            calculatePrice();
-        });
-
-        // Operations section
-        elements.operationsTierSelect.addEventListener('change', (e) => {
-            state.operationsTier = e.target.value;
-            calculatePrice();
-        });
-
-        // Initialize tooltips
-        initializeTooltips();
-
-        // Initial visibility update
-        updateInputVisibility();
-    }
-
     // Calculate price based on selected options
     function calculatePrice() {
         try {
@@ -395,10 +330,29 @@ document.addEventListener('DOMContentLoaded', function() {
             // Ensure totalPrice is a valid number
             totalPrice = isNaN(totalPrice) ? 0 : totalPrice;
 
-            updatePriceDisplay(totalPrice, hubPrices);
+            // Update price display immediately
+            if (elements.totalPriceElement) {
+                elements.totalPriceElement.textContent = formatPrice(totalPrice);
+            }
+
+            // Update hub prices display
+            if (elements.hubPricesElement) {
+                const hubPricesHtml = Object.entries(hubPrices).map(([name, price]) => `
+                    <div class="hub-price">
+                        <span class="hub-name">${escapeHtml(name)}</span>
+                        <span class="hub-price-value">${formatPrice(price)}</span>
+                    </div>
+                `).join('');
+                elements.hubPricesElement.innerHTML = hubPricesHtml;
+            }
         } catch (error) {
             console.error('Error calculating price:', error);
-            updatePriceDisplay(0, {});
+            if (elements.totalPriceElement) {
+                elements.totalPriceElement.textContent = formatPrice(0);
+            }
+            if (elements.hubPricesElement) {
+                elements.hubPricesElement.innerHTML = '';
+            }
         }
     }
 
