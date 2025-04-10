@@ -114,10 +114,6 @@ document.addEventListener('DOMContentLoaded', function() {
                 targetSection.classList.add('active');
             }
             
-            // Update visibility
-            elements.platformSection.style.display = tab === 'platform' ? 'block' : 'none';
-            elements.customHubSection.style.display = tab === 'custom' ? 'block' : 'none';
-            
             // Update state and recalculate
             state.mode = tab;
             calculatePrice();
@@ -244,32 +240,23 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // Update input visibility based on tier selection
     function updateInputVisibility() {
-        // Platform section
-        const platformUsersWrapper = elements.platformUsersInput.closest('.input-group');
-        if (platformUsersWrapper) {
-            platformUsersWrapper.style.display = state.platformTier === 'none' ? 'none' : 'block';
-        }
-
         // Marketing section
-        const marketingContactsWrapper = elements.marketingContactsInput.closest('.input-group');
-        if (marketingContactsWrapper) {
-            marketingContactsWrapper.style.display = state.marketingTier === 'none' ? 'none' : 'block';
+        const marketingContactsGroup = document.getElementById('marketing-users-group');
+        if (marketingContactsGroup) {
+            marketingContactsGroup.style.display = state.marketingTier === 'none' ? 'none' : 'block';
         }
 
         // Sales section
-        const salesUsersWrapper = elements.salesUsersInput.closest('.input-group');
-        if (salesUsersWrapper) {
-            salesUsersWrapper.style.display = state.salesTier === 'none' ? 'none' : 'block';
+        const salesUsersGroup = document.getElementById('sales-users-group');
+        if (salesUsersGroup) {
+            salesUsersGroup.style.display = state.salesTier === 'none' ? 'none' : 'block';
         }
 
         // Service section
-        const serviceUsersWrapper = elements.serviceUsersInput.closest('.input-group');
-        if (serviceUsersWrapper) {
-            serviceUsersWrapper.style.display = state.serviceTier === 'none' ? 'none' : 'block';
+        const serviceUsersGroup = document.getElementById('service-users-group');
+        if (serviceUsersGroup) {
+            serviceUsersGroup.style.display = state.serviceTier === 'none' ? 'none' : 'block';
         }
-
-        // Recalculate price when visibility changes
-        calculatePrice();
     }
 
     // Initialize form with event listeners
@@ -277,7 +264,7 @@ document.addEventListener('DOMContentLoaded', function() {
         // Platform section
         elements.platformTierSelect.addEventListener('change', (e) => {
             state.platformTier = e.target.value;
-            updateInputVisibility();
+            calculatePrice();
         });
 
         elements.platformUsersInput.addEventListener('input', (e) => {
@@ -289,6 +276,7 @@ document.addEventListener('DOMContentLoaded', function() {
         elements.marketingTierSelect.addEventListener('change', (e) => {
             state.marketingTier = e.target.value;
             updateInputVisibility();
+            calculatePrice();
         });
 
         elements.marketingContactsInput.addEventListener('input', (e) => {
@@ -300,6 +288,7 @@ document.addEventListener('DOMContentLoaded', function() {
         elements.salesTierSelect.addEventListener('change', (e) => {
             state.salesTier = e.target.value;
             updateInputVisibility();
+            calculatePrice();
         });
 
         elements.salesUsersInput.addEventListener('input', (e) => {
@@ -311,6 +300,7 @@ document.addEventListener('DOMContentLoaded', function() {
         elements.serviceTierSelect.addEventListener('change', (e) => {
             state.serviceTier = e.target.value;
             updateInputVisibility();
+            calculatePrice();
         });
 
         elements.serviceUsersInput.addEventListener('input', (e) => {
@@ -345,9 +335,10 @@ document.addEventListener('DOMContentLoaded', function() {
             const hubPrices = {};
 
             if (state.mode === 'platform') {
-                totalPrice = calculatePlatformPrice();
-                if (totalPrice > 0) {
-                    hubPrices['HubSpot Platform'] = totalPrice;
+                const platformPrice = calculatePlatformPrice();
+                if (platformPrice > 0) {
+                    hubPrices['HubSpot Platform'] = platformPrice;
+                    totalPrice = platformPrice;
                 }
             } else {
                 // Custom solution pricing
@@ -387,9 +378,6 @@ document.addEventListener('DOMContentLoaded', function() {
                     }
                 }
             }
-
-            // Ensure totalPrice is a valid number
-            totalPrice = isNaN(totalPrice) ? 0 : totalPrice;
 
             // Update price display immediately
             if (elements.totalPriceElement) {
@@ -447,8 +435,14 @@ document.addEventListener('DOMContentLoaded', function() {
         if (state.salesTier === 'none') return 0;
         
         const tier = pricing.sales[state.salesTier];
-        if (!tier || state.salesUsers === 0) return 0;
-        return tier.base + ((state.salesUsers - 1) * tier.extraPerUser);
+        if (!tier) return 0;
+        
+        if (state.salesTier === 'starter') {
+            return tier.base + (state.salesUsers * tier.extraPerUser);
+        } else {
+            const extraUsers = Math.max(0, state.salesUsers - 1);
+            return tier.base + (extraUsers * tier.extraPerUser);
+        }
     }
 
     // Calculate service price
@@ -456,8 +450,14 @@ document.addEventListener('DOMContentLoaded', function() {
         if (state.serviceTier === 'none') return 0;
         
         const tier = pricing.service[state.serviceTier];
-        if (!tier || state.serviceUsers === 0) return 0;
-        return tier.base + ((state.serviceUsers - 1) * tier.extraPerUser);
+        if (!tier) return 0;
+        
+        if (state.serviceTier === 'starter') {
+            return tier.base + (state.serviceUsers * tier.extraPerUser);
+        } else {
+            const extraUsers = Math.max(0, state.serviceUsers - 1);
+            return tier.base + (extraUsers * tier.extraPerUser);
+        }
     }
 
     // Calculate content price
