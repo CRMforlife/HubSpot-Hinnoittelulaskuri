@@ -339,75 +339,6 @@ document.addEventListener('DOMContentLoaded', function() {
         calculatePrice();
     }
 
-    // Initialize form with event listeners
-    function initializeForm() {
-        // Platform section
-        elements.platformTierSelect.addEventListener('change', (e) => {
-            state.platformTier = e.target.value;
-            calculatePrice();
-        });
-
-        elements.platformUsersInput.addEventListener('input', (e) => {
-            state.platformUsers = validateNumberInput(e.target, 1);
-            calculatePrice();
-        });
-
-        // Marketing section
-        elements.marketingTierSelect.addEventListener('change', (e) => {
-            state.marketingTier = e.target.value;
-            updateInputVisibility();
-            calculatePrice();
-        });
-
-        elements.marketingContactsInput.addEventListener('input', (e) => {
-            state.marketingContacts = validateNumberInput(e.target, 1000);
-            calculatePrice();
-        });
-
-        // Sales section
-        elements.salesTierSelect.addEventListener('change', (e) => {
-            state.salesTier = e.target.value;
-            updateInputVisibility();
-            calculatePrice();
-        });
-
-        elements.salesUsersInput.addEventListener('input', (e) => {
-            state.salesUsers = validateNumberInput(e.target, 1);
-            calculatePrice();
-        });
-
-        // Service section
-        elements.serviceTierSelect.addEventListener('change', (e) => {
-            state.serviceTier = e.target.value;
-            updateInputVisibility();
-            calculatePrice();
-        });
-
-        elements.serviceUsersInput.addEventListener('input', (e) => {
-            state.serviceUsers = validateNumberInput(e.target, 1);
-            calculatePrice();
-        });
-
-        // Content section
-        elements.contentTierSelect.addEventListener('change', (e) => {
-            state.contentTier = e.target.value;
-            calculatePrice();
-        });
-
-        // Operations section
-        elements.operationsTierSelect.addEventListener('change', (e) => {
-            state.operationsTier = e.target.value;
-            calculatePrice();
-        });
-
-        // Initialize tooltips
-        initializeTooltips();
-
-        // Initial visibility update and price calculation
-        updateInputVisibility();
-        calculatePrice();
-    }
-
     // Calculate price based on selected options
     function calculatePrice() {
         let totalPrice = 0;
@@ -500,8 +431,12 @@ document.addEventListener('DOMContentLoaded', function() {
 
     function calculateMarketingPrice() {
         const tier = state.marketingTier;
+        if (tier === 'none') return 0;
+        
         const contacts = state.marketingContacts;
         const tierData = pricing.marketing[tier];
+
+        if (!tierData) return 0;
 
         const extraContacts = Math.max(0, contacts - tierData.includedContacts);
         const extraUnits = Math.ceil(extraContacts / tierData.extraUnit);
@@ -510,28 +445,42 @@ document.addEventListener('DOMContentLoaded', function() {
 
     function calculateSalesPrice() {
         const tier = state.salesTier;
+        if (tier === 'none') return 0;
+
         const users = state.salesUsers;
         const tierData = pricing.sales[tier];
+
+        if (!tierData) return 0;
 
         return tierData.base + (users * tierData.extraPerUser);
     }
 
     function calculateServicePrice() {
         const tier = state.serviceTier;
+        if (tier === 'none') return 0;
+
         const users = state.serviceUsers;
         const tierData = pricing.service[tier];
+
+        if (!tierData) return 0;
 
         return tierData.base + (users * tierData.extraPerUser);
     }
 
     function calculateContentPrice() {
         const tier = state.contentTier;
-        return pricing.content[tier].base;
+        if (tier === 'none') return 0;
+
+        const tierData = pricing.content[tier];
+        return tierData ? tierData.base : 0;
     }
 
     function calculateOperationsPrice() {
         const tier = state.operationsTier;
-        return pricing.operations[tier].base;
+        if (tier === 'none') return 0;
+
+        const tierData = pricing.operations[tier];
+        return tierData ? tierData.base : 0;
     }
 
     function formatPrice(price) {
@@ -548,6 +497,69 @@ document.addEventListener('DOMContentLoaded', function() {
         const div = document.createElement('div');
         div.textContent = str;
         return div.innerHTML;
+    }
+
+    // Update state and UI
+    function updateState(key, value) {
+        state[key] = value;
+        updateInputVisibility();
+        calculatePrice();
+    }
+
+    // Initialize form with event listeners
+    function initializeForm() {
+        // Platform section
+        elements.platformTierSelect.addEventListener('change', (e) => {
+            updateState('platformTier', e.target.value);
+        });
+
+        elements.platformUsersInput.addEventListener('input', (e) => {
+            updateState('platformUsers', validateNumberInput(e.target, 1));
+        });
+
+        // Marketing section
+        elements.marketingTierSelect.addEventListener('change', (e) => {
+            updateState('marketingTier', e.target.value);
+        });
+
+        elements.marketingContactsInput.addEventListener('input', (e) => {
+            updateState('marketingContacts', validateNumberInput(e.target, 1000));
+        });
+
+        // Sales section
+        elements.salesTierSelect.addEventListener('change', (e) => {
+            updateState('salesTier', e.target.value);
+        });
+
+        elements.salesUsersInput.addEventListener('input', (e) => {
+            updateState('salesUsers', validateNumberInput(e.target, 1));
+        });
+
+        // Service section
+        elements.serviceTierSelect.addEventListener('change', (e) => {
+            updateState('serviceTier', e.target.value);
+        });
+
+        elements.serviceUsersInput.addEventListener('input', (e) => {
+            updateState('serviceUsers', validateNumberInput(e.target, 1));
+        });
+
+        // Content section
+        elements.contentTierSelect.addEventListener('change', (e) => {
+            updateState('contentTier', e.target.value);
+        });
+
+        // Operations section
+        elements.operationsTierSelect.addEventListener('change', (e) => {
+            updateState('operationsTier', e.target.value);
+        });
+
+        // Initialize tooltips
+        initializeTooltips();
+
+        // Initial visibility update and price calculation
+        updateInputVisibility();
+        calculatePrice();
     }
 
     // Initialize the form
