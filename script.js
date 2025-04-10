@@ -72,19 +72,17 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // Input validation
     function validateNumberInput(input, min, max) {
-        const value = parseInt(input.value);
-        if (isNaN(value)) {
-            input.value = min;
-            return min;
+        let value = parseInt(input.value.replace(/\D/g, ''));
+        if (isNaN(value) || value === 0) {
+            value = min;
         }
         if (value < min) {
-            input.value = min;
-            return min;
+            value = min;
         }
         if (max && value > max) {
-            input.value = max;
-            return max;
+            value = max;
         }
+        input.value = value;
         return value;
     }
 
@@ -93,26 +91,20 @@ document.addEventListener('DOMContentLoaded', function() {
         button.addEventListener('click', () => {
             const tab = button.dataset.tab;
             
-            // Update active states
-            elements.tabButtons.forEach(btn => btn.classList.toggle('active', btn === button));
+            // Remove active class from all buttons and contents
+            elements.tabButtons.forEach(btn => btn.classList.remove('active'));
+            elements.tabContents.forEach(content => content.classList.remove('active'));
             
-            // Toggle visibility of sections
-            if (tab === 'platform') {
-                elements.platformSection.style.display = 'block';
-                elements.customHubSection.style.display = 'none';
-                elements.platformSection.classList.add('active');
-                elements.customHubSection.classList.remove('active');
-            } else {
-                elements.platformSection.style.display = 'none';
-                elements.customHubSection.style.display = 'block';
-                elements.platformSection.classList.remove('active');
-                elements.customHubSection.classList.add('active');
-            }
+            // Add active class to selected button and content
+            button.classList.add('active');
+            document.getElementById(`${tab}-section`).classList.add('active');
             
-            // Update state
+            // Update visibility
+            elements.platformSection.style.display = tab === 'platform' ? 'block' : 'none';
+            elements.customHubSection.style.display = tab === 'custom' ? 'block' : 'none';
+            
+            // Update state and recalculate
             state.mode = tab;
-            
-            // Recalculate price
             calculatePrice();
         });
     });
@@ -183,49 +175,66 @@ document.addEventListener('DOMContentLoaded', function() {
         }, { passive: true });
     });
 
-    // Enhance form interactions
+    // Enhanced form interactions
     const formInputs = document.querySelectorAll('input[type="number"]');
     formInputs.forEach(input => {
-        // Add increment/decrement buttons
         const wrapper = document.createElement('div');
         wrapper.className = 'number-input-wrapper';
-        input.parentNode.insertBefore(wrapper, input);
-        wrapper.appendChild(input);
-
-        const decrementBtn = document.createElement('button');
-        decrementBtn.className = 'number-btn decrement';
-        decrementBtn.textContent = '-';
-        decrementBtn.type = 'button';
         
-        const incrementBtn = document.createElement('button');
-        incrementBtn.className = 'number-btn increment';
-        incrementBtn.textContent = '+';
-        incrementBtn.type = 'button';
+        // Only wrap if not already wrapped
+        if (!input.parentNode.classList.contains('number-input-wrapper')) {
+            input.parentNode.insertBefore(wrapper, input);
+            wrapper.appendChild(input);
 
-        wrapper.insertBefore(decrementBtn, input);
-        wrapper.appendChild(incrementBtn);
+            const decrementBtn = document.createElement('button');
+            decrementBtn.className = 'number-btn decrement';
+            decrementBtn.textContent = '-';
+            decrementBtn.type = 'button';
+            decrementBtn.setAttribute('aria-label', 'Vähennä määrää');
+            
+            const incrementBtn = document.createElement('button');
+            incrementBtn.className = 'number-btn increment';
+            incrementBtn.textContent = '+';
+            incrementBtn.type = 'button';
+            incrementBtn.setAttribute('aria-label', 'Lisää määrää');
 
-        // Handle button clicks
-        decrementBtn.addEventListener('click', () => {
-            const min = parseInt(input.min) || 0;
-            const step = parseInt(input.step) || 1;
-            const newValue = Math.max(min, parseInt(input.value) - step);
-            input.value = newValue;
-            input.dispatchEvent(new Event('input'));
-        });
+            wrapper.insertBefore(decrementBtn, input);
+            wrapper.appendChild(incrementBtn);
 
-        incrementBtn.addEventListener('click', () => {
-            const step = parseInt(input.step) || 1;
-            const newValue = parseInt(input.value) + step;
-            input.value = newValue;
-            input.dispatchEvent(new Event('input'));
-        });
+            // Handle button clicks with debounce
+            let timeout;
+            const handleChange = (newValue) => {
+                clearTimeout(timeout);
+                timeout = setTimeout(() => {
+                    input.value = newValue;
+                    input.dispatchEvent(new Event('input'));
+                }, 100);
+            };
 
-        // Handle direct input
+            decrementBtn.addEventListener('click', () => {
+                const min = parseInt(input.min) || 0;
+                const step = parseInt(input.step) || 1;
+                const newValue = Math.max(min, parseInt(input.value) - step);
+                handleChange(newValue);
+            });
+
+            incrementBtn.addEventListener('click', () => {
+                const step = parseInt(input.step) || 1;
+                const max = parseInt(input.max) || Infinity;
+                const newValue = Math.min(max, parseInt(input.value) + step);
+                handleChange(newValue);
+            });
+        }
+
+        // Handle direct input with debounce
+        let inputTimeout;
         input.addEventListener('input', () => {
-            const min = parseInt(input.min) || 0;
-            const max = parseInt(input.max) || Infinity;
-            validateNumberInput(input, min, max);
+            clearTimeout(inputTimeout);
+            inputTimeout = setTimeout(() => {
+                const min = parseInt(input.min) || 0;
+                const max = parseInt(input.max) || Infinity;
+                validateNumberInput(input, min, max);
+            }, 300);
         });
     });
 
@@ -308,35 +317,47 @@ document.addEventListener('DOMContentLoaded', function() {
     });
 
     function calculatePrice() {
-        let totalPrice = 0;
-        let hubPrices = [];
+        try {
+            let totalPrice = 0;
+            let hubPrices = [];
 
-        if (state.mode === 'platform') {
-            totalPrice = calculatePlatformPrice();
-            hubPrices.push({
-                name: 'HubSpot Platform',
-                price: totalPrice
-            });
-        } else {
-            // Calculate individual hub prices
-            const marketingPrice = calculateMarketingPrice();
-            const salesPrice = calculateSalesPrice();
-            const servicePrice = calculateServicePrice();
-            const contentPrice = calculateContentPrice();
-            const operationsPrice = calculateOperationsPrice();
+            if (state.mode === 'platform') {
+                totalPrice = calculatePlatformPrice();
+                hubPrices.push({
+                    name: 'HubSpot Platform',
+                    price: totalPrice
+                });
+            } else {
+                // Calculate individual hub prices
+                const marketingPrice = calculateMarketingPrice();
+                const salesPrice = calculateSalesPrice();
+                const servicePrice = calculateServicePrice();
+                const contentPrice = calculateContentPrice();
+                const operationsPrice = calculateOperationsPrice();
 
-            // Add non-zero prices to the list
-            if (marketingPrice > 0) hubPrices.push({ name: 'Marketing Hub', price: marketingPrice });
-            if (salesPrice > 0) hubPrices.push({ name: 'Sales Hub', price: salesPrice });
-            if (servicePrice > 0) hubPrices.push({ name: 'Service Hub', price: servicePrice });
-            if (contentPrice > 0) hubPrices.push({ name: 'Content Hub', price: contentPrice });
-            if (operationsPrice > 0) hubPrices.push({ name: 'Operations Hub', price: operationsPrice });
+                // Add non-zero prices to the list
+                if (marketingPrice > 0) hubPrices.push({ name: 'Marketing Hub', price: marketingPrice });
+                if (salesPrice > 0) hubPrices.push({ name: 'Sales Hub', price: salesPrice });
+                if (servicePrice > 0) hubPrices.push({ name: 'Service Hub', price: servicePrice });
+                if (contentPrice > 0) hubPrices.push({ name: 'Content Hub', price: contentPrice });
+                if (operationsPrice > 0) hubPrices.push({ name: 'Operations Hub', price: operationsPrice });
 
-            totalPrice = marketingPrice + salesPrice + servicePrice + contentPrice + operationsPrice;
+                totalPrice = marketingPrice + salesPrice + servicePrice + contentPrice + operationsPrice;
+            }
+
+            // Ensure prices are valid numbers
+            totalPrice = isNaN(totalPrice) ? 0 : totalPrice;
+            hubPrices = hubPrices.map(hub => ({
+                ...hub,
+                price: isNaN(hub.price) ? 0 : hub.price
+            }));
+
+            // Update UI
+            updatePriceDisplay(totalPrice, hubPrices);
+        } catch (error) {
+            console.error('Error calculating price:', error);
+            updatePriceDisplay(0, []);
         }
-
-        // Update UI
-        updatePriceDisplay(totalPrice, hubPrices);
     }
 
     function calculatePlatformPrice() {
@@ -383,18 +404,24 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     function updatePriceDisplay(totalPrice, hubPrices) {
-        if (elements.hubPricesElement && elements.totalPriceElement) {
-            // Format hub prices
-            const hubPricesHtml = hubPrices.map(hub => `
-                <div class="hub-price">
-                    <span class="hub-name">${hub.name}</span>
-                    <span class="hub-price-value">${formatPrice(hub.price)}</span>
-                </div>
-            `).join('');
+        try {
+            if (elements.hubPricesElement && elements.totalPriceElement) {
+                // Format hub prices
+                const hubPricesHtml = hubPrices.map(hub => `
+                    <div class="hub-price">
+                        <span class="hub-name">${escapeHtml(hub.name)}</span>
+                        <span class="hub-price-value">${formatPrice(hub.price)}</span>
+                    </div>
+                `).join('');
 
-            // Update the display
-            elements.hubPricesElement.innerHTML = hubPricesHtml;
-            elements.totalPriceElement.textContent = formatPrice(totalPrice);
+                // Update the display safely
+                requestAnimationFrame(() => {
+                    elements.hubPricesElement.innerHTML = hubPricesHtml;
+                    elements.totalPriceElement.textContent = formatPrice(totalPrice);
+                });
+            }
+        } catch (error) {
+            console.error('Error updating price display:', error);
         }
     }
 
@@ -407,6 +434,17 @@ document.addEventListener('DOMContentLoaded', function() {
         }).format(price);
     }
 
+    // Helper function to escape HTML
+    function escapeHtml(str) {
+        const div = document.createElement('div');
+        div.textContent = str;
+        return div.innerHTML;
+    }
+
     // Initialize the form
-    initializeForm();
+    try {
+        initializeForm();
+    } catch (error) {
+        console.error('Error initializing form:', error);
+    }
 }); 
