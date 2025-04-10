@@ -177,10 +177,12 @@ h1, h2, h3, h4, h5, h6 {
 }
 
 .form-group label {
-    display: block;
+    display: inline-flex;
+    align-items: center;
     margin-bottom: 0.5rem;
     font-weight: 500;
     color: var(--text-color);
+    gap: 0.5rem;
 }
 
 .form-group select,
@@ -211,15 +213,13 @@ h1, h2, h3, h4, h5, h6 {
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    width: 20px;
-    height: 20px;
-    margin-left: 0.5rem;
+    width: 18px;
+    height: 18px;
     border-radius: 50%;
     background-color: var(--primary-light);
     color: var(--primary-color);
-    font-size: 0.875rem;
+    font-size: 0.75rem;
     cursor: help;
-    vertical-align: middle;
     transition: all 0.2s ease;
 }
 
@@ -249,6 +249,8 @@ h1, h2, h3, h4, h5, h6 {
     transition: all 0.2s ease;
     pointer-events: none;
     z-index: 10;
+    width: max-content;
+    max-width: 300px;
 }
 
 .tooltip-trigger[data-tooltip]:hover::after {
