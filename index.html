@@ -95,87 +95,90 @@
                 </div>
 
                 <div id="custom-hub-section" class="tab-content">
-                    <div class="hub-selection">
-                        <h3>
-                            Marketing Hub
-                            <span class="tooltip-trigger" data-tooltip="Marketing Hub sisältää työkalut markkinoinnin automatisointiin ja liidien generointiin">?</span>
-                        </h3>
-                        <label for="marketing-tier">
-                            Paketti:
-                            <span class="tooltip-trigger" data-tooltip="Valitse yrityksesi tarpeisiin sopiva paketti">?</span>
-                        </label>
+                    <!-- Marketing Hub -->
+                    <div class="form-group">
+                        <label for="marketing-tier">Marketing Hub</label>
                         <select id="marketing-tier" name="marketing-tier">
                             <option value="starter">Starter</option>
                             <option value="professional">Professional</option>
                             <option value="enterprise">Enterprise</option>
                         </select>
-                        <label for="marketing-contacts">
-                            Kontaktien määrä:
-                            <span class="tooltip-trigger" data-tooltip="Kontaktien määrä vaikuttaa suoraan Marketing Hubin kuukausihintaan">?</span>
-                        </label>
+                        <span class="tooltip-trigger" data-tooltip="Marketing Hub sisältää työkalut markkinoinnin automatisointiin ja liidien generointiin">
+                            <i class="fas fa-info-circle"></i>
+                        </span>
+                    </div>
+                    <div class="form-group">
+                        <label for="marketing-contacts">Kontaktien määrä:</label>
                         <input type="number" id="marketing-contacts" name="marketing-contacts" min="1000" step="1000" value="1000">
+                        <span class="tooltip-trigger" data-tooltip="Starter: 1,000 kontaktia (46€/1k), Professional: 5,000 kontaktia (250€/5k), Enterprise: 10,000 kontaktia (92€/10k)">
+                            <i class="fas fa-info-circle"></i>
+                        </span>
                     </div>
 
-                    <div class="hub-selection">
-                        <h3>
-                            Sales Hub
-                            <span class="tooltip-trigger" data-tooltip="Sales Hub tarjoaa työkalut myyntiprosessin tehostamiseen">?</span>
-                        </h3>
-                        <label for="sales-tier">Paketti:</label>
+                    <!-- Sales Hub -->
+                    <div class="form-group">
+                        <label for="sales-tier">Sales Hub</label>
                         <select id="sales-tier" name="sales-tier">
                             <option value="starter">Starter</option>
                             <option value="professional">Professional</option>
                             <option value="enterprise">Enterprise</option>
                         </select>
-                        <label for="sales-users">
-                            Käyttäjien määrä:
-                            <span class="tooltip-trigger" data-tooltip="Syötä myyntitiimisi koko">?</span>
-                        </label>
+                        <span class="tooltip-trigger" data-tooltip="Sales Hub tarjoaa työkalut myyntiprosessin tehostamiseen">
+                            <i class="fas fa-info-circle"></i>
+                        </span>
+                    </div>
+                    <div class="form-group">
+                        <label for="sales-users">Käyttäjien määrä:</label>
                         <input type="number" id="sales-users" name="sales-users" min="1" value="1">
+                        <span class="tooltip-trigger" data-tooltip="Starter: 15€/käyttäjä, Professional: 80€/käyttäjä, Enterprise: 120€/käyttäjä">
+                            <i class="fas fa-info-circle"></i>
+                        </span>
                     </div>
 
-                    <div class="hub-selection">
-                        <h3>
-                            Service Hub
-                            <span class="tooltip-trigger" data-tooltip="Service Hub sisältää työkalut asiakaspalvelun tehostamiseen">?</span>
-                        </h3>
-                        <label for="service-tier">Paketti:</label>
+                    <!-- Service Hub -->
+                    <div class="form-group">
+                        <label for="service-tier">Service Hub</label>
                         <select id="service-tier" name="service-tier">
                             <option value="starter">Starter</option>
                             <option value="professional">Professional</option>
                             <option value="enterprise">Enterprise</option>
                         </select>
-                        <label for="service-users">
-                            Käyttäjien määrä:
-                            <span class="tooltip-trigger" data-tooltip="Syötä asiakaspalvelutiimisi koko">?</span>
-                        </label>
+                        <span class="tooltip-trigger" data-tooltip="Service Hub sisältää työkalut asiakaspalvelun tehostamiseen">
+                            <i class="fas fa-info-circle"></i>
+                        </span>
+                    </div>
+                    <div class="form-group">
+                        <label for="service-users">Käyttäjien määrä:</label>
                         <input type="number" id="service-users" name="service-users" min="1" value="1">
+                        <span class="tooltip-trigger" data-tooltip="Starter: 15€/käyttäjä, Professional: 80€/käyttäjä, Enterprise: 120€/käyttäjä">
+                            <i class="fas fa-info-circle"></i>
+                        </span>
                     </div>
 
-                    <div class="hub-selection">
-                        <h3>
-                            Content Hub
-                            <span class="tooltip-trigger" data-tooltip="Content Hub auttaa sisällöntuotannon hallinnassa">?</span>
-                        </h3>
-                        <label for="content-tier">Paketti:</label>
+                    <!-- Content Hub -->
+                    <div class="form-group">
+                        <label for="content-tier">Content Hub</label>
                         <select id="content-tier" name="content-tier">
                             <option value="starter">Starter</option>
                             <option value="professional">Professional</option>
                             <option value="enterprise">Enterprise</option>
                         </select>
+                        <span class="tooltip-trigger" data-tooltip="Content Hub auttaa sisällöntuotannon hallinnassa">
+                            <i class="fas fa-info-circle"></i>
+                        </span>
                     </div>
 
-                    <div class="hub-selection">
-                        <h3>
-                            Operations Hub
-                            <span class="tooltip-trigger" data-tooltip="Operations Hub yhdistää ja synkronoi dataa eri järjestelmien välillä">?</span>
-                        </h3>
-                        <label for="operations-tier">Paketti:</label>
+                    <!-- Operations Hub -->
+                    <div class="form-group">
+                        <label for="operations-tier">Operations Hub</label>
                         <select id="operations-tier" name="operations-tier">
                             <option value="starter">Starter</option>
                             <option value="professional">Professional</option>
                             <option value="enterprise">Enterprise</option>
                         </select>
+                        <span class="tooltip-trigger" data-tooltip="Operations Hub yhdistää ja synkronoi dataa eri järjestelmien välillä">
+                            <i class="fas fa-info-circle"></i>
+                        </span>
                     </div>
                 </div>
 

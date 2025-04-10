@@ -95,10 +95,19 @@ document.addEventListener('DOMContentLoaded', function() {
             
             // Update active states
             elements.tabButtons.forEach(btn => btn.classList.toggle('active', btn === button));
-            elements.tabContents.forEach(content => {
-                content.classList.toggle('active', content.id === `${tab}-section`);
-                content.style.display = content.id === `${tab}-section` ? 'block' : 'none';
-            });
+            
+            // Toggle visibility of sections
+            if (tab === 'platform') {
+                elements.platformSection.style.display = 'block';
+                elements.customHubSection.style.display = 'none';
+                elements.platformSection.classList.add('active');
+                elements.customHubSection.classList.remove('active');
+            } else {
+                elements.platformSection.style.display = 'none';
+                elements.customHubSection.style.display = 'block';
+                elements.platformSection.classList.remove('active');
+                elements.customHubSection.classList.add('active');
+            }
             
             // Update state
             state.mode = tab;
@@ -269,14 +278,14 @@ document.addEventListener('DOMContentLoaded', function() {
             const contentPrice = calculateContentPrice();
             const operationsPrice = calculateOperationsPrice();
 
-            totalPrice = marketingPrice + salesPrice + servicePrice + contentPrice + operationsPrice;
-
             // Add non-zero prices to the list
             if (marketingPrice > 0) hubPrices.push({ name: 'Marketing Hub', price: marketingPrice });
             if (salesPrice > 0) hubPrices.push({ name: 'Sales Hub', price: salesPrice });
             if (servicePrice > 0) hubPrices.push({ name: 'Service Hub', price: servicePrice });
             if (contentPrice > 0) hubPrices.push({ name: 'Content Hub', price: contentPrice });
             if (operationsPrice > 0) hubPrices.push({ name: 'Operations Hub', price: operationsPrice });
+
+            totalPrice = marketingPrice + salesPrice + servicePrice + contentPrice + operationsPrice;
         }
 
         // Update UI
