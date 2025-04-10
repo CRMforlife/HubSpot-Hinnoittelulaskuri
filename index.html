@@ -63,23 +63,18 @@
             </div>
 
             <div class="calculator-form">
-                <div class="navigation-tabs">
+                <div class="tab-buttons">
                     <button class="tab-button active" data-tab="platform">
-                        <span class="tab-icon">🏢</span>
-                        Customer Platform
+                        <i class="fas fa-building"></i> HubSpot Platform
                     </button>
                     <button class="tab-button" data-tab="custom">
-                        <span class="tab-icon">🛠️</span>
-                        Räätälöity ratkaisu
+                        <i class="fas fa-tools"></i> Mukautettu ratkaisu
                     </button>
                 </div>
 
                 <div id="platform-section" class="tab-content active">
-                    <div class="form-section">
-                        <label for="platform-tier">
-                            Valitse paketti:
-                            <span class="tooltip-trigger" data-tooltip="Starter sopii aloittelijoille, Professional keskisuurille yrityksille ja Enterprise isoille organisaatioille">?</span>
-                        </label>
+                    <div class="form-group">
+                        <label for="platform-tier">Valitse HubSpot-taso:</label>
                         <select id="platform-tier" name="platform-tier">
                             <option value="starter">Starter</option>
                             <option value="professional">Professional</option>
