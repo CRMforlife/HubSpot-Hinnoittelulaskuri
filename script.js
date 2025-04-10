@@ -21,78 +21,87 @@ document.addEventListener('DOMContentLoaded', function() {
         },
         marketing: {
             starter: {
-                base: 50,
-                includedContacts: 1000,
-                extraUnit: 1000,
-                extraCost: 25
+                base: 15,
+                extraPerUser: 15,
+                includedUsers: 3
             },
             professional: {
-                base: 890,
-                includedContacts: 2000,
-                extraUnit: 1000,
-                extraCost: 45
+                base: 992,
+                extraPerUser: 45,
+                includedUsers: 5
             },
             enterprise: {
-                base: 3600,
-                includedContacts: 10000,
-                extraUnit: 1000,
-                extraCost: 35
+                base: 3300,
+                extraPerUser: 75,
+                includedUsers: 5
             }
         },
         sales: {
             starter: {
-                base: 50,
-                extraPerUser: 25,
+                base: 0,
+                extraPerUser: 15,
                 includedUsers: 1
             },
             professional: {
-                base: 450,
+                base: 0,
                 extraPerUser: 90,
-                includedUsers: 5
+                includedUsers: 1
             },
             enterprise: {
-                base: 1200,
-                extraPerUser: 120,
-                includedUsers: 10
+                base: 0,
+                extraPerUser: 150,
+                includedUsers: 1
             }
         },
         service: {
             starter: {
-                base: 50,
-                extraPerUser: 25,
+                base: 0,
+                extraPerUser: 15,
                 includedUsers: 1
             },
             professional: {
-                base: 450,
+                base: 0,
                 extraPerUser: 90,
-                includedUsers: 5
+                includedUsers: 1
             },
             enterprise: {
-                base: 1200,
-                extraPerUser: 120,
-                includedUsers: 10
+                base: 0,
+                extraPerUser: 150,
+                includedUsers: 1
             }
         },
         content: {
             starter: {
-                base: 0
+                base: 15,
+                extraPerUser: 45,
+                includedUsers: 3
             },
             professional: {
-                base: 360
+                base: 441,
+                extraPerUser: 75,
+                includedUsers: 5
             },
             enterprise: {
-                base: 1200
+                base: 1470,
+                extraPerUser: 75,
+                includedUsers: 5
             }
         },
         operations: {
             starter: {
-                base: 0
+                base: 15,
+                extraPerUser: 15,
+                includedUsers: 1
             },
             professional: {
-                base: 800
+                base: 711,
+                extraPerUser: 45,
+                includedUsers: 1
             },
             enterprise: {
-                base: 2000
+                base: 1960,
+                extraPerUser: 75,
+                includedUsers: 1
             }
         }
     };
@@ -283,10 +292,8 @@ document.addEventListener('DOMContentLoaded', function() {
         if (!tierData) return 0;
 
         if (tier === 'starter') {
-            // Starter: Base + (users * per user fee)
             return tierData.base + (users * tierData.extraPerUser);
         } else {
-            // Professional/Enterprise: Base + (extra users * per user fee)
             const extraUsers = Math.max(0, users - tierData.includedUsers);
             return tierData.base + (extraUsers * tierData.extraPerUser);
         }
@@ -296,14 +303,12 @@ document.addEventListener('DOMContentLoaded', function() {
         const tier = state.marketingTier;
         if (tier === 'none') return 0;
 
-        const contacts = Math.max(1000, state.marketingContacts);
+        const users = Math.max(1, state.marketingUsers || 1);
         const tierData = pricing.marketing[tier];
         if (!tierData) return 0;
 
-        // Calculate extra contacts cost
-        const extraContacts = Math.max(0, contacts - tierData.includedContacts);
-        const extraUnits = Math.ceil(extraContacts / tierData.extraUnit);
-        return tierData.base + (extraUnits * tierData.extraCost);
+        const extraUsers = Math.max(0, users - tierData.includedUsers);
+        return tierData.base + (extraUsers * tierData.extraPerUser);
     }
 
     function calculateSalesPrice() {
@@ -314,9 +319,7 @@ document.addEventListener('DOMContentLoaded', function() {
         const tierData = pricing.sales[tier];
         if (!tierData) return 0;
 
-        // Calculate extra users cost
-        const extraUsers = Math.max(0, users - tierData.includedUsers);
-        return tierData.base + (extraUsers * tierData.extraPerUser);
+        return users * tierData.extraPerUser;
     }
 
     function calculateServicePrice() {
@@ -327,25 +330,31 @@ document.addEventListener('DOMContentLoaded', function() {
         const tierData = pricing.service[tier];
         if (!tierData) return 0;
 
-        // Calculate extra users cost
-        const extraUsers = Math.max(0, users - tierData.includedUsers);
-        return tierData.base + (extraUsers * tierData.extraPerUser);
+        return users * tierData.extraPerUser;
     }
 
     function calculateContentPrice() {
         const tier = state.contentTier;
         if (tier === 'none') return 0;
 
+        const users = Math.max(1, state.contentUsers || 1);
         const tierData = pricing.content[tier];
-        return tierData ? tierData.base : 0;
+        if (!tierData) return 0;
+
+        const extraUsers = Math.max(0, users - tierData.includedUsers);
+        return tierData.base + (extraUsers * tierData.extraPerUser);
     }
 
     function calculateOperationsPrice() {
         const tier = state.operationsTier;
         if (tier === 'none') return 0;
 
+        const users = Math.max(1, state.operationsUsers || 1);
         const tierData = pricing.operations[tier];
-        return tierData ? tierData.base : 0;
+        if (!tierData) return 0;
+
+        const extraUsers = Math.max(0, users - tierData.includedUsers);
+        return tierData.base + (extraUsers * tierData.extraPerUser);
     }
 
     // Calculate total price
