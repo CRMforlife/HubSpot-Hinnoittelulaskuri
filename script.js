@@ -63,17 +63,16 @@ document.addEventListener('DOMContentLoaded', function() {
     // State management
     const state = {
         mode: 'platform',
-        platformUsers: 0,
-        marketingUsers: 0,
-        salesUsers: 0,
-        serviceUsers: 0,
-        contentUsers: 0,
-        operationsUsers: 0,
-        marketingPackage: 'starter',
-        salesPackage: 'starter',
-        servicePackage: 'starter',
-        contentPackage: 'starter',
-        operationsPackage: 'starter'
+        platformTier: 'starter',
+        platformUsers: 1,
+        marketingTier: 'starter',
+        marketingContacts: 1000,
+        salesTier: 'starter',
+        salesUsers: 1,
+        serviceTier: 'starter',
+        serviceUsers: 1,
+        contentTier: 'starter',
+        operationsTier: 'starter'
     };
 
     // Input validation with better error handling
@@ -91,6 +90,12 @@ document.addEventListener('DOMContentLoaded', function() {
             
             // Update input value to show the validated number
             input.value = value;
+            
+            // Trigger change event for select elements
+            if (input.tagName.toLowerCase() === 'select') {
+                input.dispatchEvent(new Event('change'));
+            }
+            
             return value;
         } catch (error) {
             console.error('Error validating input:', error);
@@ -109,7 +114,10 @@ document.addEventListener('DOMContentLoaded', function() {
             
             // Add active class to selected button and content
             button.classList.add('active');
-            document.getElementById(`${tab}-section`).classList.add('active');
+            const targetSection = document.getElementById(`${tab}-section`);
+            if (targetSection) {
+                targetSection.classList.add('active');
+            }
             
             // Update visibility
             elements.platformSection.style.display = tab === 'platform' ? 'block' : 'none';
@@ -259,8 +267,8 @@ document.addEventListener('DOMContentLoaded', function() {
                     case 'platform-users':
                         state.platformUsers = value;
                         break;
-                    case 'marketing-users':
-                        state.marketingUsers = value;
+                    case 'marketing-contacts':
+                        state.marketingContacts = value;
                         break;
                     case 'sales-users':
                         state.salesUsers = value;
@@ -268,19 +276,13 @@ document.addEventListener('DOMContentLoaded', function() {
                     case 'service-users':
                         state.serviceUsers = value;
                         break;
-                    case 'content-users':
-                        state.contentUsers = value;
-                        break;
-                    case 'operations-users':
-                        state.operationsUsers = value;
-                        break;
                 }
                 
                 calculatePrice();
             });
         });
 
-        // Add event listeners to all package selects
+        // Add event listeners to all tier selects
         document.querySelectorAll('select').forEach(select => {
             select.addEventListener('change', () => {
                 const id = select.id;
@@ -288,20 +290,23 @@ document.addEventListener('DOMContentLoaded', function() {
                 
                 // Update state based on select id
                 switch(id) {
-                    case 'marketing-package':
-                        state.marketingPackage = value;
+                    case 'platform-tier':
+                        state.platformTier = value;
                         break;
-                    case 'sales-package':
-                        state.salesPackage = value;
+                    case 'marketing-tier':
+                        state.marketingTier = value;
                         break;
-                    case 'service-package':
-                        state.servicePackage = value;
+                    case 'sales-tier':
+                        state.salesTier = value;
                         break;
-                    case 'content-package':
-                        state.contentPackage = value;
+                    case 'service-tier':
+                        state.serviceTier = value;
                         break;
-                    case 'operations-package':
-                        state.operationsPackage = value;
+                    case 'content-tier':
+                        state.contentTier = value;
+                        break;
+                    case 'operations-tier':
+                        state.operationsTier = value;
                         break;
                 }
                 
@@ -375,6 +380,12 @@ document.addEventListener('DOMContentLoaded', function() {
 
             if (state.mode === 'platform') {
                 totalPrice = calculatePlatformPrice();
+                if (totalPrice > 0) {
+                    hubPrices.push({
+                        name: 'HubSpot Platform',
+                        price: totalPrice
+                    });
+                }
                 hubPrices.push({
                     name: 'HubSpot Platform',
                     price: totalPrice
