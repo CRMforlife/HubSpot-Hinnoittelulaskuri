@@ -118,47 +118,69 @@ document.addEventListener('DOMContentLoaded', function() {
     });
 
     // Enhanced tooltip functionality
-    const tooltips = document.querySelectorAll('.tooltip-trigger');
+    const tooltipTriggers = document.querySelectorAll('.tooltip-trigger');
     let activeTooltip = null;
 
-    // Close active tooltip when clicking outside
-    document.addEventListener('click', function(e) {
+    // Close tooltip when clicking outside
+    document.addEventListener('click', (e) => {
         if (activeTooltip && !activeTooltip.contains(e.target)) {
             activeTooltip.classList.remove('active');
             activeTooltip = null;
         }
     });
 
-    tooltips.forEach(tooltip => {
-        // Handle keyboard interaction
-        tooltip.setAttribute('role', 'button');
-        tooltip.setAttribute('tabindex', '0');
-        
-        // Handle click/tap events
-        tooltip.addEventListener('click', function(e) {
-            e.preventDefault();
+    tooltipTriggers.forEach(trigger => {
+        // Add ARIA attributes and role
+        trigger.setAttribute('role', 'button');
+        trigger.setAttribute('tabindex', '0');
+        trigger.setAttribute('aria-label', 'Lisätietoja');
+
+        // Handle click/touch events
+        trigger.addEventListener('click', (e) => {
             e.stopPropagation();
             
-            // Close other tooltips
-            if (activeTooltip && activeTooltip !== tooltip) {
+            // Close previously active tooltip
+            if (activeTooltip && activeTooltip !== trigger) {
                 activeTooltip.classList.remove('active');
             }
-            
+
             // Toggle current tooltip
-            tooltip.classList.toggle('active');
-            activeTooltip = tooltip.classList.contains('active') ? tooltip : null;
+            trigger.classList.toggle('active');
+            activeTooltip = trigger.classList.contains('active') ? trigger : null;
+
+            // Prevent scrolling when tooltip is open on mobile
+            if (window.innerWidth <= 767) {
+                document.body.style.overflow = activeTooltip ? 'hidden' : '';
+            }
         });
-        
+
         // Handle keyboard events
-        tooltip.addEventListener('keydown', function(e) {
+        trigger.addEventListener('keydown', (e) => {
             if (e.key === 'Enter' || e.key === ' ') {
                 e.preventDefault();
-                tooltip.click();
+                trigger.click();
             } else if (e.key === 'Escape' && activeTooltip) {
                 activeTooltip.classList.remove('active');
                 activeTooltip = null;
+                document.body.style.overflow = '';
             }
         });
+
+        // Handle touch events specifically
+        let touchStartY = 0;
+        trigger.addEventListener('touchstart', (e) => {
+            touchStartY = e.touches[0].clientY;
+        }, { passive: true });
+
+        trigger.addEventListener('touchmove', (e) => {
+            const touchDiff = Math.abs(e.touches[0].clientY - touchStartY);
+            // If user is scrolling (more than 10px movement), close the tooltip
+            if (touchDiff > 10 && activeTooltip) {
+                activeTooltip.classList.remove('active');
+                activeTooltip = null;
+                document.body.style.overflow = '';
+            }
+        }, { passive: true });
     });
 
     // Enhance form interactions
