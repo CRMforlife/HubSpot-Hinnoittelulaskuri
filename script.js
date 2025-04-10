@@ -26,7 +26,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 includedUsers: 3
             },
             professional: {
-                base: 992,
+                base: 792,
                 extraPerUser: 45,
                 includedUsers: 5
             },
@@ -573,7 +573,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
         // Test Platform pricing
         function testPlatformPricing() {
-            console.log('\nTesting Platform pricing:');
+            console.log('\n=== Testing Platform Pricing ===');
             
             // Test Starter
             state.mode = 'platform';
@@ -581,7 +581,7 @@ document.addEventListener('DOMContentLoaded', function() {
             state.platformUsers = 3;
             calculatePrice();
             console.log('Platform Starter (3 users):', 
-                `Expected: ${formatPrice(45)} €/kk (0€ + 3 × 15€)`, 
+                `Expected: ${formatPrice(45)} €/kk (3 × 15€)`, 
                 `Actual: ${elements.totalPriceElement.textContent}`);
 
             // Test Professional
@@ -601,39 +601,146 @@ document.addEventListener('DOMContentLoaded', function() {
                 `Actual: ${elements.totalPriceElement.textContent}`);
         }
 
-        // Test Custom Hub pricing
-        function testCustomPricing() {
-            console.log('\nTesting Custom Hub pricing:');
+        // Test Marketing Hub
+        function testMarketingPricing() {
+            console.log('\n=== Testing Marketing Hub Pricing ===');
             
-            // Reset state
             state.mode = 'custom';
+            state.marketingTier = 'starter';
+            state.marketingUsers = 4;
+            calculatePrice();
+            console.log('Marketing Starter (4 users):', 
+                `Expected: ${formatPrice(30)} €/kk (15€ + 1 × 15€)`, 
+                `Actual: ${elements.totalPriceElement.textContent}`);
+
             state.marketingTier = 'professional';
-            state.marketingContacts = 5000;
+            state.marketingUsers = 7;
+            calculatePrice();
+            console.log('Marketing Professional (7 users):', 
+                `Expected: ${formatPrice(1082)} €/kk (992€ + 2 × 45€)`, 
+                `Actual: ${elements.totalPriceElement.textContent}`);
+        }
+
+        // Test Sales Hub
+        function testSalesPricing() {
+            console.log('\n=== Testing Sales Hub Pricing ===');
+            
+            state.mode = 'custom';
+            state.salesTier = 'starter';
+            state.salesUsers = 3;
+            calculatePrice();
+            console.log('Sales Starter (3 users):', 
+                `Expected: ${formatPrice(45)} €/kk (3 × 15€)`, 
+                `Actual: ${elements.totalPriceElement.textContent}`);
+
             state.salesTier = 'professional';
-            state.salesUsers = 8;
+            state.salesUsers = 5;
+            calculatePrice();
+            console.log('Sales Professional (5 users):', 
+                `Expected: ${formatPrice(450)} €/kk (5 × 90€)`, 
+                `Actual: ${elements.totalPriceElement.textContent}`);
+        }
+
+        // Test Service Hub
+        function testServicePricing() {
+            console.log('\n=== Testing Service Hub Pricing ===');
+            
+            state.mode = 'custom';
+            state.serviceTier = 'starter';
+            state.serviceUsers = 2;
+            calculatePrice();
+            console.log('Service Starter (2 users):', 
+                `Expected: ${formatPrice(30)} €/kk (2 × 15€)`, 
+                `Actual: ${elements.totalPriceElement.textContent}`);
+
+            state.serviceTier = 'professional';
+            state.serviceUsers = 3;
+            calculatePrice();
+            console.log('Service Professional (3 users):', 
+                `Expected: ${formatPrice(270)} €/kk (3 × 90€)`, 
+                `Actual: ${elements.totalPriceElement.textContent}`);
+        }
+
+        // Test Content Hub
+        function testContentPricing() {
+            console.log('\n=== Testing Content Hub Pricing ===');
+            
+            state.mode = 'custom';
+            state.contentTier = 'starter';
+            state.contentUsers = 4;
+            calculatePrice();
+            console.log('Content Starter (4 users):', 
+                `Expected: ${formatPrice(60)} €/kk (15€ + 1 × 45€)`, 
+                `Actual: ${elements.totalPriceElement.textContent}`);
+
+            state.contentTier = 'professional';
+            state.contentUsers = 7;
+            calculatePrice();
+            console.log('Content Professional (7 users):', 
+                `Expected: ${formatPrice(591)} €/kk (441€ + 2 × 75€)`, 
+                `Actual: ${elements.totalPriceElement.textContent}`);
+        }
+
+        // Test Operations Hub
+        function testOperationsPricing() {
+            console.log('\n=== Testing Operations Hub Pricing ===');
+            
+            state.mode = 'custom';
+            state.operationsTier = 'starter';
+            state.operationsUsers = 2;
+            calculatePrice();
+            console.log('Operations Starter (2 users):', 
+                `Expected: ${formatPrice(30)} €/kk (15€ + 1 × 15€)`, 
+                `Actual: ${elements.totalPriceElement.textContent}`);
+
+            state.operationsTier = 'professional';
+            state.operationsUsers = 3;
+            calculatePrice();
+            console.log('Operations Professional (3 users):', 
+                `Expected: ${formatPrice(801)} €/kk (711€ + 2 × 45€)`, 
+                `Actual: ${elements.totalPriceElement.textContent}`);
+        }
+
+        // Test Combined Custom Solution
+        function testCombinedPricing() {
+            console.log('\n=== Testing Combined Custom Solution ===');
+            
+            state.mode = 'custom';
+            // Set up a complex scenario
+            state.marketingTier = 'professional';
+            state.marketingUsers = 6;
+            state.salesTier = 'professional';
+            state.salesUsers = 4;
             state.serviceTier = 'starter';
             state.serviceUsers = 2;
             state.contentTier = 'professional';
+            state.contentUsers = 6;
             state.operationsTier = 'professional';
+            state.operationsUsers = 2;
             
             calculatePrice();
             
             // Expected calculations:
-            // Marketing Pro: 890€ + (3000/1000 × 45€) = 1025€
-            // Sales Pro: 450€ + (3 × 90€) = 720€
-            // Service Starter: 50€ + (1 × 25€) = 75€
-            // Content Pro: 360€
-            // Operations Pro: 800€
-            // Total: 2980€
+            // Marketing Pro: 992€ + (1 × 45€) = 1037€
+            // Sales Pro: 4 × 90€ = 360€
+            // Service Starter: 2 × 15€ = 30€
+            // Content Pro: 441€ + (1 × 75€) = 516€
+            // Operations Pro: 711€ + (1 × 45€) = 756€
+            // Total: 2699€
             
-            console.log('Custom Solution Test:', 
-                `Expected total: ${formatPrice(2980)} €/kk`,
+            console.log('Combined Custom Solution:', 
+                `Expected total: ${formatPrice(2699)} €/kk`,
                 `Actual: ${elements.totalPriceElement.textContent}`);
         }
 
         // Run all tests
         testPlatformPricing();
-        testCustomPricing();
+        testMarketingPricing();
+        testSalesPricing();
+        testServicePricing();
+        testContentPricing();
+        testOperationsPricing();
+        testCombinedPricing();
 
         console.log('\nTests completed.');
     }
@@ -641,7 +748,7 @@ document.addEventListener('DOMContentLoaded', function() {
     // Run tests after initialization
     document.addEventListener('DOMContentLoaded', () => {
         initializeForm();
-        // Uncomment to run tests
-        // runTests();
+        console.log('Running price calculator tests...');
+        runTests();
     });
 }); 
