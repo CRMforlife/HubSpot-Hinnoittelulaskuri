@@ -405,7 +405,7 @@ h1, h2, h3, h4, h5, h6 {
     display: none;
     opacity: 0;
     transform: translateY(10px);
-    transition: all 0.3s ease;
+    transition: opacity 0.3s ease, transform 0.3s ease;
 }
 
 .tab-content.active {
@@ -414,122 +414,58 @@ h1, h2, h3, h4, h5, h6 {
     transform: translateY(0);
 }
 
-/* Tooltips */
-.tooltip-trigger {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    width: 20px;
-    height: 20px;
-    border-radius: 50%;
-    background: var(--primary-color);
-    color: white;
-    font-size: 0.8rem;
-    margin-left: 0.5rem;
-    cursor: help;
-    position: relative;
+/* Hub Selection Grid */
+#custom-hub-section {
+    display: none;
 }
 
-.tooltip-trigger::before {
-    content: attr(data-tooltip);
-    position: absolute;
-    bottom: 100%;
-    left: 50%;
-    transform: translateX(-50%);
-    padding: 0.5rem 1rem;
-    background: var(--secondary-color);
-    color: white;
-    font-size: 0.9rem;
-    border-radius: var(--border-radius-sm);
-    white-space: nowrap;
-    opacity: 0;
-    visibility: hidden;
-    transition: all 0.3s ease;
-    z-index: 10;
-    width: max-content;
-    max-width: 250px;
-    box-shadow: var(--shadow-md);
+#custom-hub-section.active {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: var(--spacing-md);
 }
 
-.tooltip-trigger:hover::before {
-    opacity: 1;
-    visibility: visible;
-    bottom: 130%;
+@media (max-width: 768px) {
+    #custom-hub-section.active {
+        display: block;
+    }
+    
+    .hub-selection {
+        margin-bottom: var(--spacing-md);
+    }
 }
 
 /* Enhanced Form Styles */
 .form-section {
-    margin-bottom: 1.5rem;
+    margin-bottom: var(--spacing-md);
     position: relative;
 }
 
-.form-section label {
-    display: flex;
-    align-items: center;
-    margin-bottom: 0.5rem;
-    font-weight: 500;
+.form-section:last-child {
+    margin-bottom: 0;
 }
 
-.form-section select,
-.form-section input {
-    width: 100%;
-    padding: 0.8rem;
-    border: 1px solid var(--border-color);
-    border-radius: var(--border-radius-sm);
-    font-size: 1rem;
-    transition: all 0.3s ease;
-}
-
-.form-section select:hover,
-.form-section input:hover {
-    border-color: var(--primary-color);
-}
-
-.form-section select:focus,
-.form-section input:focus {
-    outline: none;
-    border-color: var(--primary-color);
-    box-shadow: 0 0 0 2px var(--primary-light);
-}
-
-/* Hub Selection Styles */
-.hub-selection {
-    background: var(--card-background);
-    padding: 1.5rem;
-    border-radius: var(--border-radius-md);
-    margin-bottom: 1.5rem;
-}
-
-.hub-selection h3 {
-    display: flex;
-    align-items: center;
-    margin-bottom: 1rem;
-    color: var(--primary-color);
-}
-
-/* Number Input Styles */
+/* Number Input Wrapper Fixes */
 .number-input-wrapper {
     position: relative;
     display: flex;
-    align-items: center;
+    align-items: stretch;
+    width: 100%;
 }
 
 .number-input-wrapper input[type="number"] {
-    padding-right: 2.5rem;
-    padding-left: 2.5rem;
     text-align: center;
-}
-
-.number-input-wrapper input[type="number"]::-webkit-inner-spin-button,
-.number-input-wrapper input[type="number"]::-webkit-outer-spin-button {
-    -webkit-appearance: none;
-    margin: 0;
+    appearance: textfield;
+    -moz-appearance: textfield;
+    padding-left: 2.5rem;
+    padding-right: 2.5rem;
 }
 
 .number-btn {
     position: absolute;
-    width: 2rem;
-    height: 100%;
+    top: 0;
+    bottom: 0;
+    width: 2.5rem;
     border: none;
     background: var(--primary-light);
     color: var(--primary-color);
@@ -539,6 +475,7 @@ h1, h2, h3, h4, h5, h6 {
     align-items: center;
     justify-content: center;
     transition: all 0.2s ease;
+    z-index: 1;
 }
 
 .number-btn:hover {
@@ -548,12 +485,33 @@ h1, h2, h3, h4, h5, h6 {
 
 .number-btn.decrement {
     left: 0;
-    border-radius: var(--border-radius-sm) 0 0 var(--border-radius-sm);
+    border-top-left-radius: var(--border-radius-sm);
+    border-bottom-left-radius: var(--border-radius-sm);
 }
 
 .number-btn.increment {
     right: 0;
-    border-radius: 0 var(--border-radius-sm) var(--border-radius-sm) 0;
+    border-top-right-radius: var(--border-radius-sm);
+    border-bottom-right-radius: var(--border-radius-sm);
+}
+
+/* Tooltip Fixes */
+.tooltip-trigger {
+    z-index: 2;
+}
+
+.tooltip-trigger::before {
+    min-width: 200px;
+    text-align: center;
+    line-height: 1.4;
+}
+
+@media (max-width: 768px) {
+    .tooltip-trigger::before {
+        min-width: 160px;
+        max-width: 200px;
+        white-space: normal;
+    }
 }
 
 /* Responsive Design */

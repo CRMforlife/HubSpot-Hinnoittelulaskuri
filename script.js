@@ -94,10 +94,15 @@ document.addEventListener('DOMContentLoaded', function() {
             
             // Update active states
             tabButtons.forEach(btn => btn.classList.remove('active'));
-            tabContents.forEach(content => content.classList.remove('active'));
+            tabContents.forEach(content => {
+                content.classList.remove('active');
+                content.style.display = 'none';
+            });
             
             button.classList.add('active');
-            document.querySelector(`#${tabId}-section`).classList.add('active');
+            const activeContent = document.querySelector(`#${tabId}-section`);
+            activeContent.classList.add('active');
+            activeContent.style.display = 'block';
             
             // Update state
             state.mode = tabId;
@@ -167,12 +172,13 @@ document.addEventListener('DOMContentLoaded', function() {
     function initializeForm() {
         // Show platform section by default
         customHubSection.style.display = 'none';
+        platformSection.style.display = 'block';
         platformSection.classList.add('active');
         calculatePrice();
     }
 
     // Event Listeners
-    modeSelect.addEventListener('change', (e) => {
+    modeSelect?.addEventListener('change', (e) => {
         state.mode = e.target.value;
         customHubSection.style.display = state.mode === 'custom' ? 'block' : 'none';
         platformSection.style.display = state.mode === 'platform' ? 'block' : 'none';
