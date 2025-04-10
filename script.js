@@ -390,168 +390,128 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // Calculate price based on selected options
     function calculatePrice() {
-        try {
-            let totalPrice = 0;
-            const hubPrices = {};
+        let totalPrice = 0;
+        let hubPrices = [];
 
-            // Reset prices when switching tabs
-            if (state.mode === 'platform' && state.platformTier === 'none') {
-                elements.totalPriceElement.textContent = formatPrice(0);
-                elements.hubPricesElement.innerHTML = '';
-                return;
-            }
-
-            if (state.mode === 'custom' && 
-                state.marketingTier === 'none' && 
-                state.salesTier === 'none' && 
-                state.serviceTier === 'none' && 
-                state.contentTier === 'none' && 
-                state.operationsTier === 'none') {
-                elements.totalPriceElement.textContent = formatPrice(0);
-                elements.hubPricesElement.innerHTML = '';
-                return;
-            }
-
-            if (state.mode === 'platform') {
-                const platformPrice = calculatePlatformPrice();
-                if (platformPrice > 0) {
-                    hubPrices['HubSpot Platform'] = platformPrice;
-                    totalPrice = platformPrice;
-                }
-            } else {
-                // Custom solution pricing
-                if (state.marketingTier !== 'none') {
-                    const price = calculateMarketingPrice();
-                    if (price > 0) {
-                        hubPrices['Marketing Hub'] = price;
-                        totalPrice += price;
-                    }
-                }
-                if (state.salesTier !== 'none') {
-                    const price = calculateSalesPrice();
-                    if (price > 0) {
-                        hubPrices['Sales Hub'] = price;
-                        totalPrice += price;
-                    }
-                }
-                if (state.serviceTier !== 'none') {
-                    const price = calculateServicePrice();
-                    if (price > 0) {
-                        hubPrices['Service Hub'] = price;
-                        totalPrice += price;
-                    }
-                }
-                if (state.contentTier !== 'none') {
-                    const price = calculateContentPrice();
-                    if (price > 0) {
-                        hubPrices['Content Hub'] = price;
-                        totalPrice += price;
-                    }
-                }
-                if (state.operationsTier !== 'none') {
-                    const price = calculateOperationsPrice();
-                    if (price > 0) {
-                        hubPrices['Operations Hub'] = price;
-                        totalPrice += price;
-                    }
+        if (state.mode === 'platform') {
+            totalPrice = calculatePlatformPrice();
+            hubPrices.push({
+                name: 'HubSpot Platform',
+                price: totalPrice
+            });
+        } else {
+            // Custom mode calculations
+            if (state.marketingTier !== 'none') {
+                const marketingPrice = calculateMarketingPrice();
+                if (marketingPrice > 0) {
+                    hubPrices.push({
+                        name: 'Marketing Hub',
+                        price: marketingPrice
+                    });
+                    totalPrice += marketingPrice;
                 }
             }
 
-            // Update price display immediately
-            if (elements.totalPriceElement) {
-                elements.totalPriceElement.textContent = formatPrice(totalPrice);
+            if (state.salesTier !== 'none') {
+                const salesPrice = calculateSalesPrice();
+                if (salesPrice > 0) {
+                    hubPrices.push({
+                        name: 'Sales Hub',
+                        price: salesPrice
+                    });
+                    totalPrice += salesPrice;
+                }
             }
 
-            // Update hub prices display
-            if (elements.hubPricesElement) {
-                const hubPricesHtml = Object.entries(hubPrices).map(([name, price]) => `
-                    <div class="hub-price">
-                        <span class="hub-name">${escapeHtml(name)}</span>
-                        <span class="hub-price-value">${formatPrice(price)}</span>
-                    </div>
-                `).join('');
-                elements.hubPricesElement.innerHTML = hubPricesHtml;
+            if (state.serviceTier !== 'none') {
+                const servicePrice = calculateServicePrice();
+                if (servicePrice > 0) {
+                    hubPrices.push({
+                        name: 'Service Hub',
+                        price: servicePrice
+                    });
+                    totalPrice += servicePrice;
+                }
             }
-        } catch (error) {
-            console.error('Error calculating price:', error);
-            if (elements.totalPriceElement) {
-                elements.totalPriceElement.textContent = formatPrice(0);
+
+            if (state.contentTier !== 'none') {
+                const contentPrice = calculateContentPrice();
+                if (contentPrice > 0) {
+                    hubPrices.push({
+                        name: 'Content Hub',
+                        price: contentPrice
+                    });
+                    totalPrice += contentPrice;
+                }
             }
-            if (elements.hubPricesElement) {
-                elements.hubPricesElement.innerHTML = '';
+
+            if (state.operationsTier !== 'none') {
+                const operationsPrice = calculateOperationsPrice();
+                if (operationsPrice > 0) {
+                    hubPrices.push({
+                        name: 'Operations Hub',
+                        price: operationsPrice
+                    });
+                    totalPrice += operationsPrice;
+                }
             }
         }
+
+        // Update price display
+        elements.hubPricesElement.innerHTML = hubPrices
+            .map(hub => `<div class="hub-price">${escapeHtml(hub.name)}: ${formatPrice(hub.price)} €/kk</div>`)
+            .join('');
+        
+        elements.totalPriceElement.textContent = `${formatPrice(totalPrice)} €/kk`;
     }
 
-    // Calculate platform price
     function calculatePlatformPrice() {
-        const tier = pricing.platform[state.platformTier];
-        if (!tier) return 0;
-        
-        if (state.platformTier === 'starter') {
-            return tier.base + (state.platformUsers * tier.extraPerUser);
+        const tier = state.platformTier;
+        const users = state.platformUsers;
+        const tierData = pricing.platform[tier];
+
+        if (tier === 'starter') {
+            return tierData.base + (users * tierData.extraPerUser);
         } else {
-            const extraUsers = Math.max(0, state.platformUsers - tier.includedUsers);
-            return tier.base + (extraUsers * tier.extraPerUser);
+            const extraUsers = Math.max(0, users - tierData.includedUsers);
+            return tierData.base + (extraUsers * tierData.extraPerUser);
         }
     }
 
-    // Calculate marketing price
     function calculateMarketingPrice() {
-        if (state.marketingTier === 'none') return 0;
-        
-        const tier = pricing.marketing[state.marketingTier];
-        if (!tier) return 0;
-        
-        const extraContacts = Math.max(0, state.marketingContacts - tier.includedContacts);
-        const extraBlocks = Math.ceil(extraContacts / tier.extraUnit);
-        return tier.base + (extraBlocks * tier.extraCost);
+        const tier = state.marketingTier;
+        const contacts = state.marketingContacts;
+        const tierData = pricing.marketing[tier];
+
+        const extraContacts = Math.max(0, contacts - tierData.includedContacts);
+        const extraUnits = Math.ceil(extraContacts / tierData.extraUnit);
+        return tierData.base + (extraUnits * tierData.extraCost);
     }
 
-    // Calculate sales price
     function calculateSalesPrice() {
-        if (state.salesTier === 'none') return 0;
-        
-        const tier = pricing.sales[state.salesTier];
-        if (!tier) return 0;
-        
-        if (state.salesTier === 'starter') {
-            return tier.base + (state.salesUsers * tier.extraPerUser);
-        } else {
-            const extraUsers = Math.max(0, state.salesUsers - 1);
-            return tier.base + (extraUsers * tier.extraPerUser);
-        }
+        const tier = state.salesTier;
+        const users = state.salesUsers;
+        const tierData = pricing.sales[tier];
+
+        return tierData.base + (users * tierData.extraPerUser);
     }
 
-    // Calculate service price
     function calculateServicePrice() {
-        if (state.serviceTier === 'none') return 0;
-        
-        const tier = pricing.service[state.serviceTier];
-        if (!tier) return 0;
-        
-        if (state.serviceTier === 'starter') {
-            return tier.base + (state.serviceUsers * tier.extraPerUser);
-        } else {
-            const extraUsers = Math.max(0, state.serviceUsers - 1);
-            return tier.base + (extraUsers * tier.extraPerUser);
-        }
+        const tier = state.serviceTier;
+        const users = state.serviceUsers;
+        const tierData = pricing.service[tier];
+
+        return tierData.base + (users * tierData.extraPerUser);
     }
 
-    // Calculate content price
     function calculateContentPrice() {
-        if (state.contentTier === 'none') return 0;
-        
-        const tier = pricing.content[state.contentTier];
-        return tier ? tier.base : 0;
+        const tier = state.contentTier;
+        return pricing.content[tier].base;
     }
 
-    // Calculate operations price
     function calculateOperationsPrice() {
-        if (state.operationsTier === 'none') return 0;
-        
-        const tier = pricing.operations[state.operationsTier];
-        return tier ? tier.base : 0;
+        const tier = state.operationsTier;
+        return pricing.operations[tier].base;
     }
 
     function formatPrice(price) {
