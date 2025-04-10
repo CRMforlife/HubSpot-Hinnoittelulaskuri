@@ -435,6 +435,10 @@ h1, h2, h3, h4, h5, h6 {
     .calculator-form {
         position: static;
     }
+    
+    .meetings-iframe-container iframe {
+        height: 550px;
+    }
 }
 
 @media (max-width: 767px) {
@@ -497,8 +501,10 @@ h1, h2, h3, h4, h5, h6 {
     }
     
     .meetings-iframe-container iframe {
-        height: 550px;
+        height: 500px;
     }
+    
+    .meetings-section {
 }
 
 @media (max-width: 480px) {
