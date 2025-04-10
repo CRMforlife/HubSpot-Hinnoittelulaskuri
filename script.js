@@ -121,20 +121,17 @@ document.addEventListener('DOMContentLoaded', function() {
             if (tab === 'platform') {
                 updateState('platformTier', 'starter');
                 updateState('platformUsers', 1);
-                updateState('marketingTier', 'none');
-                updateState('salesTier', 'none');
-                updateState('serviceTier', 'none');
-                updateState('contentTier', 'none');
-                updateState('operationsTier', 'none');
             } else {
                 updateState('platformTier', 'none');
                 updateState('platformUsers', 1);
-                updateState('marketingTier', 'none');
-                updateState('salesTier', 'none');
-                updateState('serviceTier', 'none');
-                updateState('contentTier', 'none');
-                updateState('operationsTier', 'none');
             }
+            
+            // Reset all custom hub values
+            updateState('marketingTier', 'none');
+            updateState('salesTier', 'none');
+            updateState('serviceTier', 'none');
+            updateState('contentTier', 'none');
+            updateState('operationsTier', 'none');
         });
     });
 
@@ -292,31 +289,50 @@ document.addEventListener('DOMContentLoaded', function() {
         // Update state
         state[key] = value;
 
-        // Update form elements based on state changes
+        // Reset related values when tier is set to 'none'
+        if (key.endsWith('Tier') && value === 'none') {
+            switch(key) {
+                case 'marketingTier':
+                    state.marketingContacts = 1000;
+                    elements.marketingContactsInput.value = '1000';
+                    break;
+                case 'salesTier':
+                    state.salesUsers = 1;
+                    elements.salesUsersInput.value = '1';
+                    break;
+                case 'serviceTier':
+                    state.serviceUsers = 1;
+                    elements.serviceUsersInput.value = '1';
+                    break;
+            }
+        }
+
+        // Update form elements
         switch(key) {
             case 'platformTier':
                 elements.platformTierSelect.value = value;
+                if (value === 'none') {
+                    state.platformUsers = 1;
+                    elements.platformUsersInput.value = '1';
+                }
                 break;
             case 'platformUsers':
                 elements.platformUsersInput.value = value;
                 break;
             case 'marketingTier':
                 elements.marketingTierSelect.value = value;
-                elements.marketingContactsInput.value = state.marketingContacts;
                 break;
             case 'marketingContacts':
                 elements.marketingContactsInput.value = value;
                 break;
             case 'salesTier':
                 elements.salesTierSelect.value = value;
-                elements.salesUsersInput.value = state.salesUsers;
                 break;
             case 'salesUsers':
                 elements.salesUsersInput.value = value;
                 break;
             case 'serviceTier':
                 elements.serviceTierSelect.value = value;
-                elements.serviceUsersInput.value = state.serviceUsers;
                 break;
             case 'serviceUsers':
                 elements.serviceUsersInput.value = value;
@@ -342,76 +358,71 @@ document.addEventListener('DOMContentLoaded', function() {
         try {
             if (state.mode === 'platform') {
                 if (state.platformTier !== 'none') {
-                    totalPrice = calculatePlatformPrice();
-                    if (totalPrice > 0) {
+                    const platformPrice = calculatePlatformPrice();
+                    if (platformPrice > 0) {
                         hubPrices.push({
                             name: 'HubSpot Platform',
-                            price: totalPrice
+                            price: platformPrice
                         });
+                        totalPrice = platformPrice;
                     }
                 }
             } else {
                 // Custom mode calculations
                 if (state.marketingTier !== 'none') {
                     const marketingPrice = calculateMarketingPrice();
-                    if (marketingPrice > 0) {
-                        hubPrices.push({
-                            name: 'Marketing Hub',
-                            price: marketingPrice
-                        });
-                        totalPrice += marketingPrice;
-                    }
+                    hubPrices.push({
+                        name: 'Marketing Hub',
+                        price: marketingPrice
+                    });
+                    totalPrice += marketingPrice;
                 }
 
                 if (state.salesTier !== 'none') {
                     const salesPrice = calculateSalesPrice();
-                    if (salesPrice > 0) {
-                        hubPrices.push({
-                            name: 'Sales Hub',
-                            price: salesPrice
-                        });
-                        totalPrice += salesPrice;
-                    }
+                    hubPrices.push({
+                        name: 'Sales Hub',
+                        price: salesPrice
+                    });
+                    totalPrice += salesPrice;
                 }
 
                 if (state.serviceTier !== 'none') {
                     const servicePrice = calculateServicePrice();
-                    if (servicePrice > 0) {
-                        hubPrices.push({
-                            name: 'Service Hub',
-                            price: servicePrice
-                        });
-                        totalPrice += servicePrice;
-                    }
+                    hubPrices.push({
+                        name: 'Service Hub',
+                        price: servicePrice
+                    });
+                    totalPrice += servicePrice;
                 }
 
                 if (state.contentTier !== 'none') {
                     const contentPrice = calculateContentPrice();
-                    if (contentPrice > 0) {
-                        hubPrices.push({
-                            name: 'Content Hub',
-                            price: contentPrice
-                        });
-                        totalPrice += contentPrice;
-                    }
+                    hubPrices.push({
+                        name: 'Content Hub',
+                        price: contentPrice
+                    });
+                    totalPrice += contentPrice;
                 }
 
                 if (state.operationsTier !== 'none') {
                     const operationsPrice = calculateOperationsPrice();
-                    if (operationsPrice > 0) {
-                        hubPrices.push({
-                            name: 'Operations Hub',
-                            price: operationsPrice
-                        });
-                        totalPrice += operationsPrice;
-                    }
+                    hubPrices.push({
+                        name: 'Operations Hub',
+                        price: operationsPrice
+                    });
+                    totalPrice += operationsPrice;
                 }
             }
 
             // Update price display
-            elements.hubPricesElement.innerHTML = hubPrices
-                .map(hub => `<div class="hub-price">${escapeHtml(hub.name)}: ${formatPrice(hub.price)} €/kk</div>`)
-                .join('');
+            if (hubPrices.length > 0) {
+                elements.hubPricesElement.innerHTML = hubPrices
+                    .map(hub => `<div class="hub-price">${escapeHtml(hub.name)}: ${formatPrice(hub.price)} €/kk</div>`)
+                    .join('');
+            } else {
+                elements.hubPricesElement.innerHTML = '';
+            }
             
             elements.totalPriceElement.textContent = `${formatPrice(totalPrice)} €/kk`;
         } catch (error) {
