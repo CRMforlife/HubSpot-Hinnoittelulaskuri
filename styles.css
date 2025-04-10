@@ -209,6 +209,7 @@ h1, h2, h3, h4, h5, h6 {
     box-shadow: 0 0 0 2px var(--primary-light);
 }
 
+/* Tooltip styles */
 .tooltip-trigger {
     display: inline-flex;
     align-items: center;
@@ -222,6 +223,8 @@ h1, h2, h3, h4, h5, h6 {
     cursor: pointer;
     transition: all 0.2s ease;
     -webkit-tap-highlight-color: transparent;
+    position: relative;
+    margin-left: 0.25rem;
 }
 
 .tooltip-trigger:hover,
@@ -230,10 +233,6 @@ h1, h2, h3, h4, h5, h6 {
     background-color: var(--primary-color);
     color: white;
     outline: none;
-}
-
-.tooltip-trigger[data-tooltip] {
-    position: relative;
 }
 
 .tooltip-trigger[data-tooltip]::after {
@@ -255,53 +254,82 @@ h1, h2, h3, h4, h5, h6 {
     pointer-events: none;
 }
 
-.tooltip-trigger[data-tooltip]:hover::after,
-.tooltip-trigger[data-tooltip]:focus::after,
-.tooltip-trigger[data-tooltip].active::after {
-    opacity: 1;
-    visibility: visible;
-}
-
 @media (min-width: 768px) {
     .tooltip-trigger[data-tooltip]::after {
         bottom: 100%;
         left: 50%;
         transform: translateX(-50%) translateY(-8px);
+        white-space: nowrap;
     }
 
     .tooltip-trigger[data-tooltip]:hover::after,
     .tooltip-trigger[data-tooltip]:focus::after,
     .tooltip-trigger[data-tooltip].active::after {
         transform: translateX(-50%) translateY(-4px);
+        opacity: 1;
+        visibility: visible;
     }
 }
 
 @media (max-width: 767px) {
     .tooltip-trigger {
-        width: 24px;
-        height: 24px;
-        font-size: 1rem;
+        width: 28px; /* Larger touch target */
+        height: 28px;
+        font-size: 1.1rem;
+    }
+
+    .tooltip-trigger::before {
+        content: '';
+        position: absolute;
+        top: -8px;
+        right: -8px;
+        bottom: -8px;
+        left: -8px;
     }
 
     .tooltip-trigger[data-tooltip]::after {
-        bottom: auto;
-        top: 100%;
-        left: 0;
-        margin-top: 8px;
-        width: calc(100vw - 3rem);
-        max-width: 100%;
-        font-size: 0.9rem;
-        padding: 1rem;
+        position: fixed;
+        top: auto;
+        bottom: 1rem;
+        left: 1rem;
+        right: 1rem;
+        width: auto;
+        max-width: none;
         transform: none;
+        margin: 0;
+        padding: 1rem;
+        font-size: 1rem;
+        line-height: 1.5;
         background-color: var(--primary-color);
+        border-radius: var(--border-radius-md);
+        box-shadow: var(--shadow-lg);
+        z-index: 1000;
         white-space: normal;
         text-align: left;
     }
 
-    .tooltip-trigger[data-tooltip]:hover::after,
-    .tooltip-trigger[data-tooltip]:focus::after,
     .tooltip-trigger[data-tooltip].active::after {
+        opacity: 1;
+        visibility: visible;
         transform: none;
+    }
+
+    /* Add backdrop when tooltip is active */
+    .tooltip-trigger[data-tooltip].active::before {
+        content: '';
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background-color: rgba(0, 0, 0, 0.4);
+        z-index: 999;
+    }
+
+    /* Ensure form inputs remain above the backdrop */
+    .form-group {
+        position: relative;
+        z-index: 1001;
     }
 }
 
