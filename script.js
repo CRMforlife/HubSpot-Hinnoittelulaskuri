@@ -120,11 +120,6 @@ document.addEventListener('DOMContentLoaded', function() {
         contentUsersInput: document.getElementById('content-users'),
         operationsTierSelect: document.getElementById('operations-tier'),
         operationsUsersInput: document.getElementById('operations-users'),
-        marketingPackageSelect: document.getElementById('marketing-package'),
-        salesPackageSelect: document.getElementById('sales-package'),
-        servicePackageSelect: document.getElementById('service-package'),
-        contentPackageSelect: document.getElementById('content-package'),
-        operationsPackageSelect: document.getElementById('operations-package'),
         platformSection: document.getElementById('platform-section'),
         customHubSection: document.getElementById('custom-section'),
         hubPricesElement: document.getElementById('hub-prices'),
@@ -132,9 +127,9 @@ document.addEventListener('DOMContentLoaded', function() {
         tabButtons: document.querySelectorAll('.tab-button')
     };
 
-    // State management
+    // Tila
     const state = {
-        mode: 'platform', // platform tai custom
+        mode: 'platform',
         platformTier: 'starter',
         platformUsers: 1,
         marketingTier: 'none',
@@ -147,308 +142,184 @@ document.addEventListener('DOMContentLoaded', function() {
         contentTier: 'none',
         contentUsers: 1,
         operationsTier: 'none',
-        operationsUsers: 1,
-        totalPrice: 0,
-        hubPrices: {}
+        operationsUsers: 1
     };
 
-    // Update UI elements to match state
-    function updateUIFromState() {
-        // Update all form elements to match state
-        elements.platformTierSelect.value = state.platformTier;
-        elements.platformUsersInput.value = state.platformUsers;
-        elements.marketingTierSelect.value = state.marketingTier;
-        elements.marketingContactsInput.value = state.marketingContacts;
-        elements.salesTierSelect.value = state.salesTier;
-        elements.salesUsersInput.value = state.salesUsers;
-        elements.serviceTierSelect.value = state.serviceTier;
-        elements.serviceUsersInput.value = state.serviceUsers;
-        elements.contentTierSelect.value = state.contentTier;
-        elements.contentUsersInput.value = state.contentUsers;
-        elements.operationsTierSelect.value = state.operationsTier;
-        elements.operationsUsersInput.value = state.operationsUsers;
+    // Apufunktiot
+    function formatPrice(price) {
+        return price.toLocaleString('fi-FI', { minimumFractionDigits: 0, maximumFractionDigits: 0 });
     }
 
-    // Update state and UI
-    function updateState(key, value) {
-        // Log state change
-        console.log('State update:', { key, value, oldValue: state[key] });
-
-        // Validate numeric inputs
-        if (key.includes('Users') || key.includes('Contacts')) {
-            if (key === 'marketingContacts') {
-                value = Math.max(1000, parseInt(value) || 1000);
-            } else {
-                value = Math.max(1, parseInt(value) || 1);
-            }
-        }
-
-        // Update state
-        state[key] = value;
-
-        // Reset related values when tier changes to none
-        if (key.endsWith('Tier') && value === 'none') {
-            switch(key) {
-                case 'marketingTier':
-                    state.marketingContacts = 1000;
-                    elements.marketingContactsInput.value = '1000';
-                    break;
-                case 'salesTier':
-                    state.salesUsers = 1;
-                    elements.salesUsersInput.value = '1';
-                    break;
-                case 'serviceTier':
-                    state.serviceUsers = 1;
-                    elements.serviceUsersInput.value = '1';
-                    break;
-                case 'contentTier':
-                    state.contentUsers = 1;
-                    elements.contentUsersInput.value = '1';
-                    break;
-                case 'operationsTier':
-                    state.operationsUsers = 1;
-                    elements.operationsUsersInput.value = '1';
-                    break;
-                case 'platformTier':
-                    state.platformUsers = 1;
-                    elements.platformUsersInput.value = '1';
-                    break;
-            }
-        }
-
-        // Ensure UI updates
-        requestAnimationFrame(() => {
-            updateInputVisibility();
-            calculatePrice();
-        });
-    }
-
-    // Update input visibility based on state
-    function updateInputVisibility() {
-        // Platform section
-        elements.platformSection.style.display = state.mode === 'platform' ? 'block' : 'none';
-        elements.customHubSection.style.display = state.mode === 'custom' ? 'block' : 'none';
-
-        // Marketing section
-        const marketingUsersGroup = document.getElementById('marketing-users-group');
-        if (marketingUsersGroup) {
-            marketingUsersGroup.style.display = state.marketingTier !== 'none' ? 'block' : 'none';
-        }
-
-        // Sales section
-        const salesUsersGroup = document.getElementById('sales-users-group');
-        if (salesUsersGroup) {
-            salesUsersGroup.style.display = state.salesTier !== 'none' ? 'block' : 'none';
-        }
-
-        // Service section
-        const serviceUsersGroup = document.getElementById('service-users-group');
-        if (serviceUsersGroup) {
-            serviceUsersGroup.style.display = state.serviceTier !== 'none' ? 'block' : 'none';
-        }
-
-        // Content section
-        const contentUsersGroup = document.getElementById('content-users-group');
-        if (contentUsersGroup) {
-            contentUsersGroup.style.display = state.contentTier !== 'none' ? 'block' : 'none';
-        }
-
-        // Operations section
-        const operationsUsersGroup = document.getElementById('operations-users-group');
-        if (operationsUsersGroup) {
-            operationsUsersGroup.style.display = state.operationsTier !== 'none' ? 'block' : 'none';
-        }
-    }
-
-    // Validate number input
     function validateNumberInput(input, minValue) {
         const value = parseInt(input.value) || minValue;
         return Math.max(minValue, value);
     }
 
-    // Format price for display
-    function formatPrice(price) {
-        return price.toLocaleString('fi-FI', { minimumFractionDigits: 0, maximumFractionDigits: 0 });
-    }
-
-    // Calculate total price
+    // Hinnan laskenta
     function calculatePrice() {
-        try {
-            let total = 0;
-            let hubPrices = {};
+        let total = 0;
+        let hubPrices = {};
 
-            if (state.mode === 'platform') {
-                if (state.platformTier === 'none') {
-                    state.totalPrice = 0;
-                    state.hubPrices = {};
-                    updatePriceDisplay();
-                    return;
-                }
-
-                const tier = pricing.platform[state.platformTier];
-                if (!tier) {
-                    console.error('Virheellinen platform tier:', state.platformTier);
-                    return;
-                }
-
-                // Laske perushinta
-                total = tier.base;
-
-                // Lisää käyttäjähinnat jos käyttäjiä on enemmän kuin sisältyy
+        // Platform hinta
+        if (state.mode === 'platform' && state.platformTier !== 'none') {
+            const tier = pricing.platform[state.platformTier];
+            if (tier) {
+                let price = tier.base;
                 if (state.platformUsers > tier.includedUsers) {
                     const extraUsers = state.platformUsers - tier.includedUsers;
-                    total += extraUsers * tier.extraPerUser;
+                    price += extraUsers * tier.extraPerUser;
                 }
+                total += price;
+                hubPrices.platform = price;
+            }
+        }
 
-                hubPrices.platform = total;
+        // Marketing Hub hinta
+        if (state.marketingTier !== 'none') {
+            const tier = pricing.marketing[state.marketingTier];
+            if (tier) {
+                let price = tier.base;
+                if (state.marketingUsers > tier.includedUsers) {
+                    const extraUsers = state.marketingUsers - tier.includedUsers;
+                    price += extraUsers * tier.extraPerUser;
+                }
+                if (state.marketingContacts > 1000) {
+                    const extraContacts = state.marketingContacts - 1000;
+                    const contactBlocks = Math.ceil(extraContacts / 1000);
+                    price += contactBlocks * 46;
+                }
+                total += price;
+                hubPrices.marketing = price;
+            }
+        }
+
+        // Sales Hub hinta
+        if (state.salesTier !== 'none') {
+            const tier = pricing.sales[state.salesTier];
+            if (tier) {
+                let price = tier.base;
+                if (state.salesUsers > tier.includedUsers) {
+                    const extraUsers = state.salesUsers - tier.includedUsers;
+                    price += extraUsers * tier.extraPerUser;
+                }
+                total += price;
+                hubPrices.sales = price;
+            }
+        }
+
+        // Service Hub hinta
+        if (state.serviceTier !== 'none') {
+            const tier = pricing.service[state.serviceTier];
+            if (tier) {
+                let price = tier.base;
+                if (state.serviceUsers > tier.includedUsers) {
+                    const extraUsers = state.serviceUsers - tier.includedUsers;
+                    price += extraUsers * tier.extraPerUser;
+                }
+                total += price;
+                hubPrices.service = price;
+            }
+        }
+
+        // Content Hub hinta
+        if (state.contentTier !== 'none') {
+            const tier = pricing.content[state.contentTier];
+            if (tier) {
+                let price = tier.base;
+                if (state.contentUsers > tier.includedUsers) {
+                    const extraUsers = state.contentUsers - tier.includedUsers;
+                    price += extraUsers * tier.extraPerUser;
+                }
+                total += price;
+                hubPrices.content = price;
+            }
+        }
+
+        // Operations Hub hinta
+        if (state.operationsTier !== 'none') {
+            const tier = pricing.operations[state.operationsTier];
+            if (tier) {
+                let price = tier.base;
+                if (state.operationsUsers > tier.includedUsers) {
+                    const extraUsers = state.operationsUsers - tier.includedUsers;
+                    price += extraUsers * tier.extraPerUser;
+                }
+                total += price;
+                hubPrices.operations = price;
+            }
+        }
+
+        // Päivitä näkymä
+        updatePriceDisplay(total, hubPrices);
+    }
+
+    // Hinnan näyttäminen
+    function updatePriceDisplay(total, hubPrices) {
+        // Hub-hinnat
+        elements.hubPricesElement.innerHTML = '';
+        for (const [hub, price] of Object.entries(hubPrices)) {
+            if (price > 0) {
+                const hubName = hub.charAt(0).toUpperCase() + hub.slice(1);
+                elements.hubPricesElement.innerHTML += `
+                    <div class="hub-price">
+                        ${hubName}: ${formatPrice(price)} €/kk
+                    </div>
+                `;
+            }
+        }
+
+        // Kokonaishinta
+        elements.totalPriceElement.textContent = `${formatPrice(total)} €/kk`;
+    }
+
+    // Syötteiden näkyvyys
+    function updateInputVisibility() {
+        // Platform/Custom välilehti
+        elements.platformSection.style.display = state.mode === 'platform' ? 'block' : 'none';
+        elements.customHubSection.style.display = state.mode === 'custom' ? 'block' : 'none';
+
+        // Hub-kohtaiset syötteet
+        const sections = {
+            marketing: document.getElementById('marketing-users-group'),
+            sales: document.getElementById('sales-users-group'),
+            service: document.getElementById('service-users-group'),
+            content: document.getElementById('content-users-group'),
+            operations: document.getElementById('operations-users-group')
+        };
+
+        for (const [hub, element] of Object.entries(sections)) {
+            if (element) {
+                element.style.display = state[`${hub}Tier`] !== 'none' ? 'block' : 'none';
+            }
+        }
+    }
+
+    // Tilan päivitys
+    function updateState(key, value) {
+        state[key] = value;
+
+        // Nollaa liittyvät arvot kun tier vaihtuu 'none':ksi
+        if (key.endsWith('Tier') && value === 'none') {
+            const hub = key.replace('Tier', '');
+            if (hub === 'marketing') {
+                state.marketingContacts = 1000;
+                elements.marketingContactsInput.value = '1000';
+            } else if (hub === 'platform') {
+                state.platformUsers = 1;
+                elements.platformUsersInput.value = '1';
             } else {
-                // Marketing Hub
-                if (state.marketingTier !== 'none') {
-                    const tier = pricing.marketing[state.marketingTier];
-                    if (tier) {
-                        let hubTotal = tier.base;
-                        
-                        // Lisää käyttäjähinnat
-                        if (state.marketingUsers > tier.includedUsers) {
-                            const extraUsers = state.marketingUsers - tier.includedUsers;
-                            hubTotal += extraUsers * tier.extraPerUser;
-                        }
-                        
-                        // Lisää kontaktihinnat
-                        if (state.marketingContacts > 1000) {
-                            const extraContacts = state.marketingContacts - 1000;
-                            const contactBlocks = Math.ceil(extraContacts / 1000);
-                            hubTotal += contactBlocks * 46;
-                        }
-                        
-                        total += hubTotal;
-                        hubPrices.marketing = hubTotal;
-                    }
-                }
-
-                // Sales Hub
-                if (state.salesTier !== 'none') {
-                    const tier = pricing.sales[state.salesTier];
-                    if (tier) {
-                        let hubTotal = tier.base;
-                        if (state.salesUsers > tier.includedUsers) {
-                            const extraUsers = state.salesUsers - tier.includedUsers;
-                            hubTotal += extraUsers * tier.extraPerUser;
-                        }
-                        total += hubTotal;
-                        hubPrices.sales = hubTotal;
-                    }
-                }
-
-                // Service Hub
-                if (state.serviceTier !== 'none') {
-                    const tier = pricing.service[state.serviceTier];
-                    if (tier) {
-                        let hubTotal = tier.base;
-                        if (state.serviceUsers > tier.includedUsers) {
-                            const extraUsers = state.serviceUsers - tier.includedUsers;
-                            hubTotal += extraUsers * tier.extraPerUser;
-                        }
-                        total += hubTotal;
-                        hubPrices.service = hubTotal;
-                    }
-                }
-
-                // Content Hub
-                if (state.contentTier !== 'none') {
-                    const tier = pricing.content[state.contentTier];
-                    if (tier) {
-                        let hubTotal = tier.base;
-                        if (state.contentUsers > tier.includedUsers) {
-                            const extraUsers = state.contentUsers - tier.includedUsers;
-                            hubTotal += extraUsers * tier.extraPerUser;
-                        }
-                        total += hubTotal;
-                        hubPrices.content = hubTotal;
-                    }
-                }
-
-                // Operations Hub
-                if (state.operationsTier !== 'none') {
-                    const tier = pricing.operations[state.operationsTier];
-                    if (tier) {
-                        let hubTotal = tier.base;
-                        if (state.operationsUsers > tier.includedUsers) {
-                            const extraUsers = state.operationsUsers - tier.includedUsers;
-                            hubTotal += extraUsers * tier.extraPerUser;
-                        }
-                        total += hubTotal;
-                        hubPrices.operations = hubTotal;
-                    }
-                }
+                state[`${hub}Users`] = 1;
+                elements[`${hub}UsersInput`].value = '1';
             }
-
-            state.totalPrice = total;
-            state.hubPrices = hubPrices;
-            updatePriceDisplay();
-        } catch (error) {
-            console.error('Virhe hinnan laskennassa:', error);
-            state.totalPrice = 0;
-            state.hubPrices = {};
-            updatePriceDisplay();
         }
+
+        updateInputVisibility();
+        calculatePrice();
     }
 
-    // Update price display
-    function updatePriceDisplay() {
-        try {
-            // Päivitä hub-hinnat
-            elements.hubPricesElement.innerHTML = '';
-            for (const [hub, price] of Object.entries(state.hubPrices)) {
-                if (price > 0) {
-                    const hubName = hub.charAt(0).toUpperCase() + hub.slice(1);
-                    elements.hubPricesElement.innerHTML += `
-                        <div class="hub-price">
-                            ${hubName}: ${formatPrice(price)} €/kk
-                        </div>
-                    `;
-                }
-            }
-
-            // Päivitä kokonaishinta
-            elements.totalPriceElement.textContent = `${formatPrice(state.totalPrice)} €/kk`;
-        } catch (error) {
-            console.error('Virhe hinnan näyttämisessä:', error);
-            elements.hubPricesElement.innerHTML = '';
-            elements.totalPriceElement.textContent = '0 €/kk';
-        }
-    }
-
-    // Initialize tooltips
-    function initializeTooltips() {
-        const tooltips = document.querySelectorAll('.tooltip-trigger');
-        tooltips.forEach(tooltip => {
-            tooltip.addEventListener('mouseenter', (e) => {
-                const tooltipText = e.target.getAttribute('data-tooltip');
-                if (tooltipText) {
-                    const tooltipElement = document.createElement('div');
-                    tooltipElement.className = 'tooltip';
-                    tooltipElement.textContent = tooltipText;
-                    document.body.appendChild(tooltipElement);
-
-                    const rect = e.target.getBoundingClientRect();
-                    tooltipElement.style.top = `${rect.bottom + 5}px`;
-                    tooltipElement.style.left = `${rect.left + (rect.width / 2) - (tooltipElement.offsetWidth / 2)}px`;
-                }
-            });
-
-            tooltip.addEventListener('mouseleave', () => {
-                const tooltipElement = document.querySelector('.tooltip');
-                if (tooltipElement) {
-                    tooltipElement.remove();
-                }
-            });
-        });
-    }
-
-    // Initialize form with event listeners
-    function initializeForm() {
-        // Platform section
+    // Tapahtumankäsittelijät
+    function initializeEventListeners() {
+        // Platform välilehti
         elements.platformTierSelect.addEventListener('change', (e) => {
             updateState('platformTier', e.target.value);
         });
@@ -457,7 +328,7 @@ document.addEventListener('DOMContentLoaded', function() {
             updateState('platformUsers', validateNumberInput(e.target, 1));
         });
 
-        // Marketing section
+        // Marketing Hub
         elements.marketingTierSelect.addEventListener('change', (e) => {
             updateState('marketingTier', e.target.value);
         });
@@ -466,7 +337,7 @@ document.addEventListener('DOMContentLoaded', function() {
             updateState('marketingContacts', validateNumberInput(e.target, 1000));
         });
 
-        // Sales section
+        // Sales Hub
         elements.salesTierSelect.addEventListener('change', (e) => {
             updateState('salesTier', e.target.value);
         });
@@ -475,7 +346,7 @@ document.addEventListener('DOMContentLoaded', function() {
             updateState('salesUsers', validateNumberInput(e.target, 1));
         });
 
-        // Service section
+        // Service Hub
         elements.serviceTierSelect.addEventListener('change', (e) => {
             updateState('serviceTier', e.target.value);
         });
@@ -484,7 +355,7 @@ document.addEventListener('DOMContentLoaded', function() {
             updateState('serviceUsers', validateNumberInput(e.target, 1));
         });
 
-        // Content section
+        // Content Hub
         elements.contentTierSelect.addEventListener('change', (e) => {
             updateState('contentTier', e.target.value);
         });
@@ -493,7 +364,7 @@ document.addEventListener('DOMContentLoaded', function() {
             updateState('contentUsers', validateNumberInput(e.target, 1));
         });
 
-        // Operations section
+        // Operations Hub
         elements.operationsTierSelect.addEventListener('change', (e) => {
             updateState('operationsTier', e.target.value);
         });
@@ -502,106 +373,45 @@ document.addEventListener('DOMContentLoaded', function() {
             updateState('operationsUsers', validateNumberInput(e.target, 1));
         });
 
-        // Tab switching
+        // Välilehtien vaihto
         elements.tabButtons.forEach(button => {
             button.addEventListener('click', () => {
                 const tab = button.getAttribute('data-tab');
+                
+                // Päivitä aktiivinen välilehti
                 elements.tabButtons.forEach(btn => btn.classList.remove('active'));
                 button.classList.add('active');
                 
-                // Update mode and reset state
+                // Päivitä tila
                 state.mode = tab;
                 
                 if (tab === 'platform') {
-                    // Reset custom hub selections
-                    state.marketingTier = 'none';
-                    state.salesTier = 'none';
-                    state.serviceTier = 'none';
-                    state.contentTier = 'none';
-                    state.operationsTier = 'none';
-                    
-                    // Reset input values
-                    elements.marketingTierSelect.value = 'none';
-                    elements.salesTierSelect.value = 'none';
-                    elements.serviceTierSelect.value = 'none';
-                    elements.contentTierSelect.value = 'none';
-                    elements.operationsTierSelect.value = 'none';
+                    // Nollaa custom hub -valinnat
+                    ['marketing', 'sales', 'service', 'content', 'operations'].forEach(hub => {
+                        state[`${hub}Tier`] = 'none';
+                        elements[`${hub}TierSelect`].value = 'none';
+                    });
                 } else {
-                    // Reset platform selection
+                    // Nollaa platform-valinnat
                     state.platformTier = 'none';
                     state.platformUsers = 1;
-                    
-                    // Reset input values
                     elements.platformTierSelect.value = 'none';
                     elements.platformUsersInput.value = '1';
                 }
                 
-                // Update UI and calculate price
-                updateUIFromState();
                 updateInputVisibility();
                 calculatePrice();
             });
         });
+    }
 
-        // Initialize tooltips
-        initializeTooltips();
-
-        // Force initial price calculation
-        updateUIFromState();
+    // Alusta laskuri
+    function initializeCalculator() {
+        initializeEventListeners();
         updateInputVisibility();
         calculatePrice();
     }
 
-    // Test calculator functionality
-    function testCalculator() {
-        console.log('Aloitetaan laskurin testaus...');
-        
-        // Testi 1: Platform Professional 10 käyttäjällä
-        state.platformTier = 'professional';
-        state.platformUsers = 10;
-        state.mode = 'platform';
-        calculatePrice();
-        console.log('Testi 1 - Platform Professional 10 käyttäjällä:', state.totalPrice);
-        
-        // Testi 2: Marketing Professional 7 käyttäjällä
-        state.marketingTier = 'professional';
-        state.marketingUsers = 7;
-        state.mode = 'custom';
-        calculatePrice();
-        console.log('Testi 2 - Marketing Professional 7 käyttäjällä:', state.totalPrice);
-        
-        // Testi 3: Sales Professional 5 käyttäjällä
-        state.salesTier = 'professional';
-        state.salesUsers = 5;
-        calculatePrice();
-        console.log('Testi 3 - Sales Professional 5 käyttäjällä:', state.totalPrice);
-        
-        // Testi 4: Service Professional 3 käyttäjällä
-        state.serviceTier = 'professional';
-        state.serviceUsers = 3;
-        calculatePrice();
-        console.log('Testi 4 - Service Professional 3 käyttäjällä:', state.totalPrice);
-        
-        // Testi 5: Content Professional 6 käyttäjällä
-        state.contentTier = 'professional';
-        state.contentUsers = 6;
-        calculatePrice();
-        console.log('Testi 5 - Content Professional 6 käyttäjällä:', state.totalPrice);
-        
-        // Testi 6: Operations Professional 2 käyttäjällä
-        state.operationsTier = 'professional';
-        state.operationsUsers = 2;
-        calculatePrice();
-        console.log('Testi 6 - Operations Professional 2 käyttäjällä:', state.totalPrice);
-        
-        console.log('Laskurin testaus valmis!');
-    }
-
-    // Run tests after initialization
-    document.addEventListener('DOMContentLoaded', function() {
-        console.log('Running price calculator tests...');
-        runTests();
-        console.log('Running test calculator...');
-        testCalculator();
-    });
+    // Käynnistä laskuri
+    initializeCalculator();
 }); 
