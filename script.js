@@ -50,7 +50,8 @@ document.addEventListener('DOMContentLoaded', function() {
         contentUsers: document.getElementById('content-users'),
         operationsTier: document.getElementById('operations-tier'),
         operationsUsers: document.getElementById('operations-users'),
-        totalPrice: document.getElementById('total-price')
+        platformPrice: document.getElementById('platform-price'),
+        customPrice: document.getElementById('custom-price')
     };
 
     // Tila
@@ -69,82 +70,86 @@ document.addEventListener('DOMContentLoaded', function() {
         contentUsers: 1,
         operationsTier: 'none',
         operationsUsers: 1,
-        totalPrice: 0
+        platformTotal: 0,
+        customTotal: 0
     };
 
     // Hinnan laskenta
     function calculatePrice() {
-        let total = 0;
+        // Laske Platform-hinta
+        let platformTotal = 0;
+        const platformTier = pricing.platform[state.platformTier];
+        if (platformTier) {
+            platformTotal += platformTier.base;
+            if (platformTier.includedUsers) {
+                if (state.platformUsers > platformTier.includedUsers) {
+                    platformTotal += (state.platformUsers - platformTier.includedUsers) * platformTier.user;
+                }
+            } else {
+                platformTotal += state.platformUsers * platformTier.user;
+            }
+        }
+        state.platformTotal = platformTotal;
+        elements.platformPrice.textContent = `${platformTotal}€`;
 
-        if (state.mode === 'platform') {
-            const tier = pricing.platform[state.platformTier];
+        // Laske Custom-hinta
+        let customTotal = 0;
+
+        // Marketing Hub
+        if (state.marketingTier !== 'none') {
+            const tier = pricing.marketing[state.marketingTier];
             if (tier) {
-                total += tier.base;
-                if (tier.includedUsers) {
-                    if (state.platformUsers > tier.includedUsers) {
-                        total += (state.platformUsers - tier.includedUsers) * tier.user;
-                    }
-                } else {
-                    total += state.platformUsers * tier.user;
+                customTotal += tier.base;
+                if (state.marketingUsers > 2) {
+                    customTotal += (state.marketingUsers - 2) * tier.user;
                 }
-            }
-        } else {
-            // Marketing Hub
-            if (state.marketingTier !== 'none') {
-                const tier = pricing.marketing[state.marketingTier];
-                if (tier) {
-                    total += tier.base;
-                    if (state.marketingUsers > 2) {
-                        total += (state.marketingUsers - 2) * tier.user;
-                    }
-                    if (state.marketingContacts > 1000) {
-                        const contactBlocks = Math.ceil((state.marketingContacts - 1000) / 1000);
-                        total += contactBlocks * tier.contact;
-                    }
-                }
-            }
-
-            // Sales Hub
-            if (state.salesTier !== 'none') {
-                const tier = pricing.sales[state.salesTier];
-                if (tier) {
-                    total += state.salesUsers * tier.user;
-                }
-            }
-
-            // Service Hub
-            if (state.serviceTier !== 'none') {
-                const tier = pricing.service[state.serviceTier];
-                if (tier) {
-                    total += state.serviceUsers * tier.user;
-                }
-            }
-
-            // Content Hub
-            if (state.contentTier !== 'none') {
-                const tier = pricing.content[state.contentTier];
-                if (tier) {
-                    total += tier.base;
-                    if (state.contentUsers > 5) {
-                        total += (state.contentUsers - 5) * tier.user;
-                    }
-                }
-            }
-
-            // Operations Hub
-            if (state.operationsTier !== 'none') {
-                const tier = pricing.operations[state.operationsTier];
-                if (tier) {
-                    total += tier.base;
-                    if (state.operationsUsers > 1) {
-                        total += (state.operationsUsers - 1) * tier.user;
-                    }
+                if (state.marketingContacts > 1000) {
+                    const contactBlocks = Math.ceil((state.marketingContacts - 1000) / 1000);
+                    customTotal += contactBlocks * tier.contact;
                 }
             }
         }
 
-        state.totalPrice = total;
-        elements.totalPrice.textContent = `${total}€`;
+        // Sales Hub
+        if (state.salesTier !== 'none') {
+            const tier = pricing.sales[state.salesTier];
+            if (tier) {
+                customTotal += state.salesUsers * tier.user;
+            }
+        }
+
+        // Service Hub
+        if (state.serviceTier !== 'none') {
+            const tier = pricing.service[state.serviceTier];
+            if (tier) {
+                customTotal += state.serviceUsers * tier.user;
+            }
+        }
+
+        // Content Hub
+        if (state.contentTier !== 'none') {
+            const tier = pricing.content[state.contentTier];
+            if (tier) {
+                customTotal += tier.base;
+                if (state.contentUsers > 5) {
+                    customTotal += (state.contentUsers - 5) * tier.user;
+                }
+            }
+        }
+
+        // Operations Hub
+        if (state.operationsTier !== 'none') {
+            const tier = pricing.operations[state.operationsTier];
+            if (tier) {
+                customTotal += tier.base;
+                if (state.operationsUsers > 1) {
+                    customTotal += (state.operationsUsers - 1) * tier.user;
+                }
+            }
+        }
+
+        state.customTotal = customTotal;
+        elements.customPrice.textContent = `${customTotal}€`;
     }
 
     // Syötteiden validointi
@@ -164,6 +169,7 @@ document.addEventListener('DOMContentLoaded', function() {
         // Platform tab
         elements.platformTier.parentElement.style.display = isPlatform ? 'block' : 'none';
         elements.platformUsers.parentElement.style.display = isPlatform ? 'block' : 'none';
+        document.querySelector('#platform-section .result-card').style.display = isPlatform ? 'block' : 'none';
 
         // Custom tab
         elements.marketingTier.parentElement.style.display = isCustom ? 'block' : 'none';
@@ -181,6 +187,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
         elements.operationsTier.parentElement.style.display = isCustom ? 'block' : 'none';
         elements.operationsUsers.parentElement.style.display = isCustom && state.operationsTier !== 'none' ? 'block' : 'none';
+        document.querySelector('#custom-section .result-card').style.display = isCustom ? 'block' : 'none';
     }
 
     // Tapahtumankuuntelijat
