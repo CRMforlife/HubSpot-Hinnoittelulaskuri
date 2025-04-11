@@ -148,28 +148,31 @@ document.addEventListener('DOMContentLoaded', function() {
     // Hinnanlaskenta
     function calculatePrice() {
         let totalPrice = 0;
+        let priceBreakdown = {
+            base: 0,
+            users: 0,
+            contacts: 0
+        };
         
         if (state.mode === 'platform') {
             const platform = pricing.platform[state.platformTier];
             if (state.platformTier === 'starter') {
-                // Starter: 15€/käyttäjä
-                totalPrice = state.platformUsers * platform.user;
+                priceBreakdown.users = state.platformUsers * platform.user;
             } else {
-                // Professional ja Enterprise
-                totalPrice = platform.base;
+                priceBreakdown.base = platform.base;
                 if (state.platformUsers > platform.includedUsers) {
-                    totalPrice += (state.platformUsers - platform.includedUsers) * platform.user;
+                    priceBreakdown.users = (state.platformUsers - platform.includedUsers) * platform.user;
                 }
             }
         } else {
             // Marketing Hub
             if (state.marketingTier !== 'none') {
                 const marketing = pricing.marketing[state.marketingTier];
-                totalPrice += marketing.base;
+                priceBreakdown.base += marketing.base;
                 
                 // Käyttäjät
                 if (state.marketingUsers > marketing.includedUsers) {
-                    totalPrice += (state.marketingUsers - marketing.includedUsers) * marketing.user;
+                    priceBreakdown.users += (state.marketingUsers - marketing.includedUsers) * marketing.user;
                 }
                 
                 // Kontaktit
@@ -178,13 +181,13 @@ document.addEventListener('DOMContentLoaded', function() {
                     let contactBlocks;
                     if (state.marketingTier === 'starter') {
                         contactBlocks = Math.ceil(extraContacts / 1000);
-                        totalPrice += contactBlocks * marketing.contact;
+                        priceBreakdown.contacts = contactBlocks * marketing.contact;
                     } else if (state.marketingTier === 'professional') {
                         contactBlocks = Math.ceil(extraContacts / 5000);
-                        totalPrice += contactBlocks * 250;
+                        priceBreakdown.contacts = contactBlocks * 250;
                     } else if (state.marketingTier === 'enterprise') {
                         contactBlocks = Math.ceil(extraContacts / 10000);
-                        totalPrice += contactBlocks * 92;
+                        priceBreakdown.contacts = contactBlocks * 92;
                     }
                 }
             }
@@ -193,9 +196,10 @@ document.addEventListener('DOMContentLoaded', function() {
             if (state.salesTier !== 'none') {
                 const sales = pricing.sales[state.salesTier];
                 if (state.salesTier === 'professional') {
-                    totalPrice += state.salesUsers * sales.user;
+                    priceBreakdown.users += state.salesUsers * sales.user;
                 } else {
-                    totalPrice += sales.base + ((state.salesUsers - 1) * sales.user);
+                    priceBreakdown.base += sales.base;
+                    priceBreakdown.users += ((state.salesUsers - 1) * sales.user);
                 }
             }
 
@@ -203,33 +207,67 @@ document.addEventListener('DOMContentLoaded', function() {
             if (state.serviceTier !== 'none') {
                 const service = pricing.service[state.serviceTier];
                 if (state.serviceTier === 'professional') {
-                    totalPrice += state.serviceUsers * service.user;
+                    priceBreakdown.users += state.serviceUsers * service.user;
                 } else {
-                    totalPrice += service.base + ((state.serviceUsers - 1) * service.user);
+                    priceBreakdown.base += service.base;
+                    priceBreakdown.users += ((state.serviceUsers - 1) * service.user);
                 }
             }
 
             // Content Hub
             if (state.contentTier !== 'none') {
                 const content = pricing.content[state.contentTier];
-                totalPrice += content.base;
+                priceBreakdown.base += content.base;
                 if (state.contentUsers > content.includedUsers) {
-                    totalPrice += (state.contentUsers - content.includedUsers) * content.user;
+                    priceBreakdown.users += (state.contentUsers - content.includedUsers) * content.user;
                 }
             }
 
             // Operations Hub
             if (state.operationsTier !== 'none') {
                 const operations = pricing.operations[state.operationsTier];
-                totalPrice += operations.base;
+                priceBreakdown.base += operations.base;
                 if (state.operationsUsers > operations.includedUsers) {
-                    totalPrice += (state.operationsUsers - operations.includedUsers) * operations.user;
+                    priceBreakdown.users += (state.operationsUsers - operations.includedUsers) * operations.user;
                 }
             }
         }
 
+        totalPrice = priceBreakdown.base + priceBreakdown.users + priceBreakdown.contacts;
+        
         // Päivitä hinta näytölle
         elements.totalPrice.textContent = `${totalPrice}€/kk`;
+        
+        // Päivitä hinnan erittely
+        updatePriceBreakdown(priceBreakdown);
+    }
+
+    // Päivitä hinnan erittely
+    function updatePriceBreakdown(breakdown) {
+        let breakdownElement = document.getElementById('price-breakdown');
+        if (!breakdownElement) {
+            breakdownElement = document.createElement('div');
+            breakdownElement.id = 'price-breakdown';
+            breakdownElement.className = 'price-breakdown';
+            elements.totalPrice.parentNode.insertBefore(breakdownElement, elements.totalPrice.nextSibling);
+        }
+
+        breakdownElement.innerHTML = `
+            <div class="breakdown-item">
+                <span class="breakdown-label">Perushinta:</span>
+                <span class="breakdown-value">${breakdown.base}€</span>
+            </div>
+            <div class="breakdown-item">
+                <span class="breakdown-label">Käyttäjät:</span>
+                <span class="breakdown-value">${breakdown.users}€</span>
+            </div>
+            ${breakdown.contacts > 0 ? `
+            <div class="breakdown-item">
+                <span class="breakdown-label">Kontaktit:</span>
+                <span class="breakdown-value">${breakdown.contacts}€</span>
+            </div>
+            ` : ''}
+        `;
     }
 
     // Syötteiden validointi

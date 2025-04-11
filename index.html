@@ -95,23 +95,23 @@
     </style>
 </head>
 <body>
-    <div class="container">
+    <div class="container" role="main">
         <h1>HubSpot Hinnoittelulaskuri</h1>
         
         <!-- Hinta näytetään tässä -->
-        <div class="price-display">
+        <div class="price-display" role="region" aria-label="Hinnan näyttö">
             <h2 id="price-title">Kokonaishinta</h2>
-            <div class="price" id="total-price">0€/kk</div>
+            <div class="price" id="total-price" aria-live="polite">0€/kk</div>
         </div>
 
         <!-- Välilehdet -->
-        <div class="tabs">
-            <button class="tab-button active" data-tab="platform">HubSpot Platform</button>
-            <button class="tab-button" data-tab="custom">Mukautettu ratkaisu</button>
+        <div class="tabs" role="tablist">
+            <button class="tab-button active" data-tab="platform" role="tab" aria-selected="true" aria-controls="platform-section">HubSpot Platform</button>
+            <button class="tab-button" data-tab="custom" role="tab" aria-selected="false" aria-controls="custom-section">Mukautettu ratkaisu</button>
         </div>
 
         <div class="content-wrapper">
-            <div class="instructions">
+            <div class="instructions" role="complementary" aria-label="Ohjeet">
                 <h2>🔧 Miten käytän laskuria?</h2>
                 
                 <div class="instruction-section">
@@ -158,16 +158,16 @@
                 </div>
             </div>
 
-            <div class="calculator-form">
-                <div id="platform-section" class="tab-content active">
-                    <div class="form-group">
-                        <label for="platform-tier">
+            <div class="calculator-form" role="form" aria-label="Hinnoittelulaskuri">
+                <div id="platform-section" class="tab-content active" role="tabpanel" aria-labelledby="platform-tab">
+                    <div class="form-group" role="group" aria-labelledby="platform-tier-label">
+                        <label id="platform-tier-label" for="platform-tier">
                             Valitse HubSpot-taso
-                            <span class="tooltip-trigger" data-tooltip="Starter sopii aloittelijoille, Professional keskisuurille yrityksille ja Enterprise isoille organisaatioille">
-                                <i class="fas fa-info-circle"></i>
+                            <span class="tooltip-trigger" data-tooltip="Starter sopii aloittelijoille, Professional keskisuurille yrityksille ja Enterprise isoille organisaatioille" role="tooltip" tabindex="0">
+                                <i class="fas fa-info-circle" aria-hidden="true"></i>
                             </span>
                         </label>
-                        <select id="platform-tier" name="platform-tier">
+                        <select id="platform-tier" name="platform-tier" aria-describedby="platform-tier-tooltip">
                             <option value="starter">Starter</option>
                             <option value="professional">Professional</option>
                             <option value="enterprise">Enterprise</option>
