@@ -50,8 +50,8 @@ document.addEventListener('DOMContentLoaded', function() {
         contentUsers: document.getElementById('content-users'),
         operationsTier: document.getElementById('operations-tier'),
         operationsUsers: document.getElementById('operations-users'),
-        platformPrice: document.getElementById('platform-price'),
-        customPrice: document.getElementById('custom-price')
+        priceTitle: document.getElementById('price-title'),
+        totalPrice: document.getElementById('total-price')
     };
 
     // Tila
@@ -70,86 +70,86 @@ document.addEventListener('DOMContentLoaded', function() {
         contentUsers: 1,
         operationsTier: 'none',
         operationsUsers: 1,
-        platformTotal: 0,
-        customTotal: 0
+        totalPrice: 0
     };
 
     // Hinnan laskenta
     function calculatePrice() {
-        // Laske Platform-hinta
-        let platformTotal = 0;
-        const platformTier = pricing.platform[state.platformTier];
-        if (platformTier) {
-            platformTotal += platformTier.base;
-            if (platformTier.includedUsers) {
-                if (state.platformUsers > platformTier.includedUsers) {
-                    platformTotal += (state.platformUsers - platformTier.includedUsers) * platformTier.user;
-                }
-            } else {
-                platformTotal += state.platformUsers * platformTier.user;
-            }
-        }
-        state.platformTotal = platformTotal;
-        elements.platformPrice.textContent = `${platformTotal}€`;
+        let total = 0;
 
-        // Laske Custom-hinta
-        let customTotal = 0;
-
-        // Marketing Hub
-        if (state.marketingTier !== 'none') {
-            const tier = pricing.marketing[state.marketingTier];
+        if (state.mode === 'platform') {
+            // Laske Platform-hinta
+            const tier = pricing.platform[state.platformTier];
             if (tier) {
-                customTotal += tier.base;
-                if (state.marketingUsers > 2) {
-                    customTotal += (state.marketingUsers - 2) * tier.user;
-                }
-                if (state.marketingContacts > 1000) {
-                    const contactBlocks = Math.ceil((state.marketingContacts - 1000) / 1000);
-                    customTotal += contactBlocks * tier.contact;
+                total += tier.base;
+                if (tier.includedUsers) {
+                    if (state.platformUsers > tier.includedUsers) {
+                        total += (state.platformUsers - tier.includedUsers) * tier.user;
+                    }
+                } else {
+                    total += state.platformUsers * tier.user;
                 }
             }
-        }
-
-        // Sales Hub
-        if (state.salesTier !== 'none') {
-            const tier = pricing.sales[state.salesTier];
-            if (tier) {
-                customTotal += state.salesUsers * tier.user;
-            }
-        }
-
-        // Service Hub
-        if (state.serviceTier !== 'none') {
-            const tier = pricing.service[state.serviceTier];
-            if (tier) {
-                customTotal += state.serviceUsers * tier.user;
-            }
-        }
-
-        // Content Hub
-        if (state.contentTier !== 'none') {
-            const tier = pricing.content[state.contentTier];
-            if (tier) {
-                customTotal += tier.base;
-                if (state.contentUsers > 5) {
-                    customTotal += (state.contentUsers - 5) * tier.user;
+            elements.priceTitle.textContent = 'HubSpot Platform -hinta';
+        } else {
+            // Laske Custom-hinta
+            // Marketing Hub
+            if (state.marketingTier !== 'none') {
+                const tier = pricing.marketing[state.marketingTier];
+                if (tier) {
+                    total += tier.base;
+                    if (state.marketingUsers > 2) {
+                        total += (state.marketingUsers - 2) * tier.user;
+                    }
+                    if (state.marketingContacts > 1000) {
+                        const contactBlocks = Math.ceil((state.marketingContacts - 1000) / 1000);
+                        total += contactBlocks * tier.contact;
+                    }
                 }
             }
-        }
 
-        // Operations Hub
-        if (state.operationsTier !== 'none') {
-            const tier = pricing.operations[state.operationsTier];
-            if (tier) {
-                customTotal += tier.base;
-                if (state.operationsUsers > 1) {
-                    customTotal += (state.operationsUsers - 1) * tier.user;
+            // Sales Hub
+            if (state.salesTier !== 'none') {
+                const tier = pricing.sales[state.salesTier];
+                if (tier) {
+                    total += state.salesUsers * tier.user;
                 }
             }
+
+            // Service Hub
+            if (state.serviceTier !== 'none') {
+                const tier = pricing.service[state.serviceTier];
+                if (tier) {
+                    total += state.serviceUsers * tier.user;
+                }
+            }
+
+            // Content Hub
+            if (state.contentTier !== 'none') {
+                const tier = pricing.content[state.contentTier];
+                if (tier) {
+                    total += tier.base;
+                    if (state.contentUsers > 5) {
+                        total += (state.contentUsers - 5) * tier.user;
+                    }
+                }
+            }
+
+            // Operations Hub
+            if (state.operationsTier !== 'none') {
+                const tier = pricing.operations[state.operationsTier];
+                if (tier) {
+                    total += tier.base;
+                    if (state.operationsUsers > 1) {
+                        total += (state.operationsUsers - 1) * tier.user;
+                    }
+                }
+            }
+            elements.priceTitle.textContent = 'Mukautetun ratkaisun hinta';
         }
 
-        state.customTotal = customTotal;
-        elements.customPrice.textContent = `${customTotal}€`;
+        state.totalPrice = total;
+        elements.totalPrice.textContent = `${total}€`;
     }
 
     // Syötteiden validointi
@@ -169,7 +169,6 @@ document.addEventListener('DOMContentLoaded', function() {
         // Platform tab
         elements.platformTier.parentElement.style.display = isPlatform ? 'block' : 'none';
         elements.platformUsers.parentElement.style.display = isPlatform ? 'block' : 'none';
-        document.querySelector('#platform-section .result-card').style.display = isPlatform ? 'block' : 'none';
 
         // Custom tab
         elements.marketingTier.parentElement.style.display = isCustom ? 'block' : 'none';
@@ -187,7 +186,6 @@ document.addEventListener('DOMContentLoaded', function() {
 
         elements.operationsTier.parentElement.style.display = isCustom ? 'block' : 'none';
         elements.operationsUsers.parentElement.style.display = isCustom && state.operationsTier !== 'none' ? 'block' : 'none';
-        document.querySelector('#custom-section .result-card').style.display = isCustom ? 'block' : 'none';
     }
 
     // Tapahtumankuuntelijat
@@ -208,6 +206,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 
                 // Nollaa arvot
                 if (tab === 'platform') {
+                    // Nollaa custom-tabin arvot
                     state.marketingTier = 'none';
                     state.salesTier = 'none';
                     state.serviceTier = 'none';
@@ -219,9 +218,20 @@ document.addEventListener('DOMContentLoaded', function() {
                     state.serviceUsers = 1;
                     state.contentUsers = 1;
                     state.operationsUsers = 1;
+                    
+                    // Päivitä pudotusvalikot
+                    elements.marketingTier.value = 'none';
+                    elements.salesTier.value = 'none';
+                    elements.serviceTier.value = 'none';
+                    elements.contentTier.value = 'none';
+                    elements.operationsTier.value = 'none';
                 } else {
+                    // Nollaa platform-tabin arvot
                     state.platformTier = 'starter';
                     state.platformUsers = 1;
+                    
+                    // Päivitä pudotusvalikko
+                    elements.platformTier.value = 'starter';
                 }
                 
                 updateInputVisibility();
@@ -245,6 +255,8 @@ document.addEventListener('DOMContentLoaded', function() {
             if (state.marketingTier === 'none') {
                 state.marketingUsers = 1;
                 state.marketingContacts = 1000;
+                elements.marketingUsers.value = 1;
+                elements.marketingContacts.value = 1000;
             }
             updateInputVisibility();
             calculatePrice();
@@ -263,6 +275,7 @@ document.addEventListener('DOMContentLoaded', function() {
             state.salesTier = this.value;
             if (state.salesTier === 'none') {
                 state.salesUsers = 1;
+                elements.salesUsers.value = 1;
             }
             updateInputVisibility();
             calculatePrice();
@@ -277,6 +290,7 @@ document.addEventListener('DOMContentLoaded', function() {
             state.serviceTier = this.value;
             if (state.serviceTier === 'none') {
                 state.serviceUsers = 1;
+                elements.serviceUsers.value = 1;
             }
             updateInputVisibility();
             calculatePrice();
@@ -291,6 +305,7 @@ document.addEventListener('DOMContentLoaded', function() {
             state.contentTier = this.value;
             if (state.contentTier === 'none') {
                 state.contentUsers = 1;
+                elements.contentUsers.value = 1;
             }
             updateInputVisibility();
             calculatePrice();
@@ -305,6 +320,7 @@ document.addEventListener('DOMContentLoaded', function() {
             state.operationsTier = this.value;
             if (state.operationsTier === 'none') {
                 state.operationsUsers = 1;
+                elements.operationsUsers.value = 1;
             }
             updateInputVisibility();
             calculatePrice();
