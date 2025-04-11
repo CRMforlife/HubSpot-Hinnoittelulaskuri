@@ -1,38 +1,36 @@
 /* Hinnan näyttö */
 .price-display {
-    margin-top: 20px;
-    margin-bottom: 20px;
-    padding: 15px;
+    margin: 20px auto;
+    padding: 20px;
     background-color: #f8f9fa;
-    border-radius: 8px;
+    border-radius: 10px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
     text-align: center;
-    position: relative;
-    top: -20px; /* Siirrä hinta ylemmäs */
+    max-width: 400px;
 }
 
 .price-display h2 {
     color: #333;
-    margin-bottom: 5px;
+    margin-bottom: 10px;
+    font-size: 1.2em;
 }
 
 .price-display .price {
-    font-size: 2em;
+    font-size: 2.5em;
     font-weight: bold;
     color: #ff7a59;
 }
 
 /* Välilehdet */
 .tabs {
+    margin-top: 30px;
     display: flex;
     justify-content: center;
-    margin-bottom: 20px;
-    position: relative;
-    top: -10px; /* Siirrä välilehdet ylemmäs */
+    gap: 20px;
 }
 
 .tab-button {
-    padding: 10px 20px;
-    margin: 0 10px;
+    padding: 12px 24px;
     border: none;
     background: none;
     cursor: pointer;
@@ -51,10 +49,23 @@
 .tab-content {
     display: none;
     padding: 20px;
-    position: relative;
-    top: -20px; /* Siirrä sisältö ylemmäs */
+    margin-top: 20px;
 }
 
 .tab-content.active {
     display: block;
+}
+
+/* Container */
+.container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 20px;
+}
+
+/* Yleiset tyylit */
+h1 {
+    text-align: center;
+    color: #333;
+    margin-bottom: 30px;
 } 

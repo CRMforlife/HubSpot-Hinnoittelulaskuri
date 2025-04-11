@@ -3,34 +3,106 @@ document.addEventListener('DOMContentLoaded', function() {
     // Hinnoittelutiedot
     const pricing = {
         platform: {
-            starter: { base: 0, user: 15 },
-            professional: { base: 1283, includedUsers: 5, user: 45 },
-            enterprise: { base: 3200, includedUsers: 7, user: 75 }
+            starter: {
+                base: 0,
+                user: 15,
+                includedUsers: 0
+            },
+            professional: {
+                base: 1283,
+                user: 45,
+                includedUsers: 5
+            },
+            enterprise: {
+                base: 3200,
+                user: 75,
+                includedUsers: 7
+            }
         },
         marketing: {
-            starter: { base: 0, user: 0, contact: 46 },
-            professional: { base: 792, user: 45, contact: 46 },
-            enterprise: { base: 3200, user: 45, contact: 46 }
+            starter: {
+                base: 50,
+                user: 45,
+                contact: 46,
+                includedUsers: 1,
+                includedContacts: 1000
+            },
+            professional: {
+                base: 792,
+                user: 45,
+                contact: 46,
+                includedUsers: 5,
+                includedContacts: 1000
+            },
+            enterprise: {
+                base: 3200,
+                user: 75,
+                contact: 46,
+                includedUsers: 10,
+                includedContacts: 1000
+            }
         },
         sales: {
-            starter: { base: 0, user: 0 },
-            professional: { base: 0, user: 90 },
-            enterprise: { base: 0, user: 90 }
+            starter: {
+                base: 50,
+                user: 45
+            },
+            professional: {
+                base: 0,
+                user: 90
+            },
+            enterprise: {
+                base: 1200,
+                user: 120
+            }
         },
         service: {
-            starter: { base: 0, user: 15 },
-            professional: { base: 0, user: 90 },
-            enterprise: { base: 0, user: 90 }
+            starter: {
+                base: 50,
+                user: 45
+            },
+            professional: {
+                base: 0,
+                user: 90
+            },
+            enterprise: {
+                base: 1200,
+                user: 120
+            }
         },
         content: {
-            starter: { base: 0, user: 0 },
-            professional: { base: 441, user: 75 },
-            enterprise: { base: 3200, user: 75 }
+            starter: {
+                base: 270,
+                user: 45,
+                includedUsers: 1
+            },
+            professional: {
+                base: 441,
+                user: 75,
+                includedUsers: 1
+            },
+            enterprise: {
+                base: 1200,
+                user: 120,
+                includedUsers: 1
+            }
         },
         operations: {
-            starter: { base: 0, user: 0 },
-            professional: { base: 711, user: 45 },
-            enterprise: { base: 3200, user: 45 }
+            starter: {
+                base: 50,
+                user: 45,
+                includedUsers: 1
+            },
+            professional: {
+                base: 711,
+                user: 45,
+                includedUsers: 1
+            },
+            enterprise: {
+                base: 2000,
+                user: 90,
+                includedUsers: 1
+            }
         }
     };
 
@@ -82,52 +154,29 @@ document.addEventListener('DOMContentLoaded', function() {
             if (state.platformTier === 'starter') {
                 // Starter: 15€/käyttäjä
                 totalPrice = state.platformUsers * platform.user;
-            } else if (state.platformTier === 'professional') {
-                // Professional: 5 käyttäjää sisältyy, lisäkäyttäjät 45€/kpl
-                const includedUsers = 5;
-                if (state.platformUsers > includedUsers) {
-                    totalPrice = platform.base + ((state.platformUsers - includedUsers) * platform.user);
-                } else {
-                    totalPrice = platform.base;
-                }
-            } else if (state.platformTier === 'enterprise') {
-                // Enterprise: 7 käyttäjää sisältyy, lisäkäyttäjät 75€/kpl
-                const includedUsers = 7;
-                if (state.platformUsers > includedUsers) {
-                    totalPrice = platform.base + ((state.platformUsers - includedUsers) * platform.user);
-                } else {
-                    totalPrice = platform.base;
+            } else {
+                // Professional ja Enterprise
+                totalPrice = platform.base;
+                if (state.platformUsers > platform.includedUsers) {
+                    totalPrice += (state.platformUsers - platform.includedUsers) * platform.user;
                 }
             }
         } else {
             // Marketing Hub
             if (state.marketingTier !== 'none') {
                 const marketing = pricing.marketing[state.marketingTier];
-                if (state.marketingTier === 'professional') {
-                    // Professional sisältää 5 käyttäjää
-                    const includedUsers = 5;
-                    let userCost = 0;
-                    if (state.marketingUsers > includedUsers) {
-                        userCost = (state.marketingUsers - includedUsers) * marketing.user;
-                    }
-                    
-                    // Laske kontaktien määrän perusteella lisähinta
-                    let contactCost = 0;
-                    if (state.marketingContacts > 1000) {
-                        const contactBlocks = Math.ceil((state.marketingContacts - 1000) / 1000);
-                        contactCost = contactBlocks * marketing.contact;
-                    }
-                    
-                    totalPrice += marketing.base + userCost + contactCost;
-                } else {
-                    // Starter-taso
-                    let userCost = (state.marketingUsers - 1) * marketing.user;
-                    let contactCost = 0;
-                    if (state.marketingContacts > 1000) {
-                        const contactBlocks = Math.ceil((state.marketingContacts - 1000) / 1000);
-                        contactCost = contactBlocks * marketing.contact;
-                    }
-                    totalPrice += marketing.base + userCost + contactCost;
+                totalPrice += marketing.base;
+                
+                // Käyttäjät
+                if (state.marketingUsers > marketing.includedUsers) {
+                    totalPrice += (state.marketingUsers - marketing.includedUsers) * marketing.user;
+                }
+                
+                // Kontaktit
+                if (state.marketingContacts > marketing.includedContacts) {
+                    const extraContacts = state.marketingContacts - marketing.includedContacts;
+                    const contactBlocks = Math.ceil(extraContacts / 1000);
+                    totalPrice += contactBlocks * marketing.contact;
                 }
             }
 
@@ -154,32 +203,18 @@ document.addEventListener('DOMContentLoaded', function() {
             // Content Hub
             if (state.contentTier !== 'none') {
                 const content = pricing.content[state.contentTier];
-                if (state.contentTier === 'professional') {
-                    // Professional sisältää 1 käyttäjän
-                    const includedUsers = 1;
-                    if (state.contentUsers > includedUsers) {
-                        totalPrice += content.base + ((state.contentUsers - includedUsers) * content.user);
-                    } else {
-                        totalPrice += content.base;
-                    }
-                } else {
-                    totalPrice += content.base + ((state.contentUsers - 1) * content.user);
+                totalPrice += content.base;
+                if (state.contentUsers > content.includedUsers) {
+                    totalPrice += (state.contentUsers - content.includedUsers) * content.user;
                 }
             }
 
             // Operations Hub
             if (state.operationsTier !== 'none') {
                 const operations = pricing.operations[state.operationsTier];
-                if (state.operationsTier === 'professional') {
-                    // Professional sisältää 1 käyttäjän
-                    const includedUsers = 1;
-                    if (state.operationsUsers > includedUsers) {
-                        totalPrice += operations.base + ((state.operationsUsers - includedUsers) * operations.user);
-                    } else {
-                        totalPrice += operations.base;
-                    }
-                } else {
-                    totalPrice += operations.base + ((state.operationsUsers - 1) * operations.user);
+                totalPrice += operations.base;
+                if (state.operationsUsers > operations.includedUsers) {
+                    totalPrice += (state.operationsUsers - operations.includedUsers) * operations.user;
                 }
             }
         }
