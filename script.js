@@ -175,8 +175,17 @@ document.addEventListener('DOMContentLoaded', function() {
                 // Kontaktit
                 if (state.marketingContacts > marketing.includedContacts) {
                     const extraContacts = state.marketingContacts - marketing.includedContacts;
-                    const contactBlocks = Math.ceil(extraContacts / 1000);
-                    totalPrice += contactBlocks * marketing.contact;
+                    let contactBlocks;
+                    if (state.marketingTier === 'starter') {
+                        contactBlocks = Math.ceil(extraContacts / 1000);
+                        totalPrice += contactBlocks * marketing.contact;
+                    } else if (state.marketingTier === 'professional') {
+                        contactBlocks = Math.ceil(extraContacts / 5000);
+                        totalPrice += contactBlocks * 250;
+                    } else if (state.marketingTier === 'enterprise') {
+                        contactBlocks = Math.ceil(extraContacts / 10000);
+                        totalPrice += contactBlocks * 92;
+                    }
                 }
             }
 
@@ -228,6 +237,14 @@ document.addEventListener('DOMContentLoaded', function() {
         let value = parseInt(input.value);
         if (isNaN(value) || value < min) value = min;
         if (value > max) value = max;
+        
+        // Special handling for marketing contacts based on tier
+        if (input.id === 'marketing-contacts') {
+            const marketingTier = state.marketingTier;
+            if (marketingTier === 'professional' && value < 5000) value = 5000;
+            if (marketingTier === 'enterprise' && value < 10000) value = 10000;
+        }
+        
         input.value = value;
         return value;
     }
@@ -352,7 +369,13 @@ document.addEventListener('DOMContentLoaded', function() {
             calculatePrice();
         });
         elements.marketingContacts.addEventListener('input', function() {
-            state.marketingContacts = validateInput(this, 1000, 1000000);
+            let minContacts = 1000;
+            if (state.marketingTier === 'professional') {
+                minContacts = 5000;
+            } else if (state.marketingTier === 'enterprise') {
+                minContacts = 10000;
+            }
+            state.marketingContacts = validateInput(this, minContacts, 1000000);
             calculatePrice();
         });
 

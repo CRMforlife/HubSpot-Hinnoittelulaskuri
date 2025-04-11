@@ -276,65 +276,46 @@ h1, h2, h3, h4, h5, h6 {
 
 /* Mobile styles */
 @media (max-width: 767px) {
+    .container {
+        padding: var(--spacing-sm);
+    }
+
+    .content-wrapper {
+        flex-direction: column;
+        gap: var(--spacing-md);
+    }
+
+    .calculator-form {
+        position: static;
+        width: 100%;
+    }
+
+    .form-group {
+        margin-bottom: var(--spacing-sm);
+    }
+
+    .form-group select,
+    .form-group input[type="number"] {
+        padding: 0.5rem;
+        font-size: 0.9rem;
+    }
+
     .tooltip-trigger {
-        width: 32px;
-        height: 32px;
+        width: 20px;
+        height: 20px;
+        font-size: 0.8rem;
+    }
+
+    .price-display {
+        margin: var(--spacing-sm) 0;
+    }
+
+    .price-display h2 {
         font-size: 1.2rem;
     }
 
-    .tooltip-trigger[data-tooltip]::before {
-        content: '';
-        position: fixed;
-        top: 0;
-        left: 0;
-        right: 0;
-        bottom: 0;
-        background-color: rgba(0, 0, 0, 0.5);
-        opacity: 0;
-        visibility: hidden;
-        transition: all 0.2s ease;
-        z-index: 999;
-    }
-
-    .tooltip-trigger[data-tooltip]::after {
-        position: fixed;
-        left: var(--spacing-sm);
-        right: var(--spacing-sm);
-        bottom: var(--spacing-sm);
-        width: auto;
-        max-height: 40vh;
-        overflow-y: auto;
-        margin: 0;
-        padding: var(--spacing-md);
-        background-color: var(--primary-color);
-        border-radius: var(--border-radius-md);
-        font-size: 1rem;
-        line-height: 1.6;
-        box-shadow: var(--shadow-lg);
-        transform: translateY(100%);
-        z-index: 1000;
-    }
-
-    .tooltip-trigger[data-tooltip].active::before {
-        opacity: 1;
-        visibility: visible;
-    }
-
-    .tooltip-trigger[data-tooltip].active::after {
-        opacity: 1;
-        visibility: visible;
-        transform: translateY(0);
-    }
-
-    /* Ensure form elements stay above tooltip backdrop */
-    .form-group {
-        position: relative;
-        z-index: 1;
-    }
-
-    /* Ensure active tooltip stays above everything */
-    .tooltip-trigger.active {
-        z-index: 1001;
+    .price-display .price {
+        font-size: 1.8rem;
     }
 }
 
@@ -346,12 +327,11 @@ h1, h2, h3, h4, h5, h6 {
 }
 
 .number-input-wrapper input[type="number"] {
-    text-align: center;
-    -webkit-appearance: textfield;
-    -moz-appearance: textfield;
-    appearance: textfield;
-    padding-left: 2.5rem;
+    width: 100%;
     padding-right: 2.5rem;
+    -moz-appearance: textfield;
+    -webkit-appearance: textfield;
+    appearance: textfield;
 }
 
 .number-input-wrapper input[type="number"]::-webkit-outer-spin-button,
@@ -362,35 +342,37 @@ h1, h2, h3, h4, h5, h6 {
 
 .number-btn {
     position: absolute;
+    right: 0;
+    width: 2rem;
+    height: 50%;
+    background-color: var(--primary-light);
+    color: var(--primary-color);
+    border: none;
+    font-size: 1rem;
+    cursor: pointer;
     display: flex;
     align-items: center;
     justify-content: center;
-    width: 2rem;
-    height: 100%;
-    background: none;
-    border: none;
-    color: var(--primary-color);
-    font-size: 1.25rem;
-    cursor: pointer;
     transition: all 0.2s ease;
-    padding: 0;
 }
 
 .number-btn:hover {
-    color: var(--primary-dark);
+    background-color: var(--primary-color);
+    color: white;
 }
 
 .number-btn:focus {
     outline: none;
-    color: var(--primary-dark);
 }
 
 .number-btn.decrement {
-    left: 0;
+    bottom: 0;
+    border-bottom-right-radius: var(--border-radius-sm);
 }
 
 .number-btn.increment {
-    right: 0;
+    top: 0;
+    border-top-right-radius: var(--border-radius-sm);
 }
 
 /* Result Card */
