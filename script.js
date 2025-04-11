@@ -3,9 +3,9 @@ document.addEventListener('DOMContentLoaded', function() {
     // Hinnoittelutiedot
     const pricing = {
         platform: {
-            starter: { base: 0, user: 0 },
-            professional: { base: 1283, user: 45 },
-            enterprise: { base: 3200, user: 45 }
+            starter: { base: 0, user: 15 },
+            professional: { base: 1283, includedUsers: 5, user: 45 },
+            enterprise: { base: 3200, includedUsers: 7, user: 75 }
         },
         marketing: {
             starter: { base: 0, user: 0, contact: 0 },
@@ -80,8 +80,14 @@ document.addEventListener('DOMContentLoaded', function() {
             const tier = pricing.platform[state.platformTier];
             if (tier) {
                 total += tier.base;
-                if (state.platformUsers > 2) {
-                    total += (state.platformUsers - 2) * tier.user;
+                if (tier.includedUsers) {
+                    // Professional ja Enterprise -paketit sisältävät käyttäjiä
+                    if (state.platformUsers > tier.includedUsers) {
+                        total += (state.platformUsers - tier.includedUsers) * tier.user;
+                    }
+                } else {
+                    // Starter-paketti laskutetaan per käyttäjä
+                    total += state.platformUsers * tier.user;
                 }
             }
         } else {
