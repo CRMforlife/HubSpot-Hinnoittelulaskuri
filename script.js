@@ -73,83 +73,110 @@ document.addEventListener('DOMContentLoaded', function() {
         totalPrice: 0
     };
 
-    // Hinnan laskenta
+    // Hinnanlaskenta
     function calculatePrice() {
-        let total = 0;
-
+        let totalPrice = 0;
+        
         if (state.mode === 'platform') {
-            // Laske Platform-hinta
-            const tier = pricing.platform[state.platformTier];
-            if (tier) {
-                total += tier.base;
-                if (tier.includedUsers) {
-                    if (state.platformUsers > tier.includedUsers) {
-                        total += (state.platformUsers - tier.includedUsers) * tier.user;
-                    }
+            const platform = pricing.platform[state.platformTier];
+            if (state.platformTier === 'starter') {
+                totalPrice = platform.basePrice + (state.platformUsers * platform.userCost);
+            } else {
+                // Professional ja Enterprise sisältävät käyttäjiä
+                const includedUsers = platform.includedUsers;
+                if (state.platformUsers > includedUsers) {
+                    totalPrice = platform.basePrice + ((state.platformUsers - includedUsers) * platform.userCost);
                 } else {
-                    total += state.platformUsers * tier.user;
+                    totalPrice = platform.basePrice;
                 }
             }
-            elements.priceTitle.textContent = 'HubSpot Platform -hinta';
         } else {
-            // Laske Custom-hinta
             // Marketing Hub
             if (state.marketingTier !== 'none') {
-                const tier = pricing.marketing[state.marketingTier];
-                if (tier) {
-                    total += tier.base;
-                    if (state.marketingUsers > 2) {
-                        total += (state.marketingUsers - 2) * tier.user;
+                const marketing = pricing.marketing[state.marketingTier];
+                if (state.marketingTier === 'professional') {
+                    // Professional sisältää 5 käyttäjää
+                    const includedUsers = 5;
+                    let userCost = 0;
+                    if (state.marketingUsers > includedUsers) {
+                        userCost = (state.marketingUsers - includedUsers) * marketing.userCost;
                     }
+                    
+                    // Laske kontaktien määrän perusteella lisähinta
+                    let contactCost = 0;
                     if (state.marketingContacts > 1000) {
                         const contactBlocks = Math.ceil((state.marketingContacts - 1000) / 1000);
-                        total += contactBlocks * tier.contact;
+                        contactCost = contactBlocks * marketing.contactCost;
                     }
+                    
+                    totalPrice += marketing.basePrice + userCost + contactCost;
+                } else {
+                    // Starter-taso
+                    let userCost = (state.marketingUsers - 1) * marketing.userCost;
+                    let contactCost = 0;
+                    if (state.marketingContacts > 1000) {
+                        const contactBlocks = Math.ceil((state.marketingContacts - 1000) / 1000);
+                        contactCost = contactBlocks * marketing.contactCost;
+                    }
+                    totalPrice += marketing.basePrice + userCost + contactCost;
                 }
             }
 
             // Sales Hub
             if (state.salesTier !== 'none') {
-                const tier = pricing.sales[state.salesTier];
-                if (tier) {
-                    total += state.salesUsers * tier.user;
+                const sales = pricing.sales[state.salesTier];
+                if (state.salesTier === 'professional') {
+                    totalPrice += state.salesUsers * sales.userCost;
+                } else {
+                    totalPrice += sales.basePrice + ((state.salesUsers - 1) * sales.userCost);
                 }
             }
 
             // Service Hub
             if (state.serviceTier !== 'none') {
-                const tier = pricing.service[state.serviceTier];
-                if (tier) {
-                    total += state.serviceUsers * tier.user;
+                const service = pricing.service[state.serviceTier];
+                if (state.serviceTier === 'professional') {
+                    totalPrice += state.serviceUsers * service.userCost;
+                } else {
+                    totalPrice += service.basePrice + ((state.serviceUsers - 1) * service.userCost);
                 }
             }
 
             // Content Hub
             if (state.contentTier !== 'none') {
-                const tier = pricing.content[state.contentTier];
-                if (tier) {
-                    total += tier.base;
-                    if (state.contentUsers > 5) {
-                        total += (state.contentUsers - 5) * tier.user;
+                const content = pricing.content[state.contentTier];
+                if (state.contentTier === 'professional') {
+                    // Professional sisältää 1 käyttäjän
+                    const includedUsers = 1;
+                    if (state.contentUsers > includedUsers) {
+                        totalPrice += content.basePrice + ((state.contentUsers - includedUsers) * content.userCost);
+                    } else {
+                        totalPrice += content.basePrice;
                     }
+                } else {
+                    totalPrice += content.basePrice + ((state.contentUsers - 1) * content.userCost);
                 }
             }
 
             // Operations Hub
             if (state.operationsTier !== 'none') {
-                const tier = pricing.operations[state.operationsTier];
-                if (tier) {
-                    total += tier.base;
-                    if (state.operationsUsers > 1) {
-                        total += (state.operationsUsers - 1) * tier.user;
+                const operations = pricing.operations[state.operationsTier];
+                if (state.operationsTier === 'professional') {
+                    // Professional sisältää 1 käyttäjän
+                    const includedUsers = 1;
+                    if (state.operationsUsers > includedUsers) {
+                        totalPrice += operations.basePrice + ((state.operationsUsers - includedUsers) * operations.userCost);
+                    } else {
+                        totalPrice += operations.basePrice;
                     }
+                } else {
+                    totalPrice += operations.basePrice + ((state.operationsUsers - 1) * operations.userCost);
                 }
             }
-            elements.priceTitle.textContent = 'Mukautetun ratkaisun hinta';
         }
 
-        state.totalPrice = total;
-        elements.totalPrice.textContent = `${total}€`;
+        // Päivitä hinta näytölle
+        elements.totalPrice.textContent = `${totalPrice}€/kk`;
     }
 
     // Syötteiden validointi
@@ -163,29 +190,35 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // Syötekenttien näkyvyyden päivitys
     function updateInputVisibility() {
-        const isPlatform = state.mode === 'platform';
-        const isCustom = !isPlatform;
+        // Marketing Hub
+        const marketingInputs = document.querySelectorAll('.marketing-input');
+        marketingInputs.forEach(input => {
+            input.style.display = state.marketingTier !== 'none' ? 'block' : 'none';
+        });
 
-        // Platform tab
-        elements.platformTier.parentElement.style.display = isPlatform ? 'block' : 'none';
-        elements.platformUsers.parentElement.style.display = isPlatform ? 'block' : 'none';
+        // Sales Hub
+        const salesInputs = document.querySelectorAll('.sales-input');
+        salesInputs.forEach(input => {
+            input.style.display = state.salesTier !== 'none' ? 'block' : 'none';
+        });
 
-        // Custom tab
-        elements.marketingTier.parentElement.style.display = isCustom ? 'block' : 'none';
-        elements.marketingUsers.parentElement.style.display = isCustom && state.marketingTier !== 'none' ? 'block' : 'none';
-        elements.marketingContacts.parentElement.style.display = isCustom && state.marketingTier !== 'none' ? 'block' : 'none';
+        // Service Hub
+        const serviceInputs = document.querySelectorAll('.service-input');
+        serviceInputs.forEach(input => {
+            input.style.display = state.serviceTier !== 'none' ? 'block' : 'none';
+        });
 
-        elements.salesTier.parentElement.style.display = isCustom ? 'block' : 'none';
-        elements.salesUsers.parentElement.style.display = isCustom && state.salesTier !== 'none' ? 'block' : 'none';
+        // Content Hub
+        const contentInputs = document.querySelectorAll('.content-input');
+        contentInputs.forEach(input => {
+            input.style.display = state.contentTier !== 'none' ? 'block' : 'none';
+        });
 
-        elements.serviceTier.parentElement.style.display = isCustom ? 'block' : 'none';
-        elements.serviceUsers.parentElement.style.display = isCustom && state.serviceTier !== 'none' ? 'block' : 'none';
-
-        elements.contentTier.parentElement.style.display = isCustom ? 'block' : 'none';
-        elements.contentUsers.parentElement.style.display = isCustom && state.contentTier !== 'none' ? 'block' : 'none';
-
-        elements.operationsTier.parentElement.style.display = isCustom ? 'block' : 'none';
-        elements.operationsUsers.parentElement.style.display = isCustom && state.operationsTier !== 'none' ? 'block' : 'none';
+        // Operations Hub
+        const operationsInputs = document.querySelectorAll('.operations-input');
+        operationsInputs.forEach(input => {
+            input.style.display = state.operationsTier !== 'none' ? 'block' : 'none';
+        });
     }
 
     // Tapahtumankuuntelijat
