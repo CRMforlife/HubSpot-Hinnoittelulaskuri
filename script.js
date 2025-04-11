@@ -80,10 +80,19 @@ document.addEventListener('DOMContentLoaded', function() {
         if (state.mode === 'platform') {
             const platform = pricing.platform[state.platformTier];
             if (state.platformTier === 'starter') {
-                totalPrice = platform.basePrice + (state.platformUsers * platform.userCost);
-            } else {
-                // Professional ja Enterprise sisältävät käyttäjiä
-                const includedUsers = platform.includedUsers;
+                // Starter: 15€/käyttäjä
+                totalPrice = state.platformUsers * platform.userCost;
+            } else if (state.platformTier === 'professional') {
+                // Professional: 5 käyttäjää sisältyy, lisäkäyttäjät 45€/kpl
+                const includedUsers = 5;
+                if (state.platformUsers > includedUsers) {
+                    totalPrice = platform.basePrice + ((state.platformUsers - includedUsers) * platform.userCost);
+                } else {
+                    totalPrice = platform.basePrice;
+                }
+            } else if (state.platformTier === 'enterprise') {
+                // Enterprise: 7 käyttäjää sisältyy, lisäkäyttäjät 75€/kpl
+                const includedUsers = 7;
                 if (state.platformUsers > includedUsers) {
                     totalPrice = platform.basePrice + ((state.platformUsers - includedUsers) * platform.userCost);
                 } else {
