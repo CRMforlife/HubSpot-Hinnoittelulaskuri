@@ -81,22 +81,22 @@ document.addEventListener('DOMContentLoaded', function() {
             const platform = pricing.platform[state.platformTier];
             if (state.platformTier === 'starter') {
                 // Starter: 15€/käyttäjä
-                totalPrice = state.platformUsers * platform.userCost;
+                totalPrice = state.platformUsers * platform.user;
             } else if (state.platformTier === 'professional') {
                 // Professional: 5 käyttäjää sisältyy, lisäkäyttäjät 45€/kpl
                 const includedUsers = 5;
                 if (state.platformUsers > includedUsers) {
-                    totalPrice = platform.basePrice + ((state.platformUsers - includedUsers) * platform.userCost);
+                    totalPrice = platform.base + ((state.platformUsers - includedUsers) * platform.user);
                 } else {
-                    totalPrice = platform.basePrice;
+                    totalPrice = platform.base;
                 }
             } else if (state.platformTier === 'enterprise') {
                 // Enterprise: 7 käyttäjää sisältyy, lisäkäyttäjät 75€/kpl
                 const includedUsers = 7;
                 if (state.platformUsers > includedUsers) {
-                    totalPrice = platform.basePrice + ((state.platformUsers - includedUsers) * platform.userCost);
+                    totalPrice = platform.base + ((state.platformUsers - includedUsers) * platform.user);
                 } else {
-                    totalPrice = platform.basePrice;
+                    totalPrice = platform.base;
                 }
             }
         } else {
@@ -108,26 +108,26 @@ document.addEventListener('DOMContentLoaded', function() {
                     const includedUsers = 5;
                     let userCost = 0;
                     if (state.marketingUsers > includedUsers) {
-                        userCost = (state.marketingUsers - includedUsers) * marketing.userCost;
+                        userCost = (state.marketingUsers - includedUsers) * marketing.user;
                     }
                     
                     // Laske kontaktien määrän perusteella lisähinta
                     let contactCost = 0;
                     if (state.marketingContacts > 1000) {
                         const contactBlocks = Math.ceil((state.marketingContacts - 1000) / 1000);
-                        contactCost = contactBlocks * marketing.contactCost;
+                        contactCost = contactBlocks * marketing.contact;
                     }
                     
-                    totalPrice += marketing.basePrice + userCost + contactCost;
+                    totalPrice += marketing.base + userCost + contactCost;
                 } else {
                     // Starter-taso
-                    let userCost = (state.marketingUsers - 1) * marketing.userCost;
+                    let userCost = (state.marketingUsers - 1) * marketing.user;
                     let contactCost = 0;
                     if (state.marketingContacts > 1000) {
                         const contactBlocks = Math.ceil((state.marketingContacts - 1000) / 1000);
-                        contactCost = contactBlocks * marketing.contactCost;
+                        contactCost = contactBlocks * marketing.contact;
                     }
-                    totalPrice += marketing.basePrice + userCost + contactCost;
+                    totalPrice += marketing.base + userCost + contactCost;
                 }
             }
 
@@ -135,9 +135,9 @@ document.addEventListener('DOMContentLoaded', function() {
             if (state.salesTier !== 'none') {
                 const sales = pricing.sales[state.salesTier];
                 if (state.salesTier === 'professional') {
-                    totalPrice += state.salesUsers * sales.userCost;
+                    totalPrice += state.salesUsers * sales.user;
                 } else {
-                    totalPrice += sales.basePrice + ((state.salesUsers - 1) * sales.userCost);
+                    totalPrice += sales.base + ((state.salesUsers - 1) * sales.user);
                 }
             }
 
@@ -145,9 +145,9 @@ document.addEventListener('DOMContentLoaded', function() {
             if (state.serviceTier !== 'none') {
                 const service = pricing.service[state.serviceTier];
                 if (state.serviceTier === 'professional') {
-                    totalPrice += state.serviceUsers * service.userCost;
+                    totalPrice += state.serviceUsers * service.user;
                 } else {
-                    totalPrice += service.basePrice + ((state.serviceUsers - 1) * service.userCost);
+                    totalPrice += service.base + ((state.serviceUsers - 1) * service.user);
                 }
             }
 
@@ -158,12 +158,12 @@ document.addEventListener('DOMContentLoaded', function() {
                     // Professional sisältää 1 käyttäjän
                     const includedUsers = 1;
                     if (state.contentUsers > includedUsers) {
-                        totalPrice += content.basePrice + ((state.contentUsers - includedUsers) * content.userCost);
+                        totalPrice += content.base + ((state.contentUsers - includedUsers) * content.user);
                     } else {
-                        totalPrice += content.basePrice;
+                        totalPrice += content.base;
                     }
                 } else {
-                    totalPrice += content.basePrice + ((state.contentUsers - 1) * content.userCost);
+                    totalPrice += content.base + ((state.contentUsers - 1) * content.user);
                 }
             }
 
@@ -174,12 +174,12 @@ document.addEventListener('DOMContentLoaded', function() {
                     // Professional sisältää 1 käyttäjän
                     const includedUsers = 1;
                     if (state.operationsUsers > includedUsers) {
-                        totalPrice += operations.basePrice + ((state.operationsUsers - includedUsers) * operations.userCost);
+                        totalPrice += operations.base + ((state.operationsUsers - includedUsers) * operations.user);
                     } else {
-                        totalPrice += operations.basePrice;
+                        totalPrice += operations.base;
                     }
                 } else {
-                    totalPrice += operations.basePrice + ((state.operationsUsers - 1) * operations.userCost);
+                    totalPrice += operations.base + ((state.operationsUsers - 1) * operations.user);
                 }
             }
         }
@@ -267,6 +267,14 @@ document.addEventListener('DOMContentLoaded', function() {
                     elements.serviceTier.value = 'none';
                     elements.contentTier.value = 'none';
                     elements.operationsTier.value = 'none';
+                    
+                    // Päivitä syöttökentät
+                    elements.marketingUsers.value = 1;
+                    elements.marketingContacts.value = 1000;
+                    elements.salesUsers.value = 1;
+                    elements.serviceUsers.value = 1;
+                    elements.contentUsers.value = 1;
+                    elements.operationsUsers.value = 1;
                 } else {
                     // Nollaa platform-tabin arvot
                     state.platformTier = 'starter';
@@ -274,6 +282,7 @@ document.addEventListener('DOMContentLoaded', function() {
                     
                     // Päivitä pudotusvalikko
                     elements.platformTier.value = 'starter';
+                    elements.platformUsers.value = 1;
                 }
                 
                 updateInputVisibility();
