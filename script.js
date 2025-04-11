@@ -36,21 +36,21 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // DOM-elementit
     const elements = {
-        mode: document.getElementById('mode'),
-        platformTier: document.getElementById('platformTier'),
-        platformUsers: document.getElementById('platformUsers'),
-        marketingTier: document.getElementById('marketingTier'),
-        marketingUsers: document.getElementById('marketingUsers'),
-        marketingContacts: document.getElementById('marketingContacts'),
-        salesTier: document.getElementById('salesTier'),
-        salesUsers: document.getElementById('salesUsers'),
-        serviceTier: document.getElementById('serviceTier'),
-        serviceUsers: document.getElementById('serviceUsers'),
-        contentTier: document.getElementById('contentTier'),
-        contentUsers: document.getElementById('contentUsers'),
-        operationsTier: document.getElementById('operationsTier'),
-        operationsUsers: document.getElementById('operationsUsers'),
-        totalPrice: document.getElementById('totalPrice')
+        mode: document.querySelector('.tab-button'),
+        platformTier: document.getElementById('platform-tier'),
+        platformUsers: document.getElementById('platform-users'),
+        marketingTier: document.getElementById('marketing-tier'),
+        marketingUsers: document.getElementById('marketing-users'),
+        marketingContacts: document.getElementById('marketing-contacts'),
+        salesTier: document.getElementById('sales-tier'),
+        salesUsers: document.getElementById('sales-users'),
+        serviceTier: document.getElementById('service-tier'),
+        serviceUsers: document.getElementById('service-users'),
+        contentTier: document.getElementById('content-tier'),
+        contentUsers: document.getElementById('content-users'),
+        operationsTier: document.getElementById('operations-tier'),
+        operationsUsers: document.getElementById('operations-users'),
+        totalPrice: document.getElementById('total-price')
     };
 
     // Tila
@@ -182,19 +182,32 @@ document.addEventListener('DOMContentLoaded', function() {
     // Tapahtumankuuntelijat
     function initializeEventListeners() {
         // Tab-vaihto
-        elements.mode.addEventListener('change', function() {
-            state.mode = this.value;
-            if (state.mode === 'platform') {
-                state.marketingTier = 'none';
-                state.salesTier = 'none';
-                state.serviceTier = 'none';
-                state.contentTier = 'none';
-                state.operationsTier = 'none';
-            } else {
-                state.platformTier = 'starter';
-            }
-            updateInputVisibility();
-            calculatePrice();
+        document.querySelectorAll('.tab-button').forEach(button => {
+            button.addEventListener('click', function() {
+                const tab = this.getAttribute('data-tab');
+                state.mode = tab;
+                
+                // Päivitä aktiivinen välilehti
+                document.querySelectorAll('.tab-button').forEach(btn => btn.classList.remove('active'));
+                this.classList.add('active');
+                
+                // Päivitä näkyvät osiot
+                document.getElementById('platform-section').classList.toggle('active', tab === 'platform');
+                document.getElementById('custom-section').classList.toggle('active', tab === 'custom');
+                
+                if (tab === 'platform') {
+                    state.marketingTier = 'none';
+                    state.salesTier = 'none';
+                    state.serviceTier = 'none';
+                    state.contentTier = 'none';
+                    state.operationsTier = 'none';
+                } else {
+                    state.platformTier = 'starter';
+                }
+                
+                updateInputVisibility();
+                calculatePrice();
+            });
         });
 
         // Platform
