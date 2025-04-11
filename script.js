@@ -8,7 +8,7 @@ document.addEventListener('DOMContentLoaded', function() {
             enterprise: { base: 3200, includedUsers: 7, user: 75 }
         },
         marketing: {
-            starter: { base: 0, user: 0, contact: 0 },
+            starter: { base: 0, user: 0, contact: 46 },
             professional: { base: 792, user: 45, contact: 46 },
             enterprise: { base: 3200, user: 45, contact: 46 }
         },
@@ -81,12 +81,10 @@ document.addEventListener('DOMContentLoaded', function() {
             if (tier) {
                 total += tier.base;
                 if (tier.includedUsers) {
-                    // Professional ja Enterprise -paketit sisältävät käyttäjiä
                     if (state.platformUsers > tier.includedUsers) {
                         total += (state.platformUsers - tier.includedUsers) * tier.user;
                     }
                 } else {
-                    // Starter-paketti laskutetaan per käyttäjä
                     total += state.platformUsers * tier.user;
                 }
             }
@@ -201,14 +199,22 @@ document.addEventListener('DOMContentLoaded', function() {
                 document.getElementById('platform-section').classList.toggle('active', tab === 'platform');
                 document.getElementById('custom-section').classList.toggle('active', tab === 'custom');
                 
+                // Nollaa arvot
                 if (tab === 'platform') {
                     state.marketingTier = 'none';
                     state.salesTier = 'none';
                     state.serviceTier = 'none';
                     state.contentTier = 'none';
                     state.operationsTier = 'none';
+                    state.marketingUsers = 1;
+                    state.marketingContacts = 1000;
+                    state.salesUsers = 1;
+                    state.serviceUsers = 1;
+                    state.contentUsers = 1;
+                    state.operationsUsers = 1;
                 } else {
                     state.platformTier = 'starter';
+                    state.platformUsers = 1;
                 }
                 
                 updateInputVisibility();
@@ -302,81 +308,11 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
 
-    // Testausfunktiot
-    function testCalculator() {
-        console.log('Aloitetaan laskurin testaus...');
-        
-        // Testi 1: Platform Professional 10 käyttäjällä
-        state.mode = 'platform';
-        state.platformTier = 'professional';
-        state.platformUsers = 10;
-        calculatePrice();
-        console.log('Testi 1 - Platform Professional 10 käyttäjällä:', state.totalPrice);
-        // Odotettu: 1283€ + (8 × 45€) = 1643€
-        
-        // Testi 2: Marketing Professional 7 käyttäjällä ja 2000 kontaktilla
-        state.mode = 'custom';
-        state.marketingTier = 'professional';
-        state.marketingUsers = 7;
-        state.marketingContacts = 2000;
-        calculatePrice();
-        console.log('Testi 2 - Marketing Professional 7 käyttäjällä ja 2000 kontaktilla:', state.totalPrice);
-        // Odotettu: 792€ + (5 × 45€) + 46€ = 1063€
-        
-        // Testi 3: Sales Professional 5 käyttäjällä
-        state.salesTier = 'professional';
-        state.salesUsers = 5;
-        calculatePrice();
-        console.log('Testi 3 - Sales Professional 5 käyttäjällä:', state.totalPrice);
-        // Odotettu: 5 × 90€ = 450€
-        
-        // Testi 4: Service Professional 3 käyttäjällä
-        state.serviceTier = 'professional';
-        state.serviceUsers = 3;
-        calculatePrice();
-        console.log('Testi 4 - Service Professional 3 käyttäjällä:', state.totalPrice);
-        // Odotettu: 3 × 90€ = 270€
-        
-        // Testi 5: Content Professional 6 käyttäjällä
-        state.contentTier = 'professional';
-        state.contentUsers = 6;
-        calculatePrice();
-        console.log('Testi 5 - Content Professional 6 käyttäjällä:', state.totalPrice);
-        // Odotettu: 441€ + (1 × 75€) = 516€
-        
-        // Testi 6: Operations Professional 2 käyttäjällä
-        state.operationsTier = 'professional';
-        state.operationsUsers = 2;
-        calculatePrice();
-        console.log('Testi 6 - Operations Professional 2 käyttäjällä:', state.totalPrice);
-        // Odotettu: 711€ + (1 × 45€) = 756€
-        
-        // Testi 7: Yhdistetty ratkaisu
-        state.mode = 'custom';
-        state.marketingTier = 'professional';
-        state.marketingUsers = 6;
-        state.marketingContacts = 2000;
-        state.salesTier = 'professional';
-        state.salesUsers = 4;
-        state.serviceTier = 'starter';
-        state.serviceUsers = 2;
-        state.contentTier = 'professional';
-        state.contentUsers = 6;
-        state.operationsTier = 'professional';
-        state.operationsUsers = 2;
-        calculatePrice();
-        console.log('Testi 7 - Yhdistetty ratkaisu:', state.totalPrice);
-        // Odotettu: 792€ + (4 × 45€) + 46€ + (4 × 90€) + (2 × 15€) + 441€ + (1 × 75€) + 711€ + (1 × 45€) = 2839€
-        
-        console.log('Laskurin testaus valmis!');
-    }
-
     // Alusta laskuri
     function initializeCalculator() {
         initializeEventListeners();
         updateInputVisibility();
         calculatePrice();
-        testCalculator(); // Suorita testit alustuksen yhteydessä
     }
 
     // Käynnistä laskuri
